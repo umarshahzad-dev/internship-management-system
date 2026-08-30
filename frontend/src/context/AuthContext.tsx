@@ -1,5 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
+import { loginRequest, logoutRequest, meRequest } from "../api/auth";
 
 export interface AuthUser {
   id: string;
@@ -13,6 +14,7 @@ export interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
+  csrfToken: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -22,29 +24,41 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // TODO: implement actual API calls in later batches
-  const login = async (_email: string, _password: string) => {
-    // placeholder
+  const refreshUser = async () => {
+    try {
+      const me = await meRequest();
+      setUser(me);
+    } catch {
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshUser();
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    const response = await loginRequest(email, password);
+    setUser(response.user);
+    setCsrfToken(response.csrfToken);
   };
 
   const logout = async () => {
-    // placeholder
+    if (csrfToken) {
+      await logoutRequest(csrfToken);
+    }
     setUser(null);
+    setCsrfToken(null);
   };
-
-  const refreshUser = async () => {
-    // placeholder
-    setIsLoading(false);
-  };
-
-  // Simulate initial loading completion
-  setTimeout(() => setIsLoading(false), 0);
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, login, logout, refreshUser }}
+      value={{ user, isLoading, csrfToken, login, logout, refreshUser }}
     >
       {children}
     </AuthContext.Provider>

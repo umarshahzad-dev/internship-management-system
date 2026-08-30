@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
+import { LoginPage } from "./pages/LoginPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 
 function App() {
   return (
@@ -9,15 +12,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
-          <Route path="/login" element={<PlaceholderPage title="Login" />} />
-          <Route
-            path="/forgot-password"
-            element={<PlaceholderPage title="Forgot Password" />}
-          />
-          <Route
-            path="/reset-password"
-            element={<PlaceholderPage title="Reset Password" />}
-          />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
