@@ -7,11 +7,13 @@ import { UserSecurityStateEntity } from '../database/entities/user-security-stat
 import { UserSecurityStateMapper } from '../mappers/user-security-state.mapper';
 
 @Injectable()
-export class UserSecurityStateRepository implements IUserSecurityStateRepository {
+export class UserSecurityStateRepository extends IUserSecurityStateRepository {
   constructor(
     @InjectRepository(UserSecurityStateEntity)
     private readonly securityStateRepository: Repository<UserSecurityStateEntity>,
-  ) {}
+  ) {
+    super();
+  }
 
   async findByUserId(userId: string): Promise<UserSecurityState | null> {
     const entity = await this.securityStateRepository.findOne({

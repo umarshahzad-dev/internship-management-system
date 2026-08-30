@@ -7,11 +7,13 @@ import { SessionEntity } from '../database/entities/session.entity';
 import { SessionMapper } from '../mappers/session.mapper';
 
 @Injectable()
-export class SessionRepository implements ISessionRepository {
+export class SessionRepository extends ISessionRepository {
   constructor(
     @InjectRepository(SessionEntity)
     private readonly sessionRepository: Repository<SessionEntity>,
-  ) {}
+  ) {
+    super();
+  }
 
   async findById(id: string): Promise<Session | null> {
     const entity = await this.sessionRepository.findOne({ where: { id } });

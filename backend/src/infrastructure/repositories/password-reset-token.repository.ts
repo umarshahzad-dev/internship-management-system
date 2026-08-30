@@ -7,11 +7,13 @@ import { PasswordResetTokenEntity } from '../database/entities/password-reset-to
 import { PasswordResetTokenMapper } from '../mappers/password-reset-token.mapper';
 
 @Injectable()
-export class PasswordResetTokenRepository implements IPasswordResetTokenRepository {
+export class PasswordResetTokenRepository extends IPasswordResetTokenRepository {
   constructor(
     @InjectRepository(PasswordResetTokenEntity)
     private readonly passwordResetTokenRepository: Repository<PasswordResetTokenEntity>,
-  ) {}
+  ) {
+    super();
+  }
 
   async findByTokenHash(tokenHash: string): Promise<PasswordResetToken | null> {
     const entity = await this.passwordResetTokenRepository.findOne({

@@ -7,11 +7,13 @@ import { RefreshTokenEntity } from '../database/entities/refresh-token.entity';
 import { RefreshTokenMapper } from '../mappers/refresh-token.mapper';
 
 @Injectable()
-export class RefreshTokenRepository implements IRefreshTokenRepository {
+export class RefreshTokenRepository extends IRefreshTokenRepository {
   constructor(
     @InjectRepository(RefreshTokenEntity)
     private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
-  ) {}
+  ) {
+    super();
+  }
 
   async findByTokenHash(tokenHash: string): Promise<RefreshToken | null> {
     const entity = await this.refreshTokenRepository.findOne({

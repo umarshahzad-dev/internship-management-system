@@ -7,11 +7,13 @@ import { DepartmentEntity } from '../database/entities/department.entity';
 import { DepartmentMapper } from '../mappers/department.mapper';
 
 @Injectable()
-export class DepartmentRepository implements IDepartmentRepository {
+export class DepartmentRepository extends IDepartmentRepository {
   constructor(
     @InjectRepository(DepartmentEntity)
     private readonly departmentRepository: Repository<DepartmentEntity>,
-  ) {}
+  ) {
+    super();
+  }
 
   async findById(id: string): Promise<Department | null> {
     const entity = await this.departmentRepository.findOne({ where: { id } });

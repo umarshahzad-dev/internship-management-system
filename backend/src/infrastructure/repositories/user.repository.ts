@@ -8,11 +8,13 @@ import { UserEntity } from '../database/entities/user.entity';
 import { UserMapper } from '../mappers/user.mapper';
 
 @Injectable()
-export class UserRepository implements IUserRepository {
+export class UserRepository extends IUserRepository {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-  ) {}
+  ) {
+    super();
+  }
 
   async findById(id: string): Promise<User | null> {
     const entity = await this.userRepository.findOne({ where: { id } });
