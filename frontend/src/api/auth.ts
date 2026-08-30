@@ -5,6 +5,10 @@ interface LoginResponse {
   csrfToken: string;
 }
 
+interface CsrfResponse {
+  csrfToken: string;
+}
+
 export async function loginRequest(
   email: string,
   password: string,
@@ -50,6 +54,20 @@ export async function meRequest(): Promise<AuthUser> {
   }
 
   return res.json();
+}
+
+export async function csrfRequest(): Promise<string> {
+  const res = await fetch("/api/v1/auth/csrf", {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch CSRF token");
+  }
+
+  const data: CsrfResponse = await res.json();
+  return data.csrfToken;
 }
 
 export async function forgotPasswordRequest(email: string): Promise<void> {

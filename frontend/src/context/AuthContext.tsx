@@ -1,6 +1,17 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import type { ReactNode } from "react";
-import { loginRequest, logoutRequest, meRequest } from "../api/auth";
+import {
+  loginRequest,
+  logoutRequest,
+  meRequest,
+  csrfRequest,
+} from "../api/auth";
 
 export interface AuthUser {
   id: string;
@@ -27,20 +38,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     try {
       const me = await meRequest();
       setUser(me);
+      try {
+        const token = await csrfRequest();
+        setCsrfToken(token);
+      } catch {
+        // If CSRF fetch fails, keep existing token (or null)
+        setCsrfToken(null);
+      }
     } catch {
       setUser(null);
+      setCsrfToken(null);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     refreshUser();
-  }, []);
+  }, [refreshUser]);
 
   const login = async (email: string, password: string) => {
     const response = await loginRequest(email, password);
