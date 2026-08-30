@@ -14,6 +14,7 @@ import { ISessionRepository } from '../../ports/session.repository.port';
 import { IRefreshTokenRepository } from '../../ports/refresh-token.repository.port';
 import { IDateProvider } from '../../ports/date-provider.port';
 import { IConfigProvider } from '../../ports/config-provider.port';
+import { DomainException } from '../../../common/exceptions/domain.exception';
 
 export interface LoginInput {
   email: string;
@@ -54,7 +55,11 @@ export class LoginUseCase {
     const email = new Email(input.email);
     const user = await this.userRepository.findByEmail(email);
     if (!user || !user.isActive) {
-      throw new Error('INVALID_CREDENTIALS');
+      throw new DomainException(
+        'INVALID_CREDENTIALS',
+        'Invalid email or password',
+        401,
+      );
     }
 
     const now = this.dateProvider.now();
@@ -63,7 +68,11 @@ export class LoginUseCase {
       user.id,
     );
     if (securityState && securityState.isLocked(now)) {
-      throw new Error('ACCOUNT_LOCKED');
+      throw new DomainException(
+        'ACCOUNT_LOCKED',
+        'Account is temporarily locked',
+        423,
+      );
     }
 
     const passwordValid = await this.passwordHasher.verify(
@@ -89,7 +98,11 @@ export class LoginUseCase {
         state.lockUntil(lockUntil);
       }
       await this.securityStateRepository.update(state);
-      throw new Error('INVALID_CREDENTIALS');
+      throw new DomainException(
+        'INVALID_CREDENTIALS',
+        'Invalid email or password',
+        401,
+      );
     }
 
     if (securityState) {

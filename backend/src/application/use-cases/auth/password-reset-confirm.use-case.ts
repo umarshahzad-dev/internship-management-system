@@ -7,6 +7,7 @@ import { IPasswordHasher } from '../../ports/password-hasher.port';
 import { ISessionRepository } from '../../ports/session.repository.port';
 import { IRefreshTokenRepository } from '../../ports/refresh-token.repository.port';
 import { IDateProvider } from '../../ports/date-provider.port';
+import { DomainException } from '../../../common/exceptions/domain.exception';
 
 export interface PasswordResetConfirmInput {
   token: string;
@@ -33,12 +34,20 @@ export class PasswordResetConfirmUseCase {
       resetToken.isUsed() ||
       resetToken.isExpired(this.dateProvider.now())
     ) {
-      throw new Error('INVALID_OR_EXPIRED_TOKEN');
+      throw new DomainException(
+        'INVALID_OR_EXPIRED_TOKEN',
+        'Invalid or expired token',
+        400,
+      );
     }
 
     const user = await this.userRepository.findById(resetToken.userId);
     if (!user) {
-      throw new Error('INVALID_OR_EXPIRED_TOKEN');
+      throw new DomainException(
+        'INVALID_OR_EXPIRED_TOKEN',
+        'Invalid or expired token',
+        400,
+      );
     }
 
     const newPassword = new Password(input.newPassword);
