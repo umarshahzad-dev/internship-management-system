@@ -1,0 +1,72 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# IDE and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# Testing and coverage
+coverage/
+.nyc_output/
+cypress/screenshots/
+cypress/videos/
+
+# Environment-specific
+*.local
+
+# Docker
+docker-data/
+volumes/
+
+# Backup
+*.bak
+*.tmp
+
+# TypeScript cache
+.tsbuildinfo
+
+# Vite
+frontend/.vite/
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
+
+# Optional: keep docs tracked
+# Do NOT ignore docs/
+
+# Others
+docs/
