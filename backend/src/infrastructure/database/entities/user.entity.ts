@@ -10,12 +10,7 @@ import {
 } from 'typeorm';
 import { DepartmentEntity } from './department.entity';
 import { UserSecurityStateEntity } from './user-security-state.entity';
-
-export enum UserRoleEnum {
-  STUDENT = 'STUDENT',
-  ACADEMIC = 'ACADEMIC',
-  ADMIN = 'ADMIN',
-}
+import { UserRole } from '../../../domain/value-objects/role.vo';
 
 @Entity('users')
 export class UserEntity {
@@ -35,8 +30,8 @@ export class UserEntity {
   @Column({ name: 'password_hash', type: 'text' })
   passwordHash: string;
 
-  @Column({ type: 'enum', enum: UserRoleEnum })
-  role: UserRoleEnum;
+  @Column({ type: 'enum', enum: UserRole })
+  role: UserRole;
 
   @Column({ name: 'first_name', length: 100 })
   firstName: string;
