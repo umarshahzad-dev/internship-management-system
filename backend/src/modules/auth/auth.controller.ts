@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { Throttle } from '@nestjs/throttler';
 import { AuthGuard, AuthenticatedRequest } from './guards/auth.guard';
 import { CsrfGuard } from './guards/csrf.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -19,6 +20,7 @@ import { LogoutUseCase } from '../../application/use-cases/auth/logout.use-case'
 import { GetMeUseCase } from '../../application/use-cases/auth/get-me.use-case';
 import { PasswordResetRequestUseCase } from '../../application/use-cases/auth/password-reset-request.use-case';
 import { PasswordResetConfirmUseCase } from '../../application/use-cases/auth/password-reset-confirm.use-case';
+import { IConfigProvider } from '../../application/ports/config-provider.port';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { PasswordResetRequestDto } from './dto/password-reset-request.dto';
@@ -33,8 +35,10 @@ export class AuthController {
     private readonly getMeUseCase: GetMeUseCase,
     private readonly passwordResetRequestUseCase: PasswordResetRequestUseCase,
     private readonly passwordResetConfirmUseCase: PasswordResetConfirmUseCase,
+    private readonly config: IConfigProvider,
   ) {}
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
@@ -50,10 +54,12 @@ export class AuthController {
     });
 
     if (isBrowser && result.sessionId) {
+      const isProduction =
+        (await this.config.get<string>('NODE_ENV')) === 'production';
       res.cookie('imas_session', result.sessionId, {
         httpOnly: true,
         sameSite: 'strict',
-        secure: false, // set true in production with HTTPS
+        secure: isProduction,
         maxAge: 24 * 60 * 60 * 1000,
       });
     }
@@ -93,6 +99,7 @@ export class AuthController {
     return { csrfToken: req.session!.csrfToken };
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('password-reset/request')
   @HttpCode(HttpStatus.ACCEPTED)
   async passwordResetRequest(@Body() dto: PasswordResetRequestDto) {

@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 
@@ -10,6 +11,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
   app.use(cookieParser());
+  app.use(helmet());
 
   const corsOrigins = configService
     .get<string>('FRONTEND_URLS', 'http://localhost:5173')
