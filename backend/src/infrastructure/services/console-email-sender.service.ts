@@ -5,7 +5,7 @@ import {
 } from '../../application/ports/email-sender.port';
 
 @Injectable()
-export class ConsoleEmailSenderService implements IEmailSender {
+export class ConsoleEmailSenderService extends IEmailSender {
   private readonly logger = new Logger(ConsoleEmailSenderService.name);
 
   async send(message: EmailMessage): Promise<void> {

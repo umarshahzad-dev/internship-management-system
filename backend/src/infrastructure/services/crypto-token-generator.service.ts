@@ -3,7 +3,7 @@ import { randomBytes, randomUUID } from 'crypto';
 import { ITokenGenerator } from '../../application/ports/token-generator.port';
 
 @Injectable()
-export class CryptoTokenGeneratorService implements ITokenGenerator {
+export class CryptoTokenGeneratorService extends ITokenGenerator {
   generateRandomToken(bytes: number = 32): string {
     return randomBytes(bytes).toString('hex');
   }

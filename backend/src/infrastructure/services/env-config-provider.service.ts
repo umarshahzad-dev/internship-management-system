@@ -3,8 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { IConfigProvider } from '../../application/ports/config-provider.port';
 
 @Injectable()
-export class EnvConfigProvider implements IConfigProvider {
-  constructor(private readonly configService: ConfigService) {}
+export class EnvConfigProvider extends IConfigProvider {
+  constructor(private readonly configService: ConfigService) {
+    super();
+  }
 
   async get<T>(key: string, defaultValue?: T): Promise<T> {
     const value = this.configService.get<T>(key);
@@ -22,4 +24,3 @@ export class EnvConfigProvider implements IConfigProvider {
     return value;
   }
 }
-
