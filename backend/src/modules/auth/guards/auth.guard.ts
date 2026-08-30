@@ -35,12 +35,31 @@ export class AuthGuard implements CanActivate {
     private readonly dateProvider: IDateProvider,
   ) {}
 
+  private getCookieFromRequest(
+    request: Request,
+    name: string,
+  ): string | undefined {
+    if (request.cookies && request.cookies[name]) {
+      return request.cookies[name];
+    }
+    const cookieHeader = request.headers.cookie;
+    if (!cookieHeader) return undefined;
+    const cookies = cookieHeader.split(';').reduce(
+      (acc, pair) => {
+        const [key, ...val] = pair.trim().split('=');
+        acc[key] = val.join('=');
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+    return cookies[name];
+  }
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const now = this.dateProvider.now();
 
-    // Browser session via cookie
-    const sessionCookie = request.cookies?.['imas_session'];
+    const sessionCookie = this.getCookieFromRequest(request, 'imas_session');
     if (sessionCookie) {
       const session = await this.sessionRepository.findById(sessionCookie);
       if (!session || session.isRevoked() || session.isExpired(now)) {
@@ -66,7 +85,6 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    // Bearer token
     const authHeader = request.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.slice(7);
