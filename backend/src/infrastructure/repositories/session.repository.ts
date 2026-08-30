@@ -46,6 +46,10 @@ export class SessionRepository extends ISessionRepository {
     );
   }
 
+  async touch(id: string, lastActivityAt: Date): Promise<void> {
+    await this.sessionRepository.update({ id }, { lastActivityAt });
+  }
+
   async deleteExpired(now: Date): Promise<void> {
     await this.sessionRepository
       .createQueryBuilder()

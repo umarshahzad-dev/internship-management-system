@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
+import { SessionEntity } from './session.entity';
 
 @Entity('refresh_tokens')
 export class RefreshTokenEntity {
@@ -16,9 +17,16 @@ export class RefreshTokenEntity {
   @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 
+  @Column({ name: 'session_id', type: 'uuid' })
+  sessionId: string;
+
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
+
+  @ManyToOne(() => SessionEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'session_id' })
+  session: SessionEntity;
 
   @Column({ name: 'token_hash', type: 'char', length: 64, unique: true })
   tokenHash: string;

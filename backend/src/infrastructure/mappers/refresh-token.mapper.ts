@@ -6,6 +6,7 @@ export class RefreshTokenMapper {
     return new RefreshToken(
       entity.id,
       entity.userId,
+      entity.sessionId,
       entity.tokenHash,
       entity.expiresAt,
       entity.rotatedAt,
@@ -18,6 +19,7 @@ export class RefreshTokenMapper {
     const entity = new RefreshTokenEntity();
     entity.id = domain.id;
     entity.userId = domain.userId;
+    entity.sessionId = domain.sessionId;
     entity.tokenHash = domain.tokenHash;
     entity.expiresAt = domain.expiresAt;
     entity.rotatedAt = domain.rotatedAt;

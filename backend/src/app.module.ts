@@ -10,6 +10,7 @@ import { SeedModule } from './seed/seed.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -22,7 +23,7 @@ import { SeedModule } from './seed/seed.module';
         password: configService.get('DB_PASSWORD', 'postgres'),
         database: configService.get('DB_NAME', 'imas'),
         autoLoadEntities: true,
-        synchronize: true, // development only
+        synchronize: configService.get('NODE_ENV') !== 'production',
       }),
     }),
     AuthModule,

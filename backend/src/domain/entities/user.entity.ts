@@ -38,9 +38,11 @@ export class User {
     if (!lastName || lastName.trim().length === 0)
       throw new Error('Last name is required');
 
-    if (role.isStudent()) {
-      if (!departmentId) throw new Error('Student must have a department');
-      if (!studentNumber) throw new Error('Student must have a student number');
+    if (role.isStudent() || role.isAcademic()) {
+      if (!departmentId)
+        throw new Error(`${role.getValue()} must have a department`);
+      if (role.isStudent() && !studentNumber)
+        throw new Error('Student must have a student number');
     } else {
       if (studentNumber)
         throw new Error('Only students can have a student number');

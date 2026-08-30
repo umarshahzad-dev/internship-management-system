@@ -1,6 +1,7 @@
 export class RefreshToken {
   private readonly _id: string;
   private readonly _userId: string;
+  private readonly _sessionId: string; // new
   private readonly _tokenHash: string;
   private readonly _expiresAt: Date;
   private _rotatedAt: Date | null;
@@ -10,6 +11,7 @@ export class RefreshToken {
   constructor(
     id: string,
     userId: string,
+    sessionId: string,
     tokenHash: string,
     expiresAt: Date,
     rotatedAt: Date | null,
@@ -18,12 +20,14 @@ export class RefreshToken {
   ) {
     if (!id) throw new Error('Refresh token id is required');
     if (!userId) throw new Error('User id is required');
+    if (!sessionId) throw new Error('Session id is required');
     if (!tokenHash) throw new Error('Token hash is required');
     if (!expiresAt) throw new Error('Expires at is required');
     if (!createdAt) throw new Error('Created at is required');
 
     this._id = id;
     this._userId = userId;
+    this._sessionId = sessionId;
     this._tokenHash = tokenHash;
     this._expiresAt = expiresAt;
     this._rotatedAt = rotatedAt;
@@ -36,6 +40,9 @@ export class RefreshToken {
   }
   get userId(): string {
     return this._userId;
+  }
+  get sessionId(): string {
+    return this._sessionId;
   }
   get tokenHash(): string {
     return this._tokenHash;

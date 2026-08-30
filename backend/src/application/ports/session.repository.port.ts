@@ -6,5 +6,6 @@ export abstract class ISessionRepository {
   abstract update(session: Session): Promise<Session>;
   abstract revoke(id: string, revokedAt: Date): Promise<void>;
   abstract revokeAllForUser(userId: string, revokedAt: Date): Promise<void>;
+  abstract touch(id: string, lastActivityAt: Date): Promise<void>;
   abstract deleteExpired(now: Date): Promise<void>;
 }

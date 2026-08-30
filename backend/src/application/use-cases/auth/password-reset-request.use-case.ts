@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { randomUUID, createHash } from 'crypto';
 import { PasswordResetToken } from '../../../domain/entities/password-reset-token.entity';
 import { Email } from '../../../domain/value-objects/email.vo';
@@ -14,6 +14,8 @@ export interface PasswordResetRequestInput {
 
 @Injectable()
 export class PasswordResetRequestUseCase {
+  private readonly logger = new Logger(PasswordResetRequestUseCase.name);
+
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly passwordResetTokenRepository: IPasswordResetTokenRepository,
@@ -49,15 +51,24 @@ export class PasswordResetRequestUseCase {
     );
     await this.passwordResetTokenRepository.create(resetToken);
 
-    const resetLink = `http://localhost:3000/reset-password?token=${plainToken}`;
+    const frontendUrl = await this.config.get<string>(
+      'FRONTEND_URL',
+      'http://localhost:5173',
+    );
+    const resetLink = `${frontendUrl}/reset-password?token=${plainToken}`;
+
     try {
       await this.emailSender.send({
         to: user.email.toValue(),
         subject: 'Password Reset Request',
         html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`,
       });
-    } catch {
-      // outbox pattern will handle failures later
+    } catch (error) {
+      // Log the failure; do not reveal whether the email exists.
+      this.logger.error(
+        `Failed to send password reset email to ${user.email.toValue()}`,
+        error instanceof Error ? error.stack : error,
+      );
     }
   }
 }

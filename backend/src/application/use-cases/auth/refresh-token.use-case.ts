@@ -58,9 +58,14 @@ export class RefreshTokenUseCase {
       throw new Error('UNAUTHENTICATED');
     }
 
+    // Revoke the session bound to this refresh token
+    await this.sessionRepository.revoke(existingToken.sessionId, now);
+
+    // Mark current refresh token as rotated
     existingToken.markRotated(now);
     await this.refreshTokenRepository.update(existingToken);
 
+    // Create new session
     const csrfToken = this.tokenGenerator.generateCsrfToken();
     const sessionId = randomUUID();
     const absoluteTimeoutSeconds = await this.config.get<number>(
@@ -81,6 +86,7 @@ export class RefreshTokenUseCase {
     );
     await this.sessionRepository.create(session);
 
+    // Create new access token
     const accessToken = await this.jwtService.signAccessToken({
       sub: user.id,
       sessionId: session.id,
@@ -88,6 +94,7 @@ export class RefreshTokenUseCase {
       role: user.role.getValue(),
     });
 
+    // Create new refresh token bound to new session
     const refreshTokenPlain = this.tokenGenerator.generateRandomToken(32);
     const refreshTokenHash = this.hashToken(refreshTokenPlain);
     const refreshTokenLifetimeSeconds = await this.config.get<number>(
@@ -100,6 +107,7 @@ export class RefreshTokenUseCase {
     const refreshToken = new RefreshToken(
       randomUUID(),
       user.id,
+      session.id,
       refreshTokenHash,
       refreshTokenExpiresAt,
       null,

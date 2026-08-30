@@ -15,11 +15,17 @@ export class JwtServiceAdapter extends IJwtService {
     super();
   }
 
+  private async getSecret(): Promise<string> {
+    const secret = await this.config.get<string>('JWT_SECRET');
+    if (secret) return secret;
+    if (process.env.NODE_ENV !== 'production') {
+      return 'dev_secret_change_me';
+    }
+    throw new Error('JWT_SECRET must be set in production');
+  }
+
   async signAccessToken(payload: JwtPayload): Promise<string> {
-    const secret = await this.config.get<string>(
-      'JWT_SECRET',
-      'change_this_to_a_long_random_string',
-    );
+    const secret = await this.getSecret();
     const expiresIn = await this.config.get<number>(
       'auth.access_token_lifetime_seconds',
       15 * 60,
@@ -32,14 +38,8 @@ export class JwtServiceAdapter extends IJwtService {
 
   async verifyAccessToken(token: string): Promise<JwtPayload | null> {
     try {
-      const secret = await this.config.get<string>(
-        'JWT_SECRET',
-        'change_this_to_a_long_random_string',
-      );
-      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
-        secret,
-      });
-      return payload;
+      const secret = await this.getSecret();
+      return await this.jwtService.verifyAsync<JwtPayload>(token, { secret });
     } catch {
       return null;
     }

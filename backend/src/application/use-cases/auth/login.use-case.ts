@@ -156,6 +156,7 @@ export class LoginUseCase {
     const refreshToken = new RefreshToken(
       randomUUID(),
       user.id,
+      session.id,
       refreshTokenHash,
       refreshTokenExpiresAt,
       null,
