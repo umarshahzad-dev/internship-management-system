@@ -5,7 +5,7 @@ export class User {
   private readonly _id: string;
   private readonly _departmentId: string | null;
   private readonly _email: Email;
-  private readonly _passwordHash: string;
+  private _passwordHash: string;
   private readonly _role: Role;
   private readonly _firstName: string;
   private readonly _lastName: string;
@@ -38,7 +38,6 @@ export class User {
     if (!lastName || lastName.trim().length === 0)
       throw new Error('Last name is required');
 
-    // Additional validation: student must have departmentId and studentNumber
     if (role.isStudent()) {
       if (!departmentId) throw new Error('Student must have a department');
       if (!studentNumber) throw new Error('Student must have a student number');
@@ -100,6 +99,10 @@ export class User {
 
   updateLastLogin(date: Date): void {
     this._lastLogin = date;
+  }
+
+  updatePasswordHash(newHash: string): void {
+    this._passwordHash = newHash;
   }
 
   deactivate(): void {

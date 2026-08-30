@@ -5,5 +5,6 @@ export interface ISessionRepository {
   create(session: Session): Promise<Session>;
   update(session: Session): Promise<Session>;
   revoke(id: string, revokedAt: Date): Promise<void>;
+  revokeAllForUser(userId: string, revokedAt: Date): Promise<void>;
   deleteExpired(now: Date): Promise<void>;
 }
