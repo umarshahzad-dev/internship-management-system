@@ -5,6 +5,6 @@ export interface EmailMessage {
   text?: string;
 }
 
-export interface IEmailSender {
-  send(message: EmailMessage): Promise<void>;
+export abstract class IEmailSender {
+  abstract send(message: EmailMessage): Promise<void>;
 }

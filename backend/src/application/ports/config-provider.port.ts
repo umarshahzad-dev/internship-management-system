@@ -1,4 +1,4 @@
-export interface IConfigProvider {
-  get<T>(key: string, defaultValue?: T): Promise<T>;
-  getOrThrow<T>(key: string): Promise<T>;
+export abstract class IConfigProvider {
+  abstract get<T>(key: string, defaultValue?: T): Promise<T>;
+  abstract getOrThrow<T>(key: string): Promise<T>;
 }

@@ -31,29 +31,17 @@ import { RefreshTokenEntity } from '../../infrastructure/database/entities/refre
 import { PasswordResetTokenEntity } from '../../infrastructure/database/entities/password-reset-token.entity';
 import { UserSecurityStateEntity } from '../../infrastructure/database/entities/user-security-state.entity';
 
-// Ports tokens (if needed, but we can bind directly to classes)
-const REPOSITORIES = [
-  { provide: 'IUserRepository', useClass: UserRepository },
-  { provide: 'ISessionRepository', useClass: SessionRepository },
-  { provide: 'IRefreshTokenRepository', useClass: RefreshTokenRepository },
-  {
-    provide: 'IPasswordResetTokenRepository',
-    useClass: PasswordResetTokenRepository,
-  },
-  {
-    provide: 'IUserSecurityStateRepository',
-    useClass: UserSecurityStateRepository,
-  },
-];
-
-const SERVICES = [
-  { provide: 'IPasswordHasher', useClass: Argon2PasswordHasherService },
-  { provide: 'ITokenGenerator', useClass: CryptoTokenGeneratorService },
-  { provide: 'IJwtService', useClass: JwtServiceAdapter },
-  { provide: 'IDateProvider', useClass: SystemDateProvider },
-  { provide: 'IConfigProvider', useClass: EnvConfigProvider },
-  { provide: 'IEmailSender', useClass: ConsoleEmailSenderService },
-];
+import { IUserRepository } from '../../application/ports/user.repository.port';
+import { ISessionRepository } from '../../application/ports/session.repository.port';
+import { IRefreshTokenRepository } from '../../application/ports/refresh-token.repository.port';
+import { IPasswordResetTokenRepository } from '../../application/ports/password-reset-token.repository.port';
+import { IUserSecurityStateRepository } from '../../application/ports/user-security-state.repository.port';
+import { IPasswordHasher } from '../../application/ports/password-hasher.port';
+import { ITokenGenerator } from '../../application/ports/token-generator.port';
+import { IJwtService } from '../../application/ports/jwt.service.port';
+import { IDateProvider } from '../../application/ports/date-provider.port';
+import { IConfigProvider } from '../../application/ports/config-provider.port';
+import { IEmailSender } from '../../application/ports/email-sender.port';
 
 @Module({
   imports: [
@@ -68,8 +56,23 @@ const SERVICES = [
   ],
   controllers: [AuthController],
   providers: [
-    ...REPOSITORIES,
-    ...SERVICES,
+    { provide: IUserRepository, useClass: UserRepository },
+    { provide: ISessionRepository, useClass: SessionRepository },
+    { provide: IRefreshTokenRepository, useClass: RefreshTokenRepository },
+    {
+      provide: IPasswordResetTokenRepository,
+      useClass: PasswordResetTokenRepository,
+    },
+    {
+      provide: IUserSecurityStateRepository,
+      useClass: UserSecurityStateRepository,
+    },
+    { provide: IPasswordHasher, useClass: Argon2PasswordHasherService },
+    { provide: ITokenGenerator, useClass: CryptoTokenGeneratorService },
+    { provide: IJwtService, useClass: JwtServiceAdapter },
+    { provide: IDateProvider, useClass: SystemDateProvider },
+    { provide: IConfigProvider, useClass: EnvConfigProvider },
+    { provide: IEmailSender, useClass: ConsoleEmailSenderService },
     LoginUseCase,
     RefreshTokenUseCase,
     LogoutUseCase,

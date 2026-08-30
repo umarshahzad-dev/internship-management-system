@@ -1,11 +1,11 @@
 export interface JwtPayload {
-  sub: string; // user id
+  sub: string;
   sessionId: string;
   departmentId: string | null;
   role: string;
 }
 
-export interface IJwtService {
-  signAccessToken(payload: JwtPayload): Promise<string>;
-  verifyAccessToken(token: string): Promise<JwtPayload | null>;
+export abstract class IJwtService {
+  abstract signAccessToken(payload: JwtPayload): Promise<string>;
+  abstract verifyAccessToken(token: string): Promise<JwtPayload | null>;
 }

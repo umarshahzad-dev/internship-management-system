@@ -1,3 +1,3 @@
-export interface IDateProvider {
-  now(): Date;
+export abstract class IDateProvider {
+  abstract now(): Date;
 }

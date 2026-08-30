@@ -1,5 +1,5 @@
-export interface ITokenGenerator {
-  generateRandomToken(bytes?: number): string;
-  generateCsrfToken(): string;
-  generateSessionId(): string;
+export abstract class ITokenGenerator {
+  abstract generateRandomToken(bytes?: number): string;
+  abstract generateCsrfToken(): string;
+  abstract generateSessionId(): string;
 }

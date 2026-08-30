@@ -1,10 +1,10 @@
 import { Session } from '../../domain/entities/session.entity';
 
-export interface ISessionRepository {
-  findById(id: string): Promise<Session | null>;
-  create(session: Session): Promise<Session>;
-  update(session: Session): Promise<Session>;
-  revoke(id: string, revokedAt: Date): Promise<void>;
-  revokeAllForUser(userId: string, revokedAt: Date): Promise<void>;
-  deleteExpired(now: Date): Promise<void>;
+export abstract class ISessionRepository {
+  abstract findById(id: string): Promise<Session | null>;
+  abstract create(session: Session): Promise<Session>;
+  abstract update(session: Session): Promise<Session>;
+  abstract revoke(id: string, revokedAt: Date): Promise<void>;
+  abstract revokeAllForUser(userId: string, revokedAt: Date): Promise<void>;
+  abstract deleteExpired(now: Date): Promise<void>;
 }
