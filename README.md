@@ -22,3 +22,5 @@ A full-stack web application for managing the complete internship lifecycle.
 3. Start the database: `docker-compose up -d postgres`
 4. Start the backend: `cd backend && npm install && npm run start:dev`
 5. Start the frontend: `cd frontend && npm install && npm run dev`
+
+See documentation in `/docs` for detailed requirements.
