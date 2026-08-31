@@ -5,6 +5,7 @@ import { AuthController } from './auth.controller';
 import { AuthGuard } from './guards/auth.guard';
 import { CsrfGuard } from './guards/csrf.guard';
 
+// Use cases
 import { LoginUseCase } from '../../application/use-cases/auth/login.use-case';
 import { RefreshTokenUseCase } from '../../application/use-cases/auth/refresh-token.use-case';
 import { LogoutUseCase } from '../../application/use-cases/auth/logout.use-case';
@@ -12,12 +13,14 @@ import { GetMeUseCase } from '../../application/use-cases/auth/get-me.use-case';
 import { PasswordResetRequestUseCase } from '../../application/use-cases/auth/password-reset-request.use-case';
 import { PasswordResetConfirmUseCase } from '../../application/use-cases/auth/password-reset-confirm.use-case';
 
+// Repositories
 import { UserRepository } from '../../infrastructure/repositories/user.repository';
 import { SessionRepository } from '../../infrastructure/repositories/session.repository';
 import { RefreshTokenRepository } from '../../infrastructure/repositories/refresh-token.repository';
 import { PasswordResetTokenRepository } from '../../infrastructure/repositories/password-reset-token.repository';
 import { UserSecurityStateRepository } from '../../infrastructure/repositories/user-security-state.repository';
 
+// Services
 import { Argon2PasswordHasherService } from '../../infrastructure/services/argon2-password-hasher.service';
 import { CryptoTokenGeneratorService } from '../../infrastructure/services/crypto-token-generator.service';
 import { JwtServiceAdapter } from '../../infrastructure/services/jwt.service';
@@ -25,12 +28,14 @@ import { SystemDateProvider } from '../../infrastructure/services/system-date-pr
 import { EnvConfigProvider } from '../../infrastructure/services/env-config-provider.service';
 import { ConsoleEmailSenderService } from '../../infrastructure/services/console-email-sender.service';
 
+// Entities
 import { UserEntity } from '../../infrastructure/database/entities/user.entity';
 import { SessionEntity } from '../../infrastructure/database/entities/session.entity';
 import { RefreshTokenEntity } from '../../infrastructure/database/entities/refresh-token.entity';
 import { PasswordResetTokenEntity } from '../../infrastructure/database/entities/password-reset-token.entity';
 import { UserSecurityStateEntity } from '../../infrastructure/database/entities/user-security-state.entity';
 
+// Ports
 import { IUserRepository } from '../../application/ports/user.repository.port';
 import { ISessionRepository } from '../../application/ports/session.repository.port';
 import { IRefreshTokenRepository } from '../../application/ports/refresh-token.repository.port';
@@ -82,6 +87,19 @@ import { IEmailSender } from '../../application/ports/email-sender.port';
     AuthGuard,
     CsrfGuard,
   ],
-  exports: [AuthGuard],
+  exports: [
+    AuthGuard,
+    IUserRepository,
+    ISessionRepository,
+    IRefreshTokenRepository,
+    IPasswordResetTokenRepository,
+    IUserSecurityStateRepository,
+    IPasswordHasher,
+    ITokenGenerator,
+    IJwtService,
+    IDateProvider,
+    IConfigProvider,
+    IEmailSender,
+  ],
 })
 export class AuthModule {}

@@ -20,9 +20,25 @@ export class DepartmentRepository extends IDepartmentRepository {
     return entity ? DepartmentMapper.toDomain(entity) : null;
   }
 
+  async findAll(): Promise<Department[]> {
+    const entities = await this.departmentRepository.find({
+      order: { name: 'ASC' },
+    });
+    return entities.map(DepartmentMapper.toDomain);
+  }
+
   async create(department: Department): Promise<Department> {
     const entity = DepartmentMapper.toPersistence(department);
     const saved = await this.departmentRepository.save(entity);
     return DepartmentMapper.toDomain(saved);
+  }
+
+  async update(department: Department): Promise<Department> {
+    const entity = DepartmentMapper.toPersistence(department);
+    await this.departmentRepository.update({ id: department.id }, entity);
+    const updated = await this.departmentRepository.findOne({
+      where: { id: department.id },
+    });
+    return updated ? DepartmentMapper.toDomain(updated) : department;
   }
 }
