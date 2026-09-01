@@ -10,6 +10,7 @@ import { DepartmentModule } from './modules/department/department.module';
 import { UserModule } from './modules/user/user.module';
 import { CompanyModule } from './modules/company/company.module';
 import { AcademicCalendarModule } from './modules/calendar/academic-calendar.module';
+import { HolidayModule } from './modules/holiday/holiday.module';
 import { SeedModule } from './seed/seed.module';
 
 @Module({
@@ -43,6 +44,7 @@ import { SeedModule } from './seed/seed.module';
     UserModule,
     CompanyModule,
     AcademicCalendarModule,
+    HolidayModule,
     SeedModule,
   ],
   controllers: [AppController],
