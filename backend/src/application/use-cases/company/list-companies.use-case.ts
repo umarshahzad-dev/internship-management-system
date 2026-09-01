@@ -12,11 +12,21 @@ export interface ListCompaniesInput {
   isVerified?: boolean;
 }
 
+export interface CompanyListItem {
+  id: string;
+  name: string;
+  taxNumber: string;
+  city: string | null;
+  industry: string | null;
+  isVerified: boolean;
+  isActive: boolean;
+}
+
 @Injectable()
 export class ListCompaniesUseCase {
   constructor(private readonly companyRepository: ICompanyRepository) {}
 
-  async execute(input: ListCompaniesInput) {
+  async execute(input: ListCompaniesInput): Promise<CompanyListItem[]> {
     const filters: CompanyFilters = {};
     if (input.search) filters.search = input.search;
     if (input.city) filters.city = input.city;
