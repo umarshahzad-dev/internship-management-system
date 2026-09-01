@@ -9,6 +9,14 @@ export interface CreateDepartmentInput {
   facultyName: string;
 }
 
+export interface CreateDepartmentResult {
+  id: string;
+  name: string;
+  facultyName: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 @Injectable()
 export class CreateDepartmentUseCase {
   constructor(
@@ -16,7 +24,7 @@ export class CreateDepartmentUseCase {
     private readonly dateProvider: IDateProvider,
   ) {}
 
-  async execute(input: CreateDepartmentInput): Promise<Department> {
+  async execute(input: CreateDepartmentInput): Promise<CreateDepartmentResult> {
     const now = this.dateProvider.now();
     const department = new Department(
       randomUUID(),
@@ -25,6 +33,14 @@ export class CreateDepartmentUseCase {
       now,
       now,
     );
-    return this.departmentRepository.create(department);
+
+    const saved = await this.departmentRepository.create(department);
+    return {
+      id: saved.id,
+      name: saved.name,
+      facultyName: saved.facultyName,
+      createdAt: saved.createdAt.toISOString(),
+      updatedAt: saved.updatedAt.toISOString(),
+    };
   }
 }
