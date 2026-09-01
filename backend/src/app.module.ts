@@ -9,7 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { UserModule } from './modules/user/user.module';
 import { CompanyModule } from './modules/company/company.module';
-import { AcademicCalendar } from './domain/entities/academic-calendar.entity';
+import { AcademicCalendarModule } from './modules/calendar/academic-calendar.module';
 import { SeedModule } from './seed/seed.module';
 
 @Module({
@@ -42,7 +42,7 @@ import { SeedModule } from './seed/seed.module';
     DepartmentModule,
     UserModule,
     CompanyModule,
-    AcademicCalendar,
+    AcademicCalendarModule,
     SeedModule,
   ],
   controllers: [AppController],
