@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { UserController } from './user.controller';
 import { RolesGuard } from './guards/roles.guard';
@@ -7,9 +8,14 @@ import { CreateUserUseCase } from '../../application/use-cases/user/create-user.
 import { GetUserUseCase } from '../../application/use-cases/user/get-user.use-case';
 import { UpdateUserUseCase } from '../../application/use-cases/user/update-user.use-case';
 import { ImportUsersUseCase } from '../../application/use-cases/user/import-users.use-case';
+import { DepartmentEntity } from '../../infrastructure/database/entities/department.entity';
+import { IDepartmentRepository } from '../../application/ports/department.repository.port';
+import { DepartmentRepository } from '../../infrastructure/repositories/department.repository';
+import { IDateProvider } from '../../application/ports/date-provider.port';
+import { SystemDateProvider } from '../../infrastructure/services/system-date-provider.service';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, TypeOrmModule.forFeature([DepartmentEntity])],
   controllers: [UserController],
   providers: [
     RolesGuard,
@@ -18,6 +24,8 @@ import { ImportUsersUseCase } from '../../application/use-cases/user/import-user
     GetUserUseCase,
     UpdateUserUseCase,
     ImportUsersUseCase,
+    { provide: IDepartmentRepository, useClass: DepartmentRepository },
+    { provide: IDateProvider, useClass: SystemDateProvider },
   ],
 })
 export class UserModule {}

@@ -20,6 +20,13 @@ export class DepartmentRepository extends IDepartmentRepository {
     return entity ? DepartmentMapper.toDomain(entity) : null;
   }
 
+  async findByName(name: string): Promise<Department | null> {
+    const entity = await this.departmentRepository.findOne({
+      where: { name },
+    });
+    return entity ? DepartmentMapper.toDomain(entity) : null;
+  }
+
   async findAll(): Promise<Department[]> {
     const entities = await this.departmentRepository.find({
       order: { name: 'ASC' },
