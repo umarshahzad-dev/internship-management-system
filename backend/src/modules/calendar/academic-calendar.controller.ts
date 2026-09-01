@@ -22,6 +22,7 @@ import { GetNextTermUseCase } from '../../application/use-cases/calendar/get-nex
 import { CreateCalendarDto } from './dto/create-calendar.dto';
 import { UpdateCalendarDto } from './dto/update-calendar.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
+import { DomainException } from '../../common/exceptions/domain.exception';
 
 @Controller('calendars')
 @UseGuards(AuthGuard)
@@ -37,11 +38,18 @@ export class AcademicCalendarController {
   private getDepartmentId(req: AuthenticatedRequest): string {
     if (req.user?.role === UserRole.ADMIN) {
       const dept = req.headers['x-department-id'];
-      if (!dept)
-        throw new Error('X-Department-Id header is required for admin');
+      if (!dept) {
+        throw new DomainException(
+          'VALIDATION_ERROR',
+          'X-Department-Id header is required for admin',
+          400,
+        );
+      }
       return dept as string;
     }
-    if (!req.user?.departmentId) throw new Error('User has no department');
+    if (!req.user?.departmentId) {
+      throw new DomainException('FORBIDDEN', 'User has no department', 403);
+    }
     return req.user.departmentId;
   }
 
