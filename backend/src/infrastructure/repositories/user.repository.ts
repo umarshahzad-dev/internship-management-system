@@ -28,6 +28,13 @@ export class UserRepository extends IUserRepository {
     return entity ? UserMapper.toDomain(entity) : null;
   }
 
+  async findAll(): Promise<User[]> {
+    const entities = await this.userRepository.find({
+      order: { createdAt: 'ASC' },
+    });
+    return entities.map(UserMapper.toDomain);
+  }
+
   async create(user: User): Promise<User> {
     const entity = UserMapper.toPersistence(user);
     const saved = await this.userRepository.save(entity);
