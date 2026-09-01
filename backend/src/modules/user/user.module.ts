@@ -6,6 +6,7 @@ import { ListUsersUseCase } from '../../application/use-cases/user/list-users.us
 import { CreateUserUseCase } from '../../application/use-cases/user/create-user.use-case';
 import { GetUserUseCase } from '../../application/use-cases/user/get-user.use-case';
 import { UpdateUserUseCase } from '../../application/use-cases/user/update-user.use-case';
+import { ImportUsersUseCase } from '../../application/use-cases/user/import-users.use-case';
 
 @Module({
   imports: [AuthModule],
@@ -16,6 +17,7 @@ import { UpdateUserUseCase } from '../../application/use-cases/user/update-user.
     CreateUserUseCase,
     GetUserUseCase,
     UpdateUserUseCase,
+    ImportUsersUseCase,
   ],
 })
 export class UserModule {}

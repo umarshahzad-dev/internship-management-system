@@ -56,4 +56,17 @@ export class UserRepository extends IUserRepository {
     });
     return entities.map(UserMapper.toDomain);
   }
+
+  async findByDepartmentAndStudentNumber(
+    departmentId: string,
+    studentNumber: string | null,
+  ): Promise<User | null> {
+    if (!studentNumber) {
+      return null;
+    }
+    const entity = await this.userRepository.findOne({
+      where: { departmentId, studentNumber },
+    });
+    return entity ? UserMapper.toDomain(entity) : null;
+  }
 }

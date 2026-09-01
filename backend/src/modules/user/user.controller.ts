@@ -7,8 +7,11 @@ import {
   Patch,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard, AuthenticatedRequest } from '../auth/guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
@@ -16,6 +19,7 @@ import { ListUsersUseCase } from '../../application/use-cases/user/list-users.us
 import { CreateUserUseCase } from '../../application/use-cases/user/create-user.use-case';
 import { GetUserUseCase } from '../../application/use-cases/user/get-user.use-case';
 import { UpdateUserUseCase } from '../../application/use-cases/user/update-user.use-case';
+import { ImportUsersUseCase } from '../../application/use-cases/user/import-users.use-case';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
@@ -28,6 +32,7 @@ export class UserController {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly getUserUseCase: GetUserUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
+    private readonly importUsersUseCase: ImportUsersUseCase,
   ) {}
 
   @Get()
@@ -50,6 +55,17 @@ export class UserController {
       studentNumber: dto.studentNumber,
       departmentId: dto.departmentId,
     });
+  }
+
+  @Post('import')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(RolesGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async importUsers(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new Error('File is required');
+    }
+    return this.importUsersUseCase.execute(file.buffer);
   }
 
   @Get(':id')

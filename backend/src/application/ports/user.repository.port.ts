@@ -8,4 +8,8 @@ export abstract class IUserRepository {
   abstract create(user: User): Promise<User>;
   abstract update(user: User): Promise<User>;
   abstract findByDepartment(departmentId: string): Promise<User[]>;
+  abstract findByDepartmentAndStudentNumber(
+    departmentId: string,
+    studentNumber: string | null,
+  ): Promise<User | null>;
 }
