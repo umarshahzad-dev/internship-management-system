@@ -21,6 +21,17 @@ export interface CreateUserInput {
   departmentId?: string | null;
 }
 
+export interface CreateUserResult {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  departmentId: string | null;
+  studentNumber: string | null;
+  isActive: boolean;
+}
+
 @Injectable()
 export class CreateUserUseCase {
   constructor(
@@ -30,7 +41,7 @@ export class CreateUserUseCase {
     private readonly dateProvider: IDateProvider,
   ) {}
 
-  async execute(input: CreateUserInput): Promise<User> {
+  async execute(input: CreateUserInput): Promise<CreateUserResult> {
     const email = new Email(input.email);
     const existing = await this.userRepository.findByEmail(email);
     if (existing) {
@@ -73,6 +84,15 @@ export class CreateUserUseCase {
     );
     await this.securityStateRepository.create(securityState);
 
-    return savedUser;
+    return {
+      id: savedUser.id,
+      email: savedUser.email.toValue(),
+      firstName: savedUser.firstName,
+      lastName: savedUser.lastName,
+      role: savedUser.role.getValue(),
+      departmentId: savedUser.departmentId,
+      studentNumber: savedUser.studentNumber,
+      isActive: savedUser.isActive,
+    };
   }
 }

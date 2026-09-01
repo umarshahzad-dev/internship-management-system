@@ -15,6 +15,17 @@ export interface UpdateUserInput {
   studentNumber?: string | null;
 }
 
+export interface UpdateUserResult {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  departmentId: string | null;
+  studentNumber: string | null;
+  isActive: boolean;
+}
+
 @Injectable()
 export class UpdateUserUseCase {
   constructor(
@@ -22,7 +33,7 @@ export class UpdateUserUseCase {
     private readonly dateProvider: IDateProvider,
   ) {}
 
-  async execute(input: UpdateUserInput): Promise<User> {
+  async execute(input: UpdateUserInput): Promise<UpdateUserResult> {
     const existing = await this.userRepository.findById(input.userId);
     if (!existing) {
       throw new DomainException('NOT_FOUND', 'User not found', 404);
@@ -53,6 +64,17 @@ export class UpdateUserUseCase {
       now,
     );
 
-    return this.userRepository.update(updatedUser);
+    const savedUser = await this.userRepository.update(updatedUser);
+
+    return {
+      id: savedUser.id,
+      email: savedUser.email.toValue(),
+      firstName: savedUser.firstName,
+      lastName: savedUser.lastName,
+      role: savedUser.role.getValue(),
+      departmentId: savedUser.departmentId,
+      studentNumber: savedUser.studentNumber,
+      isActive: savedUser.isActive,
+    };
   }
 }
