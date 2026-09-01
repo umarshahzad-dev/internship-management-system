@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { UserModule } from './modules/user/user.module';
+import { CompanyModule } from './modules/company/company.module';
 import { SeedModule } from './seed/seed.module';
 
 @Module({
@@ -39,6 +40,7 @@ import { SeedModule } from './seed/seed.module';
     AuthModule,
     DepartmentModule,
     UserModule,
+    CompanyModule,
     SeedModule,
   ],
   controllers: [AppController],
