@@ -89,6 +89,7 @@ import { IEmailSender } from '../../application/ports/email-sender.port';
   ],
   exports: [
     AuthGuard,
+    CsrfGuard,
     IUserRepository,
     ISessionRepository,
     IRefreshTokenRepository,

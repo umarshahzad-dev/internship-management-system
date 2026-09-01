@@ -9,6 +9,7 @@ import { IDepartmentRepository } from '../../application/ports/department.reposi
 import { IDateProvider } from '../../application/ports/date-provider.port';
 import { SystemDateProvider } from '../../infrastructure/services/system-date-provider.service';
 import { AuthModule } from '../auth/auth.module';
+import { RolesGuard } from '../user/guards/roles.guard';
 
 @Module({
   imports: [TypeOrmModule.forFeature([DepartmentEntity]), AuthModule],
@@ -18,6 +19,7 @@ import { AuthModule } from '../auth/auth.module';
     { provide: IDateProvider, useClass: SystemDateProvider },
     ListDepartmentsUseCase,
     CreateDepartmentUseCase,
+    RolesGuard,
   ],
   exports: [IDepartmentRepository],
 })

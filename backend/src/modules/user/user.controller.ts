@@ -23,6 +23,7 @@ import { ImportUsersUseCase } from '../../application/use-cases/user/import-user
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
+import { CsrfGuard } from '../auth/guards/csrf.guard';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -44,7 +45,7 @@ export class UserController {
 
   @Post()
   @Roles(UserRole.ADMIN)
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, CsrfGuard)
   async create(@Body() dto: CreateUserDto) {
     return this.createUserUseCase.execute({
       email: dto.email,
@@ -59,7 +60,7 @@ export class UserController {
 
   @Post('import')
   @Roles(UserRole.ADMIN)
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, CsrfGuard)
   @UseInterceptors(FileInterceptor('file'))
   async importUsers(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
@@ -82,7 +83,7 @@ export class UserController {
 
   @Patch(':id')
   @Roles(UserRole.ADMIN)
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, CsrfGuard)
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateUserDto,

@@ -10,6 +10,13 @@ import { AuthenticatedRequest } from './auth.guard';
 export class CsrfGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+
+    // If the request uses bearer token auth, CSRF is not required.
+    const authHeader = request.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return true;
+    }
+
     const csrfToken = request.headers['x-csrf-token'];
     const sessionCsrf = request.session?.csrfToken;
     if (!csrfToken || !sessionCsrf || csrfToken !== sessionCsrf) {
