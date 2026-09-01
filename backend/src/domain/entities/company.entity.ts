@@ -2,13 +2,13 @@ export class Company {
   private readonly _id: string;
   private readonly _name: string;
   private readonly _taxNumber: string;
-  private readonly _city: string;
-  private readonly _industry: string;
-  private readonly _address: string | null;
-  private readonly _website: string | null;
-  private readonly _contactPerson: string | null;
-  private readonly _contactEmail: string | null;
-  private readonly _contactPhone: string | null;
+  private _city: string | null;
+  private _industry: string | null;
+  private _address: string | null;
+  private _website: string | null;
+  private _contactPerson: string | null;
+  private _contactEmail: string | null;
+  private _contactPhone: string | null;
   private _isVerified: boolean;
   private _isActive: boolean;
   private readonly _createdAt: Date;
@@ -18,8 +18,8 @@ export class Company {
     id: string,
     name: string,
     taxNumber: string,
-    city: string,
-    industry: string,
+    city: string | null,
+    industry: string | null,
     address: string | null,
     website: string | null,
     contactPerson: string | null,
@@ -35,15 +35,13 @@ export class Company {
       throw new Error('Company name is required');
     if (!taxNumber || !/^[0-9]{10}$/.test(taxNumber))
       throw new Error('Tax number must be 10 digits');
-    if (!city || city.trim().length === 0) throw new Error('City is required');
-    if (!industry || industry.trim().length === 0)
-      throw new Error('Industry is required');
+    if (!createdAt || !updatedAt) throw new Error('Timestamps are required');
 
     this._id = id;
     this._name = name.trim();
     this._taxNumber = taxNumber;
-    this._city = city.trim();
-    this._industry = industry.trim();
+    this._city = city?.trim() || null;
+    this._industry = industry?.trim() || null;
     this._address = address?.trim() || null;
     this._website = website?.trim() || null;
     this._contactPerson = contactPerson?.trim() || null;
@@ -64,10 +62,10 @@ export class Company {
   get taxNumber(): string {
     return this._taxNumber;
   }
-  get city(): string {
+  get city(): string | null {
     return this._city;
   }
-  get industry(): string {
+  get industry(): string | null {
     return this._industry;
   }
   get address(): string | null {

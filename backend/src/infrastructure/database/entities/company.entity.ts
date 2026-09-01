@@ -17,11 +17,11 @@ export class CompanyEntity {
   @Column({ name: 'tax_number', length: 10, unique: true })
   taxNumber: string;
 
-  @Column({ length: 100 })
-  city: string;
+  @Column({ length: 100, nullable: true })
+  city: string | null;
 
-  @Column({ length: 100 })
-  industry: string;
+  @Column({ length: 100, nullable: true })
+  industry: string | null;
 
   @Column({ type: 'text', nullable: true })
   address: string | null;

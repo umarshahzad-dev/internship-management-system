@@ -1,12 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { ICompanyRepository } from '../../ports/company.repository.port';
+import {
+  ICompanyRepository,
+  CompanyFilters,
+} from '../../ports/company.repository.port';
+
+export interface ListCompaniesInput {
+  search?: string;
+  city?: string;
+  industry?: string;
+  isActive?: boolean;
+  isVerified?: boolean;
+}
 
 @Injectable()
 export class ListCompaniesUseCase {
   constructor(private readonly companyRepository: ICompanyRepository) {}
 
-  async execute() {
-    const companies = await this.companyRepository.findAll();
+  async execute(input: ListCompaniesInput) {
+    const filters: CompanyFilters = {};
+    if (input.search) filters.search = input.search;
+    if (input.city) filters.city = input.city;
+    if (input.industry) filters.industry = input.industry;
+    if (input.isActive !== undefined) filters.isActive = input.isActive;
+    if (input.isVerified !== undefined) filters.isVerified = input.isVerified;
+
+    const companies = await this.companyRepository.findAll(filters);
     return companies.map((company) => ({
       id: company.id,
       name: company.name,

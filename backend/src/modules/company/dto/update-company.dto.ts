@@ -7,46 +7,48 @@ import {
   MaxLength,
 } from 'class-validator';
 
-export class CreateCompanyDto {
+export class UpdateCompanyDto {
+  @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(255)
-  name: string;
+  name?: string;
 
+  @IsOptional()
   @IsString()
   @Matches(/^[0-9]{10}$/, { message: 'Tax number must be 10 digits' })
-  taxNumber: string;
+  taxNumber?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  city?: string;
+  city?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  industry?: string;
+  industry?: string | null;
 
   @IsOptional()
   @IsString()
-  address?: string;
+  address?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  website?: string;
+  website?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  contactPerson?: string;
+  contactPerson?: string | null;
 
   @IsOptional()
   @IsEmail()
-  contactEmail?: string;
+  contactEmail?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(30)
-  contactPhone?: string;
+  contactPhone?: string | null;
 }

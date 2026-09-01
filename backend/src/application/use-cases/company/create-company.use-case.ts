@@ -4,12 +4,13 @@ import { Company } from '../../../domain/entities/company.entity';
 import { ICompanyRepository } from '../../ports/company.repository.port';
 import { IDateProvider } from '../../ports/date-provider.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
+import { VknValidator } from '../../../common/utils/vkn-validator';
 
 export interface CreateCompanyInput {
   name: string;
   taxNumber: string;
-  city: string;
-  industry: string;
+  city?: string | null;
+  industry?: string | null;
   address?: string | null;
   website?: string | null;
   contactPerson?: string | null;
@@ -21,8 +22,8 @@ export interface CreateCompanyResult {
   id: string;
   name: string;
   taxNumber: string;
-  city: string;
-  industry: string;
+  city: string | null;
+  industry: string | null;
   isVerified: boolean;
   isActive: boolean;
 }
@@ -35,6 +36,11 @@ export class CreateCompanyUseCase {
   ) {}
 
   async execute(input: CreateCompanyInput): Promise<CreateCompanyResult> {
+    // Validate VKN
+    if (!VknValidator.isValid(input.taxNumber)) {
+      throw new DomainException('VALIDATION_ERROR', 'Invalid tax number', 400);
+    }
+
     const existing = await this.companyRepository.findByTaxNumber(
       input.taxNumber,
     );
@@ -51,8 +57,8 @@ export class CreateCompanyUseCase {
       randomUUID(),
       input.name,
       input.taxNumber,
-      input.city,
-      input.industry,
+      input.city ?? null,
+      input.industry ?? null,
       input.address ?? null,
       input.website ?? null,
       input.contactPerson ?? null,

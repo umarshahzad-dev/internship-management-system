@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { Company } from '../../domain/entities/company.entity';
-import { ICompanyRepository } from '../../application/ports/company.repository.port';
+import {
+  ICompanyRepository,
+  CompanyFilters,
+} from '../../application/ports/company.repository.port';
 import { CompanyEntity } from '../database/entities/company.entity';
 import { CompanyMapper } from '../mappers/company.mapper';
 
@@ -20,8 +23,26 @@ export class CompanyRepository extends ICompanyRepository {
     return entity ? CompanyMapper.toDomain(entity) : null;
   }
 
-  async findAll(): Promise<Company[]> {
+  async findAll(filters?: CompanyFilters): Promise<Company[]> {
+    const where: any = {};
+    if (filters?.search) {
+      where.name = ILike(`%${filters.search}%`);
+    }
+    if (filters?.city) {
+      where.city = ILike(`%${filters.city}%`);
+    }
+    if (filters?.industry) {
+      where.industry = ILike(`%${filters.industry}%`);
+    }
+    if (filters?.isActive !== undefined) {
+      where.isActive = filters.isActive;
+    }
+    if (filters?.isVerified !== undefined) {
+      where.isVerified = filters.isVerified;
+    }
+
     const entities = await this.companyRepository.find({
+      where,
       order: { name: 'ASC' },
     });
     return entities.map(CompanyMapper.toDomain);
