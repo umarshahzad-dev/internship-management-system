@@ -51,30 +51,34 @@ export class GenerateEvaluationLinkUseCase {
     ) {
       throw new DomainException(
         'INVALID_STATE_TRANSITION',
-        'Evaluation link can only be generated for approved or ongoing internships',
-        409,
-      );
-    }
-
-    // If an active token exists, return a new one? To avoid multiple active tokens, we'll reuse the existing active token.
-    const existingActive =
-      await this.employerTokenRepository.findActiveByInternship(
-        input.internshipId,
-      );
-    if (existingActive) {
-      // Return existing active token's plain? We cannot recover plain from hash. So generate a new one and revoke old?
-      // For simplicity, we'll create a new token even if active exists. But unique partial index may fail.
-      // Better to return conflict if active token exists.
-      throw new DomainException(
-        'CONFLICT',
-        'An active evaluation link already exists. Use that link or wait until it is used/expired.',
+        'Evaluation link can only be generated for approved, ongoing, or evaluation internships',
         409,
       );
     }
 
     const now = this.dateProvider.now();
+    const existingActive =
+      await this.employerTokenRepository.findActiveByInternship(
+        input.internshipId,
+      );
+
+    if (existingActive) {
+      // Invalidate the old active token so we can create a new one.
+      // The academic cannot retrieve the plaintext of the old token, so this is the only way
+      // to allow regeneration without breaking the unique active token constraint.
+      const revokedToken = new EmployerToken(
+        existingActive.tokenHash,
+        existingActive.internshipId,
+        existingActive.expiresAt,
+        true,
+        now,
+        existingActive.createdAt,
+      );
+      await this.employerTokenRepository.update(revokedToken);
+    }
+
     const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const plainToken = randomBytes(32).toString('hex'); // 64 chars
+    const plainToken = randomBytes(32).toString('hex');
     const tokenHash = createHash('sha256').update(plainToken).digest('hex');
 
     const token = new EmployerToken(
