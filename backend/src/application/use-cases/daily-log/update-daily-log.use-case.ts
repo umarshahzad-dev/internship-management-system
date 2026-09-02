@@ -77,7 +77,12 @@ export class UpdateDailyLogUseCase {
     try {
       saved = await this.dailyLogRepository.update(updated);
     } catch (error) {
-      if (error && error.code === '23505') {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as any).code === '23505'
+      ) {
         throw new DomainException(
           'CONFLICT',
           'A log already exists for this date',

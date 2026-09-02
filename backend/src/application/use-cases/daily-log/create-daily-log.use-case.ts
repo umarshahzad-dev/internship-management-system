@@ -50,7 +50,6 @@ export class CreateDailyLogUseCase {
       );
     }
 
-    // Log date must be within internship start/end dates
     const logDate = input.logDate;
     if (logDate < internship.startDate || logDate > internship.endDate) {
       throw new DomainException(
@@ -74,8 +73,12 @@ export class CreateDailyLogUseCase {
     try {
       saved = await this.dailyLogRepository.create(log);
     } catch (error) {
-      // Unique violation
-      if (error && error.code === '23505') {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as any).code === '23505'
+      ) {
         throw new DomainException(
           'CONFLICT',
           'A log already exists for this date',
