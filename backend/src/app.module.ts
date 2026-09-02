@@ -15,6 +15,7 @@ import { DocumentTypeModule } from './modules/document-type/document-type.module
 import { ApplicationDocumentModule } from './modules/application-document/application-document.module';
 import { InternshipModule } from './modules/internship/internship.module';
 import { DailyLogModule } from './modules/daily-log/daily-log.module';
+import { SgkModule } from './modules/sgk/sgk.module';
 import { SeedModule } from './seed/seed.module';
 
 @Module({
@@ -23,12 +24,7 @@ import { SeedModule } from './seed/seed.module';
       isGlobal: true,
       envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
     }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000,
-        limit: 100,
-      },
-    ]),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -53,15 +49,10 @@ import { SeedModule } from './seed/seed.module';
     ApplicationDocumentModule,
     InternshipModule,
     DailyLogModule,
+    SgkModule,
     SeedModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
