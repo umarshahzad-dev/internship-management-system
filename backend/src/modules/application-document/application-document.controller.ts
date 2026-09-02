@@ -67,10 +67,12 @@ export class ApplicationDocumentController {
     @Param('id', new ParseUUIDPipe()) internshipId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    // Authorization checks are handled by existing get internship access? We'll keep simple:
-    // Both student owner and academic of same department can view.
-    // For now, allow any authenticated, but we can refine.
-    return this.listApplicationDocumentsUseCase.execute(internshipId);
+    return this.listApplicationDocumentsUseCase.execute({
+      internshipId,
+      currentUserId: req.user!.id,
+      currentUserRole: req.user!.role,
+      currentUserDepartmentId: req.user!.departmentId,
+    });
   }
 
   @Post('application-documents/:documentId/accept')
