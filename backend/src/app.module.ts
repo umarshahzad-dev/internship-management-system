@@ -16,6 +16,7 @@ import { ApplicationDocumentModule } from './modules/application-document/applic
 import { InternshipModule } from './modules/internship/internship.module';
 import { DailyLogModule } from './modules/daily-log/daily-log.module';
 import { SgkModule } from './modules/sgk/sgk.module';
+import { EmployerEvaluationModule } from './modules/employer-evaluation/employer-evaluation.module';
 import { SeedModule } from './seed/seed.module';
 
 @Module({
@@ -50,6 +51,7 @@ import { SeedModule } from './seed/seed.module';
     InternshipModule,
     DailyLogModule,
     SgkModule,
+    EmployerEvaluationModule,
     SeedModule,
   ],
   controllers: [AppController],
