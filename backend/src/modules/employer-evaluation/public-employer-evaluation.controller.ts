@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { ValidateEmployerTokenUseCase } from '../../application/use-cases/employer-evaluation/validate-employer-token.use-case';
 import { SubmitDigitalEvaluationUseCase } from '../../application/use-cases/employer-evaluation/submit-digital-evaluation.use-case';
 import { SubmitDigitalEvaluationDto } from './dto/submit-digital-evaluation.dto';
+import { DomainException } from '../../common/exceptions/domain.exception';
 
 @Controller('employer-evaluation')
 export class PublicEmployerEvaluationController {
@@ -13,7 +14,7 @@ export class PublicEmployerEvaluationController {
   @Get('validate')
   async validate(@Query('token') token: string) {
     if (!token) {
-      throw new Error('Token is required');
+      throw new DomainException('VALIDATION_ERROR', 'Token is required', 400);
     }
     return this.validateEmployerTokenUseCase.execute({ plainToken: token });
   }
