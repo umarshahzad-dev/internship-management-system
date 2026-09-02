@@ -5,6 +5,7 @@ import * as argon2 from 'argon2';
 import { DepartmentEntity } from '../infrastructure/database/entities/department.entity';
 import { UserEntity } from '../infrastructure/database/entities/user.entity';
 import { UserSecurityStateEntity } from '../infrastructure/database/entities/user-security-state.entity';
+import { DocumentTypeEntity } from '../infrastructure/database/entities/document-type.entity';
 import { UserRole } from '../domain/value-objects/role.vo';
 
 @Injectable()
@@ -18,6 +19,8 @@ export class SeedService implements OnApplicationBootstrap {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(UserSecurityStateEntity)
     private readonly securityStateRepository: Repository<UserSecurityStateEntity>,
+    @InjectRepository(DocumentTypeEntity)
+    private readonly documentTypeRepository: Repository<DocumentTypeEntity>,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -38,7 +41,7 @@ export class SeedService implements OnApplicationBootstrap {
       department = await this.departmentRepository.save(department);
     }
 
-    // Create users
+    // Create users (same as before)
     await this.createUserIfNotExists({
       email: 'admin@example.com',
       role: UserRole.ADMIN,
@@ -47,7 +50,6 @@ export class SeedService implements OnApplicationBootstrap {
       departmentId: null,
       studentNumber: null,
     });
-
     await this.createUserIfNotExists({
       email: 'academic@example.com',
       role: UserRole.ACADEMIC,
@@ -56,7 +58,6 @@ export class SeedService implements OnApplicationBootstrap {
       departmentId: department.id,
       studentNumber: null,
     });
-
     await this.createUserIfNotExists({
       email: 'student@example.com',
       role: UserRole.STUDENT,
@@ -66,7 +67,71 @@ export class SeedService implements OnApplicationBootstrap {
       studentNumber: '20260001',
     });
 
+    // Seed document types for department
+    await this.seedDocumentTypes(department.id);
+
     this.logger.log('Seeding completed.');
+  }
+
+  private async seedDocumentTypes(departmentId: string): Promise<void> {
+    const definitions = [
+      {
+        name: 'Zorunlu Staj Belgesi',
+        description:
+          'Required by some companies; not mandatory for all students.',
+        isRequired: false,
+        allowedFileTypes: ['pdf', 'jpg', 'png'],
+        maxFileSize: 5,
+      },
+      {
+        name: 'Staj Başvuru Formu',
+        description: 'Mandatory internship application form.',
+        isRequired: true,
+        allowedFileTypes: ['pdf', 'jpg', 'png'],
+        maxFileSize: 5,
+      },
+      {
+        name: 'Staj Ücretlerine İşsizlik Fonu Katkısı Öğrenci ve İşveren Bilgi Formu',
+        description: 'Not everyone fills it.',
+        isRequired: false,
+        allowedFileTypes: ['pdf', 'jpg', 'png'],
+        maxFileSize: 5,
+      },
+      {
+        name: 'Uzaktan Mesleki Staj Evrak',
+        description: 'Not everyone fills it.',
+        isRequired: false,
+        allowedFileTypes: ['pdf', 'jpg', 'png'],
+        maxFileSize: 5,
+      },
+      {
+        name: 'Müstehaklık Belgesi (E-devlet Kapısı üzerinden temin edilebilir.)',
+        description: 'Mandatory.',
+        isRequired: true,
+        allowedFileTypes: ['pdf', 'jpg', 'png'],
+        maxFileSize: 5,
+      },
+      {
+        name: 'Kimlik Fotokopisi',
+        description: 'Mandatory.',
+        isRequired: true,
+        allowedFileTypes: ['pdf', 'jpg', 'png'],
+        maxFileSize: 5,
+      },
+    ];
+
+    for (const def of definitions) {
+      const existing = await this.documentTypeRepository.findOne({
+        where: { departmentId, name: def.name },
+      });
+      if (!existing) {
+        const entity = this.documentTypeRepository.create({
+          departmentId,
+          ...def,
+        });
+        await this.documentTypeRepository.save(entity);
+      }
+    }
   }
 
   private async createUserIfNotExists(input: {

@@ -11,6 +11,7 @@ import { UserModule } from './modules/user/user.module';
 import { CompanyModule } from './modules/company/company.module';
 import { AcademicCalendarModule } from './modules/calendar/academic-calendar.module';
 import { HolidayModule } from './modules/holiday/holiday.module';
+import { DocumentTypeModule } from './modules/document-type/document-type.module';
 import { SeedModule } from './seed/seed.module';
 
 @Module({
@@ -45,6 +46,7 @@ import { SeedModule } from './seed/seed.module';
     CompanyModule,
     AcademicCalendarModule,
     HolidayModule,
+    DocumentTypeModule,
     SeedModule,
   ],
   controllers: [AppController],
