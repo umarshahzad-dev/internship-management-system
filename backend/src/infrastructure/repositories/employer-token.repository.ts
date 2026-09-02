@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { EmployerToken } from '../../domain/entities/employer-token.entity';
 import { IEmployerTokenRepository } from '../../application/ports/employer-token.repository.port';
 import { EmployerTokenEntity } from '../database/entities/employer-token.entity';
@@ -18,6 +18,16 @@ export class EmployerTokenRepository extends IEmployerTokenRepository {
   async findByTokenHash(tokenHash: string): Promise<EmployerToken | null> {
     const entity = await this.employerTokenRepository.findOne({
       where: { tokenHash },
+    });
+    return entity ? EmployerTokenMapper.toDomain(entity) : null;
+  }
+
+  async findActiveByInternship(
+    internshipId: string,
+  ): Promise<EmployerToken | null> {
+    const entity = await this.employerTokenRepository.findOne({
+      where: { internshipId, isUsed: false, usedAt: IsNull() },
+      order: { createdAt: 'DESC' },
     });
     return entity ? EmployerTokenMapper.toDomain(entity) : null;
   }
