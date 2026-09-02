@@ -13,6 +13,7 @@ import { AcademicCalendarModule } from './modules/calendar/academic-calendar.mod
 import { HolidayModule } from './modules/holiday/holiday.module';
 import { DocumentTypeModule } from './modules/document-type/document-type.module';
 import { InternshipModule } from './modules/internship/internship.module';
+import { ApplicationDocumentModule } from './modules/application-document/application-document.module';
 import { SeedModule } from './seed/seed.module';
 
 @Module({
@@ -49,6 +50,7 @@ import { SeedModule } from './seed/seed.module';
     HolidayModule,
     DocumentTypeModule,
     InternshipModule,
+    ApplicationDocumentModule,
     SeedModule,
   ],
   controllers: [AppController],

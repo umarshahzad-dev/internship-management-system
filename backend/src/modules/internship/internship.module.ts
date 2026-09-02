@@ -4,10 +4,16 @@ import { AuthModule } from '../auth/auth.module';
 import { InternshipController } from './internship.controller';
 import { InternshipEntity } from '../../infrastructure/database/entities/internship.entity';
 import { InternshipStatusHistoryEntity } from '../../infrastructure/database/entities/internship-status-history.entity';
+import { DocumentTypeEntity } from '../../infrastructure/database/entities/document-type.entity';
+import { ApplicationDocumentEntity } from '../../infrastructure/database/entities/application-document.entity';
 import { InternshipRepository } from '../../infrastructure/repositories/internship.repository';
 import { InternshipStatusHistoryRepository } from '../../infrastructure/repositories/internship-status-history.repository';
+import { DocumentTypeRepository } from '../../infrastructure/repositories/document-type.repository';
+import { ApplicationDocumentRepository } from '../../infrastructure/repositories/application-document.repository';
 import { IInternshipRepository } from '../../application/ports/internship.repository.port';
 import { IInternshipStatusHistoryRepository } from '../../application/ports/internship-status-history.repository.port';
+import { IDocumentTypeRepository } from '../../application/ports/document-type.repository.port';
+import { IApplicationDocumentRepository } from '../../application/ports/application-document.repository.port';
 import { CreateDraftInternshipUseCase } from '../../application/use-cases/internship/create-draft-internship.use-case';
 import { ListInternshipsUseCase } from '../../application/use-cases/internship/list-internships.use-case';
 import { GetInternshipUseCase } from '../../application/use-cases/internship/get-internship.use-case';
@@ -25,7 +31,12 @@ import { RolesGuard } from '../user/guards/roles.guard';
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([InternshipEntity, InternshipStatusHistoryEntity]),
+    TypeOrmModule.forFeature([
+      InternshipEntity,
+      InternshipStatusHistoryEntity,
+      DocumentTypeEntity,
+      ApplicationDocumentEntity,
+    ]),
   ],
   controllers: [InternshipController],
   providers: [
@@ -33,6 +44,11 @@ import { RolesGuard } from '../user/guards/roles.guard';
     {
       provide: IInternshipStatusHistoryRepository,
       useClass: InternshipStatusHistoryRepository,
+    },
+    { provide: IDocumentTypeRepository, useClass: DocumentTypeRepository },
+    {
+      provide: IApplicationDocumentRepository,
+      useClass: ApplicationDocumentRepository,
     },
     { provide: IDateProvider, useClass: SystemDateProvider },
     CreateDraftInternshipUseCase,
@@ -47,6 +63,11 @@ import { RolesGuard } from '../user/guards/roles.guard';
     GetInternshipHistoryUseCase,
     RolesGuard,
   ],
-  exports: [IInternshipRepository, IInternshipStatusHistoryRepository],
+  exports: [
+    IInternshipRepository,
+    IInternshipStatusHistoryRepository,
+    IDocumentTypeRepository,
+    IApplicationDocumentRepository,
+  ],
 })
 export class InternshipModule {}
