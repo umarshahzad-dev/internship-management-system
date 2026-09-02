@@ -11,7 +11,10 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api/v1', {
-    exclude: [{ path: 'employer-evaluation', method: RequestMethod.ALL }],
+    exclude: [
+      { path: 'employer-evaluation/validate', method: RequestMethod.GET },
+      { path: 'employer-evaluation/submit', method: RequestMethod.POST },
+    ],
   });
 
   app.use(cookieParser());
