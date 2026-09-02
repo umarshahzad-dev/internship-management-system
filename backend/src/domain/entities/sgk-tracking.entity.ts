@@ -3,8 +3,8 @@ import { SgkStatus } from '../enums/sgk-status.enum';
 export class SgkTracking {
   private readonly _id: string;
   private readonly _internshipId: string;
-  private _status: SgkStatus;
-  private _documentPath: string | null;
+  private readonly _status: SgkStatus;
+  private readonly _documentPath: string | null;
   private readonly _createdAt: Date;
   private readonly _updatedAt: Date;
 
@@ -46,14 +46,5 @@ export class SgkTracking {
   }
   get updatedAt(): Date {
     return this._updatedAt;
-  }
-
-  updateStatus(newStatus: SgkStatus, now: Date): void {
-    this._status = newStatus;
-    // We cannot update _updatedAt directly because it's readonly; use a new entity approach instead.
-  }
-
-  setDocumentPath(path: string | null): void {
-    this._documentPath = path?.trim() || null;
   }
 }
