@@ -17,6 +17,7 @@ import { InternshipModule } from './modules/internship/internship.module';
 import { DailyLogModule } from './modules/daily-log/daily-log.module';
 import { SgkModule } from './modules/sgk/sgk.module';
 import { EmployerEvaluationModule } from './modules/employer-evaluation/employer-evaluation.module';
+import { ScoringModule } from './modules/scoring/scoring.module';
 import { SeedModule } from './seed/seed.module';
 
 @Module({
@@ -52,6 +53,7 @@ import { SeedModule } from './seed/seed.module';
     DailyLogModule,
     SgkModule,
     EmployerEvaluationModule,
+    ScoringModule,
     SeedModule,
   ],
   controllers: [AppController],
