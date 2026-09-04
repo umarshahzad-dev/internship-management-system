@@ -58,6 +58,16 @@ export class SeedService implements OnApplicationBootstrap {
       departmentId: department.id,
       studentNumber: null,
     });
+    
+    await this.createUserIfNotExists({
+      email: 'admin_staff@example.com',
+      role: UserRole.ADMINISTRATIVE,
+      firstName: 'Idari',
+      lastName: 'Personel',
+      departmentId: department.id,
+      studentNumber: null,
+    });
+    
     await this.createUserIfNotExists({
       email: 'student@example.com',
       role: UserRole.STUDENT,

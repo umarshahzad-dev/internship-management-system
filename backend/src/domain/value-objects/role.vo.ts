@@ -1,6 +1,7 @@
 export enum UserRole {
   STUDENT = 'STUDENT',
   ACADEMIC = 'ACADEMIC',
+  ADMINISTRATIVE = 'ADMINISTRATIVE',
   ADMIN = 'ADMIN',
 }
 
@@ -25,6 +26,10 @@ export class Role {
 
   isAcademic(): boolean {
     return this.value === UserRole.ACADEMIC;
+  }
+
+  isAdministrative(): boolean {
+    return this.value === UserRole.ADMINISTRATIVE;
   }
 
   isAdmin(): boolean {
