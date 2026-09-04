@@ -1,0 +1,4 @@
+email,password,role,firstname,lastname,studentnumber,department
+student3@example.com,Test1234,STUDENT,Third,Student,20260003,Computer Engineering
+student4@example.com,,STUDENT,Fourth,Student,20260004,Computer Engineering
+student5@example.com,,STUDENT,Fifth,Student,20260005,Software Engineering
