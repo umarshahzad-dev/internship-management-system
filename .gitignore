@@ -65,3 +65,8 @@ frontend/.vite/
 
 # Misc
 *.local
+
+
+
+*.csv
+cookies.txt

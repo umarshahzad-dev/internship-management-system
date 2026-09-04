@@ -1,5 +1,0 @@
-name,taxNumber,city,industry,contactEmail
-Türk Telekom,8760052205,Ankara,Telecom,info@telekom.com
-Tüpraş,8750014267,Kocaeli,Energy,info@tupras.com
-Invalid Corp,1234567890,Istanbul,Test,info@invalid.com
-,8790017566,Ankara,Education,info@missingname.com
