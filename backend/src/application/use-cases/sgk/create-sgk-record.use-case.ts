@@ -9,8 +9,8 @@ import { DomainException } from '../../../common/exceptions/domain.exception';
 
 export interface CreateSgkRecordInput {
   internshipId: string;
-  academicId: string;
-  academicDepartmentId: string;
+  userId: string;
+  departmentId: string;
 }
 
 export interface CreateSgkRecordResult {
@@ -36,10 +36,10 @@ export class CreateSgkRecordUseCase {
       throw new DomainException('NOT_FOUND', 'Internship not found', 404);
     }
 
-    if (internship.departmentId !== input.academicDepartmentId) {
+    if (internship.departmentId !== input.departmentId) {
       throw new DomainException(
         'FORBIDDEN',
-        'Academic cannot manage SGK for other departments',
+        'User cannot manage SGK for other departments',
         403,
       );
     }

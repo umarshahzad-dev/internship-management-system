@@ -12,8 +12,8 @@ import { DomainException } from '../../../common/exceptions/domain.exception';
 
 export interface TransitionToOngoingInput {
   internshipId: string;
-  academicId: string;
-  academicDepartmentId: string;
+  userId: string;
+  departmentId: string;
 }
 
 @Injectable()
@@ -29,14 +29,13 @@ export class TransitionToOngoingUseCase {
     const internship = await this.internshipRepository.findById(
       input.internshipId,
     );
-    if (!internship) {
+    if (!internship)
       throw new DomainException('NOT_FOUND', 'Internship not found', 404);
-    }
 
-    if (internship.departmentId !== input.academicDepartmentId) {
+    if (internship.departmentId !== input.departmentId) {
       throw new DomainException(
         'FORBIDDEN',
-        'Academic cannot manage internships of other departments',
+        'User cannot manage internships of other departments',
         403,
       );
     }
@@ -96,7 +95,7 @@ export class TransitionToOngoingUseCase {
       internship.status,
       InternshipStatus.ONGOING,
       null,
-      input.academicId,
+      input.userId,
       now,
     );
     await this.internshipHistoryRepository.create(history);

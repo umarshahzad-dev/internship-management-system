@@ -12,8 +12,8 @@ import { DomainException } from '../../../common/exceptions/domain.exception';
 export interface UpdateSgkStatusInput {
   sgkTrackingId: string;
   newStatus: SgkStatus;
-  academicId: string;
-  academicDepartmentId: string;
+  userId: string;
+  departmentId: string;
 }
 
 export interface UpdateSgkStatusResult {
@@ -36,18 +36,16 @@ export class UpdateSgkStatusUseCase {
     const tracking = await this.sgkTrackingRepository.findById(
       input.sgkTrackingId,
     );
-    if (!tracking) {
+    if (!tracking)
       throw new DomainException('NOT_FOUND', 'SGK tracking not found', 404);
-    }
 
     const internship = await this.internshipRepository.findById(
       tracking.internshipId,
     );
-    if (!internship) {
+    if (!internship)
       throw new DomainException('NOT_FOUND', 'Internship not found', 404);
-    }
 
-    if (internship.departmentId !== input.academicDepartmentId) {
+    if (internship.departmentId !== input.departmentId) {
       throw new DomainException(
         'FORBIDDEN',
         'User cannot manage SGK for other departments',
@@ -55,7 +53,6 @@ export class UpdateSgkStatusUseCase {
       );
     }
 
-    // Validate transition
     const allowed =
       (tracking.status === SgkStatus.PENDING &&
         input.newStatus === SgkStatus.SUBMITTED) ||
@@ -85,7 +82,7 @@ export class UpdateSgkStatusUseCase {
       tracking.id,
       tracking.status,
       input.newStatus,
-      input.academicId,
+      input.userId,
       now,
     );
     await this.historyRepository.create(history);

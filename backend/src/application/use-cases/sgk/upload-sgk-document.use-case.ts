@@ -13,8 +13,8 @@ import { DomainException } from '../../../common/exceptions/domain.exception';
 
 export interface UploadSgkDocumentInput {
   sgkTrackingId: string;
-  academicId: string;
-  academicDepartmentId: string;
+  userId: string;
+  departmentId: string;
   file: Express.Multer.File;
 }
 
@@ -41,18 +41,16 @@ export class UploadSgkDocumentUseCase {
     const tracking = await this.sgkTrackingRepository.findById(
       input.sgkTrackingId,
     );
-    if (!tracking) {
+    if (!tracking)
       throw new DomainException('NOT_FOUND', 'SGK tracking not found', 404);
-    }
 
     const internship = await this.internshipRepository.findById(
       tracking.internshipId,
     );
-    if (!internship) {
+    if (!internship)
       throw new DomainException('NOT_FOUND', 'Internship not found', 404);
-    }
 
-    if (internship.departmentId !== input.academicDepartmentId) {
+    if (internship.departmentId !== input.departmentId) {
       throw new DomainException(
         'FORBIDDEN',
         'User cannot manage SGK for other departments',
@@ -60,7 +58,6 @@ export class UploadSgkDocumentUseCase {
       );
     }
 
-    // Save file
     const ext = path.extname(input.file.originalname).slice(1).toLowerCase();
     if (!['pdf', 'jpg', 'png'].includes(ext)) {
       throw new DomainException(
@@ -93,7 +90,7 @@ export class UploadSgkDocumentUseCase {
       tracking.id,
       tracking.status,
       SgkStatus.SUBMITTED,
-      input.academicId,
+      input.userId,
       now,
     );
     await this.historyRepository.create(history);
