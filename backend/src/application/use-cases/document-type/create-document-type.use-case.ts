@@ -3,12 +3,14 @@ import { randomUUID } from 'crypto';
 import { DocumentType } from '../../../domain/entities/document-type.entity';
 import { IDocumentTypeRepository } from '../../ports/document-type.repository.port';
 import { IDateProvider } from '../../ports/date-provider.port';
+import { DocumentSource } from '../../../domain/enums/document-source.enum';
 
 export interface CreateDocumentTypeInput {
   departmentId: string;
   name: string;
   description?: string | null;
   isRequired?: boolean;
+  source: DocumentSource;
   allowedFileTypes?: string[];
   maxFileSize?: number;
 }
@@ -19,6 +21,7 @@ export interface CreateDocumentTypeResult {
   name: string;
   description: string | null;
   isRequired: boolean;
+  source: DocumentSource;
   allowedFileTypes: string[];
   maxFileSize: number;
   templatePath: string | null;
@@ -41,6 +44,7 @@ export class CreateDocumentTypeUseCase {
       input.name,
       input.description ?? null,
       input.isRequired ?? false,
+      input.source,
       input.allowedFileTypes ?? ['pdf', 'jpg', 'png'],
       input.maxFileSize ?? 5,
       null,
@@ -55,6 +59,7 @@ export class CreateDocumentTypeUseCase {
       name: saved.name,
       description: saved.description,
       isRequired: saved.isRequired,
+      source: saved.source,
       allowedFileTypes: saved.allowedFileTypes,
       maxFileSize: saved.maxFileSize,
       templatePath: saved.templatePath,

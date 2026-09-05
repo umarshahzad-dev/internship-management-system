@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsBoolean,
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -8,6 +9,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { DocumentSource } from '../../../domain/enums/document-source.enum';
 
 export class UpdateDocumentTypeDto {
   @IsOptional()
@@ -23,6 +25,10 @@ export class UpdateDocumentTypeDto {
   @IsOptional()
   @IsBoolean()
   isRequired?: boolean;
+
+  @IsOptional()
+  @IsEnum(DocumentSource)
+  source?: DocumentSource;
 
   @IsOptional()
   @IsArray()

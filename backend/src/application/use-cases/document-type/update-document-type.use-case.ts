@@ -3,12 +3,14 @@ import { DocumentType } from '../../../domain/entities/document-type.entity';
 import { IDocumentTypeRepository } from '../../ports/document-type.repository.port';
 import { IDateProvider } from '../../ports/date-provider.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
+import { DocumentSource } from '../../../domain/enums/document-source.enum';
 
 export interface UpdateDocumentTypeInput {
   documentTypeId: string;
   name?: string;
   description?: string | null;
   isRequired?: boolean;
+  source?: DocumentSource;
   allowedFileTypes?: string[];
   maxFileSize?: number;
 }
@@ -19,6 +21,7 @@ export interface UpdateDocumentTypeResult {
   name: string;
   description: string | null;
   isRequired: boolean;
+  source: DocumentSource;
   allowedFileTypes: string[];
   maxFileSize: number;
   templatePath: string | null;
@@ -50,6 +53,7 @@ export class UpdateDocumentTypeUseCase {
         ? input.description
         : existing.description,
       input.isRequired ?? existing.isRequired,
+      input.source !== undefined ? input.source : existing.source,
       input.allowedFileTypes ?? existing.allowedFileTypes,
       input.maxFileSize ?? existing.maxFileSize,
       existing.templatePath,
@@ -64,6 +68,7 @@ export class UpdateDocumentTypeUseCase {
       name: saved.name,
       description: saved.description,
       isRequired: saved.isRequired,
+      source: saved.source,
       allowedFileTypes: saved.allowedFileTypes,
       maxFileSize: saved.maxFileSize,
       templatePath: saved.templatePath,
