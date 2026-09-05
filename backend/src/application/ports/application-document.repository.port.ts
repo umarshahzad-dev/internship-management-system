@@ -12,6 +12,10 @@ export abstract class IApplicationDocumentRepository {
     internshipId: string,
     documentTypeId: string,
   ): Promise<ApplicationDocument | null>;
+  abstract findByInternshipAndType(
+    internshipId: string,
+    documentTypeId: string,
+  ): Promise<ApplicationDocument | null>;
   abstract findAcceptedByInternship(
     internshipId: string,
   ): Promise<ApplicationDocument[]>;

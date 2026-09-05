@@ -4,7 +4,7 @@ export class ApplicationDocument {
   private readonly _id: string;
   private readonly _internshipId: string;
   private readonly _documentTypeId: string;
-  private readonly _filePath: string;
+  private _filePath: string;
   private readonly _originalFilename: string;
   private _status: ApplicationDocumentStatus;
   private _rejectionReason: string | null;
@@ -85,5 +85,11 @@ export class ApplicationDocument {
   reject(reason: string): void {
     this._status = ApplicationDocumentStatus.REJECTED;
     this._rejectionReason = reason.trim();
+  }
+
+  reupload(newFilePath: string): void {
+    this._filePath = newFilePath;
+    this._status = ApplicationDocumentStatus.PENDING;
+    this._rejectionReason = null;
   }
 }

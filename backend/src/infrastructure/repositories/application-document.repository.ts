@@ -65,6 +65,16 @@ export class ApplicationDocumentRepository extends IApplicationDocumentRepositor
     return entity ? ApplicationDocumentMapper.toDomain(entity) : null;
   }
 
+  async findByInternshipAndType(
+    internshipId: string,
+    documentTypeId: string,
+  ): Promise<ApplicationDocument | null> {
+    const entity = await this.documentRepository.findOne({
+      where: { internshipId, documentTypeId },
+    });
+    return entity ? ApplicationDocumentMapper.toDomain(entity) : null;
+  }
+
   async findAcceptedByInternship(
     internshipId: string,
   ): Promise<ApplicationDocument[]> {
