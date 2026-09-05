@@ -21,6 +21,10 @@ export interface InternshipDetail {
   locked: boolean;
   approvedAt: string | null;
   approvedBy: string | null;
+  employerApprovalIp: string | null;
+  employerApprovalTimestamp: string | null;
+  commissionApprovalUserId: string | null;
+  commissionApprovalTimestamp: string | null;
 }
 
 @Injectable()
@@ -62,6 +66,14 @@ export class GetInternshipUseCase {
         ? internship.approvedAt.toISOString()
         : null,
       approvedBy: internship.approvedBy,
+      employerApprovalIp: internship.employerApprovalIp,
+      employerApprovalTimestamp: internship.employerApprovalTimestamp
+        ? internship.employerApprovalTimestamp.toISOString()
+        : null,
+      commissionApprovalUserId: internship.commissionApprovalUserId,
+      commissionApprovalTimestamp: internship.commissionApprovalTimestamp
+        ? internship.commissionApprovalTimestamp.toISOString()
+        : null,
     };
   }
 }

@@ -1,9 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { createHash, randomUUID } from 'crypto';
-import { Internship } from '../../../domain/entities/internship.entity';
 import { EmployerToken } from '../../../domain/entities/employer-token.entity';
 import { EmployerTokenType } from '../../../domain/enums/employer-token-type.enum';
-import { InternshipStatus } from '../../../domain/enums/internship-status.enum';
 import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { IEmployerTokenRepository } from '../../ports/employer-token.repository.port';
 import { ICompanyRepository } from '../../ports/company.repository.port';
@@ -63,6 +61,9 @@ export class SubmitInternshipUseCase {
       now,
     );
     await this.employerTokenRepository.create(token);
+
+    // Log the plain token for development testing
+    this.logger.log('Employer approval token: ' + plainToken);
 
     // 3. Send email to employer (company contact email)
     const company = await this.companyRepository.findById(internship.companyId);

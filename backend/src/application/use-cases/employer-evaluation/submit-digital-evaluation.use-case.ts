@@ -11,6 +11,7 @@ import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { IDateProvider } from '../../ports/date-provider.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
 import { EvaluationMethod } from '../../../domain/enums/evaluation-method.enum';
+import { EmployerTokenType } from '../../../domain/enums/employer-token-type.enum';
 
 export interface SubmitDigitalEvaluationInput {
   plainToken: string;
@@ -49,7 +50,7 @@ export class SubmitDigitalEvaluationUseCase {
     if (token.isUsed) {
       throw new DomainException('TOKEN_USED', 'Token already used', 404);
     }
-    if (token.isExpired(new Date())) {
+    if (token.isExpired(this.dateProvider.now())) {
       throw new DomainException('TOKEN_EXPIRED', 'Token expired', 404);
     }
 
@@ -93,6 +94,7 @@ export class SubmitDigitalEvaluationUseCase {
     const usedToken = new EmployerToken(
       token.tokenHash,
       token.internshipId,
+      token.type || EmployerTokenType.EVALUATION,
       token.expiresAt,
       true,
       now,

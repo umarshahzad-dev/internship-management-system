@@ -1,4 +1,5 @@
 import { InternshipStatus } from '../enums/internship-status.enum';
+import { DomainException } from '../../common/exceptions/domain.exception';
 
 export class Internship {
   private readonly _id: string;
@@ -125,22 +126,36 @@ export class Internship {
       this._status !== InternshipStatus.DRAFT &&
       this._status !== InternshipStatus.REVISION_REQUESTED
     ) {
-      throw new Error('Invalid state transition');
+      throw new DomainException(
+        'INVALID_STATE_TRANSITION',
+        'Only DRAFT or REVISION_REQUESTED internships can be submitted to employer',
+        409,
+      );
     }
     this._status = InternshipStatus.PENDING_EMPLOYER;
   }
 
   employerApprove(ipAddress: string, timestamp: Date): void {
-    if (this._status !== InternshipStatus.PENDING_EMPLOYER)
-      throw new Error('Invalid state transition');
+    if (this._status !== InternshipStatus.PENDING_EMPLOYER) {
+      throw new DomainException(
+        'INVALID_STATE_TRANSITION',
+        'Internship must be in PENDING_EMPLOYER state',
+        409,
+      );
+    }
     this._employerApprovalIp = ipAddress;
     this._employerApprovalTimestamp = timestamp;
     this._status = InternshipStatus.PENDING_COMMISSION;
   }
 
   commissionApprove(userId: string, timestamp: Date): void {
-    if (this._status !== InternshipStatus.PENDING_COMMISSION)
-      throw new Error('Invalid state transition');
+    if (this._status !== InternshipStatus.PENDING_COMMISSION) {
+      throw new DomainException(
+        'INVALID_STATE_TRANSITION',
+        'Internship must be in PENDING_COMMISSION state',
+        409,
+      );
+    }
     this._commissionApprovalUserId = userId;
     this._commissionApprovalTimestamp = timestamp;
     this._status = InternshipStatus.APPROVED_PENDING_SGK;

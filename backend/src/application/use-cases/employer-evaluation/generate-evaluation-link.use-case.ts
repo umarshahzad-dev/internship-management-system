@@ -6,6 +6,7 @@ import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { IDateProvider } from '../../ports/date-provider.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
 import { InternshipStatus } from '../../../domain/enums/internship-status.enum';
+import { EmployerTokenType } from '../../../domain/enums/employer-token-type.enum';
 
 export interface GenerateEvaluationLinkInput {
   internshipId: string;
@@ -69,6 +70,7 @@ export class GenerateEvaluationLinkUseCase {
       const revokedToken = new EmployerToken(
         existingActive.tokenHash,
         existingActive.internshipId,
+        existingActive.type || EmployerTokenType.EVALUATION,
         existingActive.expiresAt,
         true,
         now,
@@ -84,6 +86,7 @@ export class GenerateEvaluationLinkUseCase {
     const token = new EmployerToken(
       tokenHash,
       input.internshipId,
+      EmployerTokenType.EVALUATION,
       expiresAt,
       false,
       null,
