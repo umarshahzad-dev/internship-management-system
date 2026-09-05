@@ -38,40 +38,38 @@ export class SgkController {
     private readonly transitionToOngoingUseCase: TransitionToOngoingUseCase,
   ) {}
 
-  private getAcademicDepartmentId(req: AuthenticatedRequest): string {
-    if (req.user?.role !== UserRole.ACADEMIC) {
-      throw new DomainException(
-        'FORBIDDEN',
-        'Only academic can manage SGK',
-        403,
-      );
-    }
+  private getDepartmentId(req: AuthenticatedRequest): string {
+    // Academic and Administrative both have departmentId from JWT/session
     if (!req.user?.departmentId) {
-      throw new DomainException(
-        'FORBIDDEN',
-        'Academic must have a department',
-        403,
-      );
+      throw new DomainException('FORBIDDEN', 'User has no department', 403);
     }
     return req.user.departmentId;
   }
 
   @Get('sgk')
-  @Roles(UserRole.ACADEMIC)
+  @Roles(UserRole.ACADEMIC, UserRole.ADMINISTRATIVE)
   @UseGuards(RolesGuard)
   async list(@Req() req: AuthenticatedRequest) {
-    const departmentId = this.getAcademicDepartmentId(req);
+    const departmentId = this.getDepartmentId(req);
+    return this.listSgkRecordsUseCase.execute(departmentId);
+  }
+
+  @Get('sgk/department')
+  @Roles(UserRole.ACADEMIC, UserRole.ADMINISTRATIVE)
+  @UseGuards(RolesGuard)
+  async listByDepartment(@Req() req: AuthenticatedRequest) {
+    const departmentId = this.getDepartmentId(req);
     return this.listSgkRecordsUseCase.execute(departmentId);
   }
 
   @Post('internships/:id/sgk')
-  @Roles(UserRole.ACADEMIC)
+  @Roles(UserRole.ACADEMIC, UserRole.ADMINISTRATIVE)
   @UseGuards(RolesGuard, CsrfGuard)
   async createRecord(
     @Param('id', new ParseUUIDPipe()) internshipId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    const departmentId = this.getAcademicDepartmentId(req);
+    const departmentId = this.getDepartmentId(req);
     return this.createSgkRecordUseCase.execute({
       internshipId,
       academicId: req.user!.id,
@@ -80,7 +78,7 @@ export class SgkController {
   }
 
   @Post('sgk/:id/upload')
-  @Roles(UserRole.ACADEMIC)
+  @Roles(UserRole.ACADEMIC, UserRole.ADMINISTRATIVE)
   @UseGuards(RolesGuard, CsrfGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadDocument(
@@ -91,7 +89,7 @@ export class SgkController {
     if (!file) {
       throw new DomainException('VALIDATION_ERROR', 'File is required', 400);
     }
-    const departmentId = this.getAcademicDepartmentId(req);
+    const departmentId = this.getDepartmentId(req);
     return this.uploadSgkDocumentUseCase.execute({
       sgkTrackingId,
       academicId: req.user!.id,
@@ -101,14 +99,14 @@ export class SgkController {
   }
 
   @Patch('sgk/:id/status')
-  @Roles(UserRole.ACADEMIC)
+  @Roles(UserRole.ACADEMIC, UserRole.ADMINISTRATIVE)
   @UseGuards(RolesGuard, CsrfGuard)
   async updateStatus(
     @Param('id', new ParseUUIDPipe()) sgkTrackingId: string,
     @Body() dto: UpdateSgkStatusDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const departmentId = this.getAcademicDepartmentId(req);
+    const departmentId = this.getDepartmentId(req);
     return this.updateSgkStatusUseCase.execute({
       sgkTrackingId,
       newStatus: dto.status,
@@ -118,13 +116,13 @@ export class SgkController {
   }
 
   @Get('sgk/:id/history')
-  @Roles(UserRole.ACADEMIC)
+  @Roles(UserRole.ACADEMIC, UserRole.ADMINISTRATIVE)
   @UseGuards(RolesGuard)
   async history(
     @Param('id', new ParseUUIDPipe()) sgkTrackingId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    const departmentId = this.getAcademicDepartmentId(req);
+    const departmentId = this.getDepartmentId(req);
     return this.getSgkHistoryUseCase.execute(sgkTrackingId, departmentId);
   }
 
@@ -135,7 +133,7 @@ export class SgkController {
     @Param('id', new ParseUUIDPipe()) internshipId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    const departmentId = this.getAcademicDepartmentId(req);
+    const departmentId = this.getDepartmentId(req);
     await this.transitionToOngoingUseCase.execute({
       internshipId,
       academicId: req.user!.id,

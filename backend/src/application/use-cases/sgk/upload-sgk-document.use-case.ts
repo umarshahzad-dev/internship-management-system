@@ -55,7 +55,7 @@ export class UploadSgkDocumentUseCase {
     if (internship.departmentId !== input.academicDepartmentId) {
       throw new DomainException(
         'FORBIDDEN',
-        'Academic cannot manage SGK for other departments',
+        'User cannot manage SGK for other departments',
         403,
       );
     }
