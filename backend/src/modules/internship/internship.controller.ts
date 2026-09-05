@@ -23,6 +23,7 @@ import { ApproveInternshipUseCase } from '../../application/use-cases/internship
 import { RejectInternshipUseCase } from '../../application/use-cases/internship/reject-internship.use-case';
 import { RequestRevisionInternshipUseCase } from '../../application/use-cases/internship/request-revision-internship.use-case';
 import { GetInternshipHistoryUseCase } from '../../application/use-cases/internship/get-internship-history.use-case';
+import { CompleteInternshipUseCase } from '../../application/use-cases/internship/complete-internship.use-case';
 import { CreateDraftInternshipDto } from './dto/create-draft-internship.dto';
 import { UpdateDraftInternshipDto } from './dto/update-draft-internship.dto';
 import { ApproveInternshipDto } from './dto/approve-internship.dto';
@@ -45,6 +46,7 @@ export class InternshipController {
     private readonly rejectInternshipUseCase: RejectInternshipUseCase,
     private readonly requestRevisionInternshipUseCase: RequestRevisionInternshipUseCase,
     private readonly getInternshipHistoryUseCase: GetInternshipHistoryUseCase,
+    private readonly completeInternshipUseCase: CompleteInternshipUseCase,
   ) {}
 
   private getDepartmentId(req: AuthenticatedRequest): string {
@@ -191,6 +193,17 @@ export class InternshipController {
       reason: dto.reason,
     });
     return { message: 'Revision requested' };
+  }
+
+  @Post(':id/complete')
+  @Roles(UserRole.STUDENT)
+  @UseGuards(RolesGuard, CsrfGuard)
+  async complete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    await this.completeInternshipUseCase.execute(id, req.user!.id);
+    return { success: true };
   }
 
   @Get(':id/history')

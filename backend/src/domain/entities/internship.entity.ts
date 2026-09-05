@@ -163,6 +163,30 @@ export class Internship {
     this._status = InternshipStatus.APPROVED_PENDING_SGK;
   }
 
+  completeOngoing(now: Date): void {
+    if (this._status !== InternshipStatus.ONGOING) {
+      throw new DomainException(
+        'INVALID_STATE_TRANSITION',
+        'Only ONGOING internships can be completed',
+        409,
+      );
+    }
+    // Set hours to 0 to compare purely by date, ignoring time of day
+    const today = new Date(now);
+    today.setUTCHours(0, 0, 0, 0);
+    const end = new Date(this._endDate);
+    end.setUTCHours(0, 0, 0, 0);
+
+    if (today < end) {
+      throw new DomainException(
+        'INVALID_STATE_TRANSITION',
+        'Cannot complete internship before its end date',
+        409,
+      );
+    }
+    this._status = InternshipStatus.EVALUATION;
+  }
+
   updateStatus(newStatus: InternshipStatus, now: Date): void {
     this._status = newStatus;
     if (newStatus === InternshipStatus.APPROVED) {

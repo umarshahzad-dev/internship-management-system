@@ -7,8 +7,10 @@ import {
   Patch,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthGuard, AuthenticatedRequest } from '../auth/guards/auth.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { RolesGuard } from '../user/guards/roles.guard';
@@ -16,6 +18,7 @@ import { Roles } from '../user/decorators/roles.decorator';
 import { CreateDailyLogUseCase } from '../../application/use-cases/daily-log/create-daily-log.use-case';
 import { ListDailyLogsUseCase } from '../../application/use-cases/daily-log/list-daily-logs.use-case';
 import { UpdateDailyLogUseCase } from '../../application/use-cases/daily-log/update-daily-log.use-case';
+import { GenerateStajDefteriUseCase } from '../../application/use-cases/daily-log/generate-staj-defteri.use-case';
 import { CreateDailyLogDto } from './dto/create-daily-log.dto';
 import { UpdateDailyLogDto } from './dto/update-daily-log.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
@@ -27,6 +30,7 @@ export class DailyLogController {
     private readonly createDailyLogUseCase: CreateDailyLogUseCase,
     private readonly listDailyLogsUseCase: ListDailyLogsUseCase,
     private readonly updateDailyLogUseCase: UpdateDailyLogUseCase,
+    private readonly generateStajDefteriUseCase: GenerateStajDefteriUseCase,
   ) {}
 
   @Post('internships/:id/daily-logs')
@@ -72,5 +76,25 @@ export class DailyLogController {
       content: dto.content,
       currentUserId: req.user!.id,
     });
+  }
+
+  @Get('internships/:id/staj-defteri')
+  @Roles(UserRole.STUDENT)
+  @UseGuards(RolesGuard)
+  async generateDefter(
+    @Param('id', new ParseUUIDPipe()) internshipId: string,
+    @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
+  ) {
+    const pdfBuffer = await this.generateStajDefteriUseCase.execute(
+      internshipId,
+      req.user!.id,
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="staj_defteri.pdf"',
+      'Content-Length': pdfBuffer.length,
+    });
+    res.end(pdfBuffer);
   }
 }
