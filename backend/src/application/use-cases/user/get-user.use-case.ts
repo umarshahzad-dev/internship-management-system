@@ -35,6 +35,7 @@ export class GetUserUseCase {
       departmentId: user.departmentId,
       studentNumber: user.studentNumber,
       isActive: user.isActive,
+      profilePhotoPath: user.profilePhotoPath, // <-- added
     };
   }
 }

@@ -16,6 +16,7 @@ export class ListUsersUseCase {
       departmentId: user.departmentId,
       studentNumber: user.studentNumber,
       isActive: user.isActive,
+      profilePhotoPath: user.profilePhotoPath, // <-- added
     }));
   }
 }
