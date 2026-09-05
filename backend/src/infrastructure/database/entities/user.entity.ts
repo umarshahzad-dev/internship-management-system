@@ -42,6 +42,9 @@ export class UserEntity {
   @Column({ name: 'student_number', length: 20, nullable: true })
   studentNumber: string | null;
 
+  @Column({ name: 'profile_photo_path', length: 500, nullable: true })
+  profilePhotoPath: string | null;
+
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
 

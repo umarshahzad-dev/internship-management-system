@@ -58,6 +58,7 @@ export class UpdateUserUseCase {
       firstName,
       lastName,
       studentNumber,
+      existing.profilePhotoPath,
       isActive,
       existing.lastLogin,
       existing.createdAt,

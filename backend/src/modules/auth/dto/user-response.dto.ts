@@ -7,4 +7,5 @@ export class UserResponseDto {
   lastName: string;
   role: UserRole;
   departmentId: string | null;
+  profilePhotoPath: string | null; // <-- added
 }

@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard, AuthenticatedRequest } from '../auth/guards/auth.guard';
+import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { ListUsersUseCase } from '../../application/use-cases/user/list-users.use-case';
@@ -20,10 +21,10 @@ import { CreateUserUseCase } from '../../application/use-cases/user/create-user.
 import { GetUserUseCase } from '../../application/use-cases/user/get-user.use-case';
 import { UpdateUserUseCase } from '../../application/use-cases/user/update-user.use-case';
 import { ImportUsersUseCase } from '../../application/use-cases/user/import-users.use-case';
+import { UploadProfilePhotoUseCase } from '../../application/use-cases/user/upload-profile-photo.use-case';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
-import { CsrfGuard } from '../auth/guards/csrf.guard';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -34,6 +35,7 @@ export class UserController {
     private readonly getUserUseCase: GetUserUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly importUsersUseCase: ImportUsersUseCase,
+    private readonly uploadProfilePhotoUseCase: UploadProfilePhotoUseCase,
   ) {}
 
   @Get()
@@ -67,6 +69,28 @@ export class UserController {
       throw new Error('File is required');
     }
     return this.importUsersUseCase.execute(file.buffer);
+  }
+
+  @Get('me/photo')
+  @Roles(UserRole.STUDENT)
+  @UseGuards(RolesGuard)
+  async getPhoto(@Req() req: AuthenticatedRequest) {
+    // not implemented, placeholder
+    return { message: 'Photo retrieval not implemented yet' };
+  }
+
+  @Post('me/photo')
+  @Roles(UserRole.STUDENT)
+  @UseGuards(RolesGuard, CsrfGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadPhoto(
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (!file) {
+      throw new Error('File is required');
+    }
+    return this.uploadProfilePhotoUseCase.execute(req.user!.id, file);
   }
 
   @Get(':id')

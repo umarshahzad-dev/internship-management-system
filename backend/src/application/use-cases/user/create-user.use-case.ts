@@ -67,6 +67,7 @@ export class CreateUserUseCase {
       input.firstName,
       input.lastName,
       input.studentNumber ?? null,
+      null, // profilePhotoPath
       true,
       null,
       now,

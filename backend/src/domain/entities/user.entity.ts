@@ -10,6 +10,7 @@ export class User {
   private readonly _firstName: string;
   private readonly _lastName: string;
   private readonly _studentNumber: string | null;
+  private _profilePhotoPath: string | null;
   private _isActive: boolean;
   private _lastLogin: Date | null;
   private readonly _createdAt: Date;
@@ -24,6 +25,7 @@ export class User {
     firstName: string,
     lastName: string,
     studentNumber: string | null,
+    profilePhotoPath: string | null,
     isActive: boolean,
     lastLogin: Date | null,
     createdAt: Date,
@@ -56,6 +58,7 @@ export class User {
     this._firstName = firstName.trim();
     this._lastName = lastName.trim();
     this._studentNumber = studentNumber;
+    this._profilePhotoPath = profilePhotoPath;
     this._isActive = isActive;
     this._lastLogin = lastLogin;
     this._createdAt = createdAt;
@@ -86,6 +89,9 @@ export class User {
   get studentNumber(): string | null {
     return this._studentNumber;
   }
+  get profilePhotoPath(): string | null {
+    return this._profilePhotoPath;
+  }
   get isActive(): boolean {
     return this._isActive;
   }
@@ -105,6 +111,10 @@ export class User {
 
   updatePasswordHash(newHash: string): void {
     this._passwordHash = newHash;
+  }
+
+  updateProfilePhoto(path: string): void {
+    this._profilePhotoPath = path;
   }
 
   deactivate(): void {

@@ -13,6 +13,7 @@ export interface GetMeResult {
   lastName: string;
   role: UserRole;
   departmentId: string | null;
+  profilePhotoPath: string | null; // <-- added
 }
 
 @Injectable()
@@ -29,6 +30,7 @@ export class GetMeUseCase {
       lastName: user.lastName,
       role: user.role.getValue(),
       departmentId: user.departmentId,
+      profilePhotoPath: user.profilePhotoPath, // <-- added
     };
   }
 }

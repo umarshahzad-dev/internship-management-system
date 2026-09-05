@@ -16,6 +16,7 @@ export class UserMapper {
       entity.firstName,
       entity.lastName,
       entity.studentNumber,
+      entity.profilePhotoPath,
       entity.isActive,
       entity.lastLogin,
       entity.createdAt,
@@ -33,6 +34,7 @@ export class UserMapper {
     entity.firstName = domain.firstName;
     entity.lastName = domain.lastName;
     entity.studentNumber = domain.studentNumber;
+    entity.profilePhotoPath = domain.profilePhotoPath;
     entity.isActive = domain.isActive;
     entity.lastLogin = domain.lastLogin;
     entity.createdAt = domain.createdAt;

@@ -30,6 +30,7 @@ export interface LoginResult {
     lastName: string;
     role: UserRole;
     departmentId: string | null;
+    profilePhotoPath: string | null; // <-- added
   };
   sessionId?: string;
   csrfToken?: string;
@@ -135,16 +136,19 @@ export class LoginUseCase {
     );
     await this.sessionRepository.create(session);
 
+    const userResponse = {
+      id: user.id,
+      email: user.email.toValue(),
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role.getValue(),
+      departmentId: user.departmentId,
+      profilePhotoPath: user.profilePhotoPath, // <-- added
+    };
+
     if (input.isBrowser) {
       return {
-        user: {
-          id: user.id,
-          email: user.email.toValue(),
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role.getValue(),
-          departmentId: user.departmentId,
-        },
+        user: userResponse,
         sessionId: session.id,
         csrfToken,
       };
@@ -179,14 +183,7 @@ export class LoginUseCase {
     await this.refreshTokenRepository.create(refreshToken);
 
     return {
-      user: {
-        id: user.id,
-        email: user.email.toValue(),
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role.getValue(),
-        departmentId: user.departmentId,
-      },
+      user: userResponse,
       sessionId: session.id,
       csrfToken,
       accessToken,

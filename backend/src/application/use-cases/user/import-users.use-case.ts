@@ -80,6 +80,7 @@ export class ImportUsersUseCase {
             csvRow.firstName,
             csvRow.lastName,
             csvRow.studentNumber ?? existingUser.studentNumber,
+            existingUser.profilePhotoPath,
             existingUser.isActive,
             existingUser.lastLogin,
             existingUser.createdAt,
@@ -100,6 +101,7 @@ export class ImportUsersUseCase {
             csvRow.firstName,
             csvRow.lastName,
             csvRow.studentNumber,
+            null, // profilePhotoPath
             true,
             null,
             this.dateProvider.now(),
