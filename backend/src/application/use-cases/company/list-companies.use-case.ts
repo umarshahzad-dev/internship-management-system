@@ -16,6 +16,8 @@ export interface CompanyListItem {
   id: string;
   name: string;
   taxNumber: string;
+  sgkNumber: string | null;
+  iban: string | null;
   city: string | null;
   industry: string | null;
   isVerified: boolean;
@@ -39,6 +41,8 @@ export class ListCompaniesUseCase {
       id: company.id,
       name: company.name,
       taxNumber: company.taxNumber,
+      sgkNumber: company.sgkNumber,
+      iban: company.iban,
       city: company.city,
       industry: company.industry,
       isVerified: company.isVerified,

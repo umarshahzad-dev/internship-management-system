@@ -22,6 +22,8 @@ export class DeactivateCompanyUseCase {
       existing.id,
       existing.name,
       existing.taxNumber,
+      existing.sgkNumber,
+      existing.iban,
       existing.city,
       existing.industry,
       existing.address,

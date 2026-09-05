@@ -44,6 +44,8 @@ export class ImportCompaniesUseCase {
 
         const name = row['name'];
         const taxNumber = row['taxnumber'] || row['tax_number'];
+        const sgkNumber = row['sgknumber'] || row['sgk_number'] || null;
+        const iban = row['iban'] || null;
         const city = row['city'] || null;
         const industry = row['industry'] || null;
         const address = row['address'] || null;
@@ -74,6 +76,8 @@ export class ImportCompaniesUseCase {
             existing.id,
             name || existing.name,
             existing.taxNumber,
+            sgkNumber || existing.sgkNumber,
+            iban || existing.iban,
             city || existing.city,
             industry || existing.industry,
             address || existing.address,
@@ -92,6 +96,8 @@ export class ImportCompaniesUseCase {
             randomUUID(),
             name,
             taxNumber,
+            sgkNumber,
+            iban,
             city,
             industry,
             address,
