@@ -1,14 +1,18 @@
+import { EmployerTokenType } from '../enums/employer-token-type.enum';
+
 export class EmployerToken {
   private readonly _tokenHash: string;
   private readonly _internshipId: string;
+  private readonly _type: EmployerTokenType;
   private readonly _expiresAt: Date;
-  private readonly _isUsed: boolean;
-  private readonly _usedAt: Date | null;
+  private _isUsed: boolean;
+  private _usedAt: Date | null;
   private readonly _createdAt: Date;
 
   constructor(
     tokenHash: string,
     internshipId: string,
+    type: EmployerTokenType,
     expiresAt: Date,
     isUsed: boolean,
     usedAt: Date | null,
@@ -16,11 +20,13 @@ export class EmployerToken {
   ) {
     if (!tokenHash) throw new Error('Token hash is required');
     if (!internshipId) throw new Error('Internship id is required');
+    if (!type) throw new Error('Token type is required');
     if (!expiresAt) throw new Error('Expires at is required');
     if (!createdAt) throw new Error('Created at is required');
 
     this._tokenHash = tokenHash;
     this._internshipId = internshipId;
+    this._type = type;
     this._expiresAt = expiresAt;
     this._isUsed = isUsed;
     this._usedAt = usedAt;
@@ -32,6 +38,9 @@ export class EmployerToken {
   }
   get internshipId(): string {
     return this._internshipId;
+  }
+  get type(): EmployerTokenType {
+    return this._type;
   }
   get expiresAt(): Date {
     return this._expiresAt;
@@ -48,5 +57,10 @@ export class EmployerToken {
 
   isExpired(now: Date): boolean {
     return now > this._expiresAt;
+  }
+
+  markAsUsed(usedAt: Date): void {
+    this._isUsed = true;
+    this._usedAt = usedAt;
   }
 }

@@ -17,6 +17,10 @@ export class InternshipMapper {
       entity.approvedBy,
       entity.createdAt,
       entity.updatedAt,
+      entity.employerApprovalIp,
+      entity.employerApprovalTimestamp,
+      entity.commissionApprovalUserId,
+      entity.commissionApprovalTimestamp,
     );
   }
 
@@ -33,6 +37,10 @@ export class InternshipMapper {
     entity.locked = domain.locked;
     entity.approvedAt = domain.approvedAt;
     entity.approvedBy = domain.approvedBy;
+    entity.employerApprovalIp = domain.employerApprovalIp;
+    entity.employerApprovalTimestamp = domain.employerApprovalTimestamp;
+    entity.commissionApprovalUserId = domain.commissionApprovalUserId;
+    entity.commissionApprovalTimestamp = domain.commissionApprovalTimestamp;
     entity.createdAt = domain.createdAt;
     entity.updatedAt = domain.updatedAt;
     return entity;

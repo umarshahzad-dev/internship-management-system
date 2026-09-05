@@ -12,6 +12,10 @@ export class Internship {
   private _locked: boolean;
   private _approvedAt: Date | null;
   private _approvedBy: string | null;
+  private _employerApprovalIp: string | null;
+  private _employerApprovalTimestamp: Date | null;
+  private _commissionApprovalUserId: string | null;
+  private _commissionApprovalTimestamp: Date | null;
   private readonly _createdAt: Date;
   private readonly _updatedAt: Date;
 
@@ -29,6 +33,10 @@ export class Internship {
     approvedBy: string | null,
     createdAt: Date,
     updatedAt: Date,
+    employerApprovalIp: string | null = null,
+    employerApprovalTimestamp: Date | null = null,
+    commissionApprovalUserId: string | null = null,
+    commissionApprovalTimestamp: Date | null = null,
   ) {
     if (!id) throw new Error('Internship id is required');
     if (!departmentId) throw new Error('Department id is required');
@@ -52,6 +60,10 @@ export class Internship {
     this._locked = locked;
     this._approvedAt = approvedAt;
     this._approvedBy = approvedBy;
+    this._employerApprovalIp = employerApprovalIp;
+    this._employerApprovalTimestamp = employerApprovalTimestamp;
+    this._commissionApprovalUserId = commissionApprovalUserId;
+    this._commissionApprovalTimestamp = commissionApprovalTimestamp;
     this._createdAt = createdAt;
     this._updatedAt = updatedAt;
   }
@@ -89,11 +101,49 @@ export class Internship {
   get approvedBy(): string | null {
     return this._approvedBy;
   }
+  get employerApprovalIp(): string | null {
+    return this._employerApprovalIp;
+  }
+  get employerApprovalTimestamp(): Date | null {
+    return this._employerApprovalTimestamp;
+  }
+  get commissionApprovalUserId(): string | null {
+    return this._commissionApprovalUserId;
+  }
+  get commissionApprovalTimestamp(): Date | null {
+    return this._commissionApprovalTimestamp;
+  }
   get createdAt(): Date {
     return this._createdAt;
   }
   get updatedAt(): Date {
     return this._updatedAt;
+  }
+
+  submitToEmployer(): void {
+    if (
+      this._status !== InternshipStatus.DRAFT &&
+      this._status !== InternshipStatus.REVISION_REQUESTED
+    ) {
+      throw new Error('Invalid state transition');
+    }
+    this._status = InternshipStatus.PENDING_EMPLOYER;
+  }
+
+  employerApprove(ipAddress: string, timestamp: Date): void {
+    if (this._status !== InternshipStatus.PENDING_EMPLOYER)
+      throw new Error('Invalid state transition');
+    this._employerApprovalIp = ipAddress;
+    this._employerApprovalTimestamp = timestamp;
+    this._status = InternshipStatus.PENDING_COMMISSION;
+  }
+
+  commissionApprove(userId: string, timestamp: Date): void {
+    if (this._status !== InternshipStatus.PENDING_COMMISSION)
+      throw new Error('Invalid state transition');
+    this._commissionApprovalUserId = userId;
+    this._commissionApprovalTimestamp = timestamp;
+    this._status = InternshipStatus.APPROVED_PENDING_SGK;
   }
 
   updateStatus(newStatus: InternshipStatus, now: Date): void {
@@ -102,9 +152,12 @@ export class Internship {
       this._approvedAt = now;
     }
     if (
-      [InternshipStatus.APPROVED, InternshipStatus.COMPLETED].includes(
-        newStatus,
-      )
+      [
+        InternshipStatus.APPROVED,
+        InternshipStatus.COMPLETED,
+        InternshipStatus.REJECTED,
+        InternshipStatus.WITHDRAWN,
+      ].includes(newStatus)
     ) {
       this._locked = true;
     }

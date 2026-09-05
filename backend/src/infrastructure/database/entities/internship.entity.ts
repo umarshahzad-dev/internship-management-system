@@ -63,6 +63,30 @@ export class InternshipEntity {
   @Column({ name: 'approved_by', type: 'uuid', nullable: true })
   approvedBy: string | null;
 
+  @Column({ name: 'employer_approval_ip', length: 45, nullable: true })
+  employerApprovalIp: string | null;
+
+  @Column({
+    name: 'employer_approval_timestamp',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  employerApprovalTimestamp: Date | null;
+
+  @Column({
+    name: 'commission_approval_user_id',
+    type: 'uuid',
+    nullable: true,
+  })
+  commissionApprovalUserId: string | null;
+
+  @Column({
+    name: 'commission_approval_timestamp',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  commissionApprovalTimestamp: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

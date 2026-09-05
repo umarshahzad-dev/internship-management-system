@@ -7,6 +7,7 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 import { InternshipEntity } from './internship.entity';
+import { EmployerTokenType } from '../../../domain/enums/employer-token-type.enum';
 
 @Entity('employer_tokens')
 export class EmployerTokenEntity {
@@ -19,6 +20,13 @@ export class EmployerTokenEntity {
   @ManyToOne(() => InternshipEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'internship_id' })
   internship: InternshipEntity;
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    default: EmployerTokenType.EVALUATION,
+  })
+  tokenType: EmployerTokenType;
 
   @Column({ name: 'expires_at', type: 'timestamptz' })
   expiresAt: Date;

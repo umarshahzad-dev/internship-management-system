@@ -1,0 +1,4 @@
+export enum EmployerTokenType {
+  APPLICATION_APPROVAL = 'APPLICATION_APPROVAL',
+  EVALUATION = 'EVALUATION',
+}
