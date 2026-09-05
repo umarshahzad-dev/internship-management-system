@@ -5,7 +5,7 @@ import { promisify } from 'util';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { randomUUID } from 'crypto';
-import { DomainException } from '../../../common/exceptions/domain.exception';
+import { DomainException } from '../../common/exceptions/domain.exception';
 
 const execAsync = promisify(exec);
 
