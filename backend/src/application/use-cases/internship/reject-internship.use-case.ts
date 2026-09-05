@@ -32,11 +32,12 @@ export class RejectInternshipUseCase {
 
     if (
       internship.status !== InternshipStatus.APPLIED &&
-      internship.status !== InternshipStatus.REVISION
+      internship.status !== InternshipStatus.REVISION &&
+      internship.status !== InternshipStatus.PENDING_COMMISSION
     ) {
       throw new DomainException(
         'INVALID_STATE_TRANSITION',
-        'Only applied or revision applications can be rejected',
+        'Only applied, revision, or pending commission applications can be rejected',
         409,
       );
     }
@@ -56,6 +57,10 @@ export class RejectInternshipUseCase {
       null,
       internship.createdAt,
       now,
+      internship.employerApprovalIp,
+      internship.employerApprovalTimestamp,
+      internship.commissionApprovalUserId,
+      internship.commissionApprovalTimestamp,
     );
 
     await this.internshipRepository.update(updated);

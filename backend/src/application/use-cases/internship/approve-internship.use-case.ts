@@ -4,10 +4,13 @@ import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { IInternshipStatusHistoryRepository } from '../../ports/internship-status-history.repository.port';
 import { IApplicationDocumentRepository } from '../../ports/application-document.repository.port';
 import { IDocumentTypeRepository } from '../../ports/document-type.repository.port';
+import { ISgkTrackingRepository } from '../../ports/sgk-tracking.repository.port';
 import { IDateProvider } from '../../ports/date-provider.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
 import { InternshipStatusHistory } from '../../../domain/entities/internship-status-history.entity';
+import { SgkTracking } from '../../../domain/entities/sgk-tracking.entity';
 import { DocumentSource } from '../../../domain/enums/document-source.enum';
+import { SgkStatus } from '../../../domain/enums/sgk-status.enum';
 
 @Injectable()
 export class ApproveInternshipUseCase {
@@ -16,6 +19,7 @@ export class ApproveInternshipUseCase {
     private readonly historyRepository: IInternshipStatusHistoryRepository,
     private readonly applicationDocumentRepository: IApplicationDocumentRepository,
     private readonly documentTypeRepository: IDocumentTypeRepository,
+    private readonly sgkTrackingRepository: ISgkTrackingRepository,
     private readonly dateProvider: IDateProvider,
   ) {}
 
@@ -69,5 +73,16 @@ export class ApproveInternshipUseCase {
       now,
     );
     await this.historyRepository.create(history);
+
+    // 5. Auto-Queue SGK record for administrative staff
+    const sgkTracking = new SgkTracking(
+      randomUUID(),
+      internship.id,
+      SgkStatus.PENDING,
+      null,
+      now,
+      now,
+    );
+    await this.sgkTrackingRepository.create(sgkTracking);
   }
 }

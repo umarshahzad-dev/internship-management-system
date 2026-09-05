@@ -30,10 +30,13 @@ export class RequestRevisionInternshipUseCase {
       throw new DomainException('NOT_FOUND', 'Internship not found', 404);
     }
 
-    if (internship.status !== InternshipStatus.APPLIED) {
+    if (
+      internship.status !== InternshipStatus.APPLIED &&
+      internship.status !== InternshipStatus.PENDING_COMMISSION
+    ) {
       throw new DomainException(
         'INVALID_STATE_TRANSITION',
-        'Only applied applications can request revision',
+        'Only applied or pending commission applications can request revision',
         409,
       );
     }
@@ -53,6 +56,10 @@ export class RequestRevisionInternshipUseCase {
       null,
       internship.createdAt,
       now,
+      internship.employerApprovalIp,
+      internship.employerApprovalTimestamp,
+      internship.commissionApprovalUserId,
+      internship.commissionApprovalTimestamp,
     );
 
     await this.internshipRepository.update(updated);

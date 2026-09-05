@@ -158,6 +158,8 @@ export class Internship {
     }
     this._commissionApprovalUserId = userId;
     this._commissionApprovalTimestamp = timestamp;
+    this._approvedBy = userId;
+    this._approvedAt = timestamp;
     this._status = InternshipStatus.APPROVED_PENDING_SGK;
   }
 

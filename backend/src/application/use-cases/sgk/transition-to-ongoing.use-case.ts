@@ -41,10 +41,10 @@ export class TransitionToOngoingUseCase {
       );
     }
 
-    if (internship.status !== InternshipStatus.APPROVED) {
+    if (internship.status !== InternshipStatus.APPROVED_PENDING_SGK) {
       throw new DomainException(
         'INVALID_STATE_TRANSITION',
-        'Only approved internships can transition to ongoing',
+        'Only approved internships pending SGK can transition to ongoing',
         409,
       );
     }
@@ -83,6 +83,10 @@ export class TransitionToOngoingUseCase {
       internship.approvedBy,
       internship.createdAt,
       now,
+      internship.employerApprovalIp,
+      internship.employerApprovalTimestamp,
+      internship.commissionApprovalUserId,
+      internship.commissionApprovalTimestamp,
     );
     await this.internshipRepository.update(updated);
 
