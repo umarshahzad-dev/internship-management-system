@@ -82,7 +82,7 @@ export class AcademicCalendar {
     return now >= this._applicationStart && now <= this._applicationEnd;
   }
 
-  isInternshipPeriod(now: Date): boolean {
-    return now >= this._internshipStart && now <= this._internshipEnd;
+  isInternshipPeriod(start: Date, end: Date): boolean {
+    return start >= this._internshipStart && end <= this._internshipEnd;
   }
 }

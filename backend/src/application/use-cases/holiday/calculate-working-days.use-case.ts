@@ -36,16 +36,30 @@ export class CalculateWorkingDaysUseCase {
     );
 
     const holidayDateStrings = new Set(
-      holidays.map((h) => h.holidayDate.toISOString().slice(0, 10)),
+      holidays.map((h) => {
+        const d = h.holidayDate;
+        const year = d.getUTCFullYear();
+        const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(d.getUTCDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }),
     );
 
     let totalWorkingDays = 0;
     const holidaysEncountered: string[] = [];
-    const currentDate = new Date(input.startDate);
 
-    while (currentDate <= input.endDate) {
-      const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
-      const dateString = currentDate.toISOString().slice(0, 10);
+    const currentDate = new Date(input.startDate);
+    currentDate.setUTCHours(0, 0, 0, 0);
+
+    const end = new Date(input.endDate);
+    end.setUTCHours(0, 0, 0, 0);
+
+    while (currentDate <= end) {
+      const dayOfWeek = currentDate.getUTCDay(); // 0 = Sunday, 6 = Saturday
+      const year = currentDate.getUTCFullYear();
+      const month = String(currentDate.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getUTCDate()).padStart(2, '0');
+      const dateString = `${year}-${month}-${day}`;
 
       const isSunday = dayOfWeek === 0;
       const isSaturday = dayOfWeek === 6;
@@ -58,7 +72,7 @@ export class CalculateWorkingDaysUseCase {
         totalWorkingDays++;
       }
 
-      currentDate.setDate(currentDate.getDate() + 1);
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1);
     }
 
     return { totalDays: totalWorkingDays, holidaysEncountered };
