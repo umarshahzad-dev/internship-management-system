@@ -27,10 +27,10 @@ import { LocalFileStorageService } from '../../infrastructure/services/local-fil
     GetUserUseCase,
     UpdateUserUseCase,
     ImportUsersUseCase,
-    UploadProfilePhotoUseCase,
+    UploadProfilePhotoUseCase, // <-- added
     { provide: IDepartmentRepository, useClass: DepartmentRepository },
     { provide: IDateProvider, useClass: SystemDateProvider },
-    { provide: IFileStorage, useClass: LocalFileStorageService },
+    { provide: IFileStorage, useClass: LocalFileStorageService }, // <-- added
   ],
 })
 export class UserModule {}

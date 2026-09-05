@@ -25,6 +25,7 @@ import { UploadProfilePhotoUseCase } from '../../application/use-cases/user/uplo
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
+import { DomainException } from '../../common/exceptions/domain.exception';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -35,7 +36,7 @@ export class UserController {
     private readonly getUserUseCase: GetUserUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly importUsersUseCase: ImportUsersUseCase,
-    private readonly uploadProfilePhotoUseCase: UploadProfilePhotoUseCase,
+    private readonly uploadProfilePhotoUseCase: UploadProfilePhotoUseCase, // <-- added
   ) {}
 
   @Get()
@@ -66,7 +67,7 @@ export class UserController {
   @UseInterceptors(FileInterceptor('file'))
   async importUsers(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      throw new Error('File is required');
+      throw new DomainException('VALIDATION_ERROR', 'File is required', 400);
     }
     return this.importUsersUseCase.execute(file.buffer);
   }
@@ -75,7 +76,7 @@ export class UserController {
   @Roles(UserRole.STUDENT)
   @UseGuards(RolesGuard)
   async getPhoto(@Req() req: AuthenticatedRequest) {
-    // not implemented, placeholder
+    // Placeholder – will implement later
     return { message: 'Photo retrieval not implemented yet' };
   }
 
@@ -88,7 +89,7 @@ export class UserController {
     @Req() req: AuthenticatedRequest,
   ) {
     if (!file) {
-      throw new Error('File is required');
+      throw new DomainException('VALIDATION_ERROR', 'File is required', 400);
     }
     return this.uploadProfilePhotoUseCase.execute(req.user!.id, file);
   }
