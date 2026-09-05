@@ -6,7 +6,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
   MaxLength,
   Min,
   MinLength,
@@ -14,9 +13,6 @@ import {
 import { DocumentSource } from '../../../domain/enums/document-source.enum';
 
 export class CreateDocumentTypeDto {
-  @IsUUID()
-  departmentId: string;
-
   @IsString()
   @MinLength(1)
   @MaxLength(255)
