@@ -1,0 +1,4 @@
+export enum DocumentSource {
+  SYSTEM_GENERATED = 'SYSTEM_GENERATED',
+  EXTERNAL_UPLOAD = 'EXTERNAL_UPLOAD',
+}

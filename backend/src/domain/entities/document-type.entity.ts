@@ -1,9 +1,12 @@
+import { DocumentSource } from '../enums/document-source.enum';
+
 export class DocumentType {
   private readonly _id: string;
   private readonly _departmentId: string;
   private _name: string;
   private _description: string | null;
   private _isRequired: boolean;
+  private _source: DocumentSource;
   private _allowedFileTypes: string[];
   private _maxFileSize: number;
   private _templatePath: string | null;
@@ -16,6 +19,7 @@ export class DocumentType {
     name: string,
     description: string | null,
     isRequired: boolean,
+    source: DocumentSource,
     allowedFileTypes: string[],
     maxFileSize: number,
     templatePath: string | null,
@@ -31,12 +35,14 @@ export class DocumentType {
     }
     if (!maxFileSize || maxFileSize <= 0)
       throw new Error('Max file size must be positive');
+    if (!source) throw new Error('Document source is required');
 
     this._id = id;
     this._departmentId = departmentId;
     this._name = name.trim();
     this._description = description?.trim() || null;
     this._isRequired = isRequired;
+    this._source = source;
     this._allowedFileTypes = [...allowedFileTypes];
     this._maxFileSize = maxFileSize;
     this._templatePath = templatePath?.trim() || null;
@@ -59,6 +65,9 @@ export class DocumentType {
   get isRequired(): boolean {
     return this._isRequired;
   }
+  get source(): DocumentSource {
+    return this._source;
+  }
   get allowedFileTypes(): string[] {
     return [...this._allowedFileTypes];
   }
@@ -73,5 +82,9 @@ export class DocumentType {
   }
   get updatedAt(): Date {
     return this._updatedAt;
+  }
+
+  updateSource(source: DocumentSource): void {
+    this._source = source;
   }
 }

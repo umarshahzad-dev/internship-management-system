@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { DepartmentEntity } from './department.entity';
+import { DocumentSource } from '../../../domain/enums/document-source.enum';
 
 @Entity('document_types')
 export class DocumentTypeEntity {
@@ -29,6 +30,13 @@ export class DocumentTypeEntity {
 
   @Column({ name: 'is_required', default: false })
   isRequired: boolean;
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    default: DocumentSource.EXTERNAL_UPLOAD,
+  })
+  source: DocumentSource;
 
   @Column({
     name: 'allowed_file_types',
