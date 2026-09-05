@@ -9,8 +9,14 @@ import { ListApplicationDocumentsUseCase } from '../../application/use-cases/app
 import { AcceptApplicationDocumentUseCase } from '../../application/use-cases/application-document/accept-application-document.use-case';
 import { RejectApplicationDocumentUseCase } from '../../application/use-cases/application-document/reject-application-document.use-case';
 import { ApplicationDocumentRepository } from '../../infrastructure/repositories/application-document.repository';
+import { InternshipRepository } from '../../infrastructure/repositories/internship.repository';
+import { DocumentTypeRepository } from '../../infrastructure/repositories/document-type.repository';
 import { ApplicationDocumentEntity } from '../../infrastructure/database/entities/application-document.entity';
+import { InternshipEntity } from '../../infrastructure/database/entities/internship.entity';
+import { DocumentTypeEntity } from '../../infrastructure/database/entities/document-type.entity';
 import { IApplicationDocumentRepository } from '../../application/ports/application-document.repository.port';
+import { IInternshipRepository } from '../../application/ports/internship.repository.port';
+import { IDocumentTypeRepository } from '../../application/ports/document-type.repository.port';
 import { IFileStorage } from '../../application/ports/file-storage.port';
 import { LocalFileStorageService } from '../../infrastructure/services/local-file-storage.service';
 import { IDateProvider } from '../../application/ports/date-provider.port';
@@ -24,7 +30,11 @@ import { RolesGuard } from '../user/guards/roles.guard';
     AuthModule,
     DocumentTypeModule,
     InternshipModule,
-    TypeOrmModule.forFeature([ApplicationDocumentEntity]),
+    TypeOrmModule.forFeature([
+      ApplicationDocumentEntity,
+      InternshipEntity,
+      DocumentTypeEntity,
+    ]),
   ],
   controllers: [ApplicationDocumentController],
   providers: [
@@ -32,6 +42,8 @@ import { RolesGuard } from '../user/guards/roles.guard';
       provide: IApplicationDocumentRepository,
       useClass: ApplicationDocumentRepository,
     },
+    { provide: IInternshipRepository, useClass: InternshipRepository },
+    { provide: IDocumentTypeRepository, useClass: DocumentTypeRepository },
     { provide: IFileStorage, useClass: LocalFileStorageService },
     { provide: IDateProvider, useClass: SystemDateProvider },
     { provide: IConfigProvider, useClass: EnvConfigProvider },

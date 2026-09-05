@@ -39,7 +39,7 @@ export class ApplicationDocumentController {
   @UseInterceptors(FileInterceptor('file'))
   async upload(
     @Param('id', new ParseUUIDPipe()) internshipId: string,
-    @Body('documentTypeId') documentTypeId: string,
+    @Body('documentTypeId', new ParseUUIDPipe()) documentTypeId: string,
     @UploadedFile() file: Express.Multer.File,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -55,9 +55,9 @@ export class ApplicationDocumentController {
     }
 
     return this.uploadApplicationDocumentUseCase.execute({
+      userId: req.user!.id,
       internshipId,
       documentTypeId,
-      currentUserId: req.user!.id,
       file,
     });
   }
