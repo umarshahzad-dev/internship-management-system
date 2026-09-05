@@ -41,6 +41,24 @@ export class HolidayRepository extends IHolidayRepository {
     return entities.map(HolidayMapper.toDomain);
   }
 
+  async findBetweenDates(
+    start: Date,
+    end: Date,
+    departmentId: string,
+  ): Promise<Holiday[]> {
+    const entities = await this.holidayRepository
+      .createQueryBuilder('holiday')
+      .where('holiday.holiday_date >= :start', { start })
+      .andWhere('holiday.holiday_date <= :end', { end })
+      .andWhere(
+        '(holiday.department_id IS NULL OR holiday.department_id = :departmentId)',
+        { departmentId },
+      )
+      .orderBy('holiday.holiday_date', 'ASC')
+      .getMany();
+    return entities.map(HolidayMapper.toDomain);
+  }
+
   async create(holiday: Holiday): Promise<Holiday> {
     const entity = HolidayMapper.toPersistence(holiday);
     const saved = await this.holidayRepository.save(entity);

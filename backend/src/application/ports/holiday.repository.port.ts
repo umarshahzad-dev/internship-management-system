@@ -7,4 +7,9 @@ export abstract class IHolidayRepository {
   abstract create(holiday: Holiday): Promise<Holiday>;
   abstract update(holiday: Holiday): Promise<Holiday>;
   abstract delete(id: string): Promise<void>;
+  abstract findBetweenDates(
+    start: Date,
+    end: Date,
+    departmentId: string,
+  ): Promise<Holiday[]>;
 }

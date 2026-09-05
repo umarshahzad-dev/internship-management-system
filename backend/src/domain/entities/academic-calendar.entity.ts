@@ -77,4 +77,12 @@ export class AcademicCalendar {
   get updatedAt(): Date {
     return this._updatedAt;
   }
+
+  isApplicationOpen(now: Date): boolean {
+    return now >= this._applicationStart && now <= this._applicationEnd;
+  }
+
+  isInternshipPeriod(now: Date): boolean {
+    return now >= this._internshipStart && now <= this._internshipEnd;
+  }
 }
