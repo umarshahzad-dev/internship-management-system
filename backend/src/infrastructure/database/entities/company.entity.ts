@@ -17,6 +17,12 @@ export class CompanyEntity {
   @Column({ name: 'tax_number', length: 10, unique: true })
   taxNumber: string;
 
+  @Column({ name: 'sgk_number', length: 50, nullable: true })
+  sgkNumber: string | null;
+
+  @Column({ length: 50, nullable: true })
+  iban: string | null;
+
   @Column({ length: 100, nullable: true })
   city: string | null;
 

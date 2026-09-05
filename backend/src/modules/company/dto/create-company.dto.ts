@@ -19,6 +19,16 @@ export class CreateCompanyDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(50)
+  sgkNumber?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  iban?: string | null;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(100)
   city?: string;
 

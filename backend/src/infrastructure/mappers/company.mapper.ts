@@ -7,6 +7,8 @@ export class CompanyMapper {
       entity.id,
       entity.name,
       entity.taxNumber,
+      entity.sgkNumber,
+      entity.iban,
       entity.city,
       entity.industry,
       entity.address,
@@ -26,6 +28,8 @@ export class CompanyMapper {
     entity.id = domain.id;
     entity.name = domain.name;
     entity.taxNumber = domain.taxNumber;
+    entity.sgkNumber = domain.sgkNumber;
+    entity.iban = domain.iban;
     entity.city = domain.city;
     entity.industry = domain.industry;
     entity.address = domain.address;

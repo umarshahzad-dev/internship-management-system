@@ -2,6 +2,8 @@ export class Company {
   private readonly _id: string;
   private readonly _name: string;
   private readonly _taxNumber: string;
+  private readonly _sgkNumber: string | null;
+  private readonly _iban: string | null;
   private _city: string | null;
   private _industry: string | null;
   private _address: string | null;
@@ -18,6 +20,8 @@ export class Company {
     id: string,
     name: string,
     taxNumber: string,
+    sgkNumber: string | null,
+    iban: string | null,
     city: string | null,
     industry: string | null,
     address: string | null,
@@ -40,6 +44,8 @@ export class Company {
     this._id = id;
     this._name = name.trim();
     this._taxNumber = taxNumber;
+    this._sgkNumber = sgkNumber?.trim() || null;
+    this._iban = iban?.trim() || null;
     this._city = city?.trim() || null;
     this._industry = industry?.trim() || null;
     this._address = address?.trim() || null;
@@ -61,6 +67,12 @@ export class Company {
   }
   get taxNumber(): string {
     return this._taxNumber;
+  }
+  get sgkNumber(): string | null {
+    return this._sgkNumber;
+  }
+  get iban(): string | null {
+    return this._iban;
   }
   get city(): string | null {
     return this._city;
