@@ -9,6 +9,8 @@ import { VknValidator } from '../../../common/utils/vkn-validator';
 export interface CreateCompanyInput {
   name: string;
   taxNumber: string;
+  sgkNumber?: string | null;
+  iban?: string | null;
   city?: string | null;
   industry?: string | null;
   address?: string | null;
@@ -22,6 +24,8 @@ export interface CreateCompanyResult {
   id: string;
   name: string;
   taxNumber: string;
+  sgkNumber: string | null;
+  iban: string | null;
   city: string | null;
   industry: string | null;
   isVerified: boolean;
@@ -57,6 +61,8 @@ export class CreateCompanyUseCase {
       randomUUID(),
       input.name,
       input.taxNumber,
+      input.sgkNumber ?? null,
+      input.iban ?? null,
       input.city ?? null,
       input.industry ?? null,
       input.address ?? null,
@@ -75,6 +81,8 @@ export class CreateCompanyUseCase {
       id: saved.id,
       name: saved.name,
       taxNumber: saved.taxNumber,
+      sgkNumber: saved.sgkNumber,
+      iban: saved.iban,
       city: saved.city,
       industry: saved.industry,
       isVerified: saved.isVerified,

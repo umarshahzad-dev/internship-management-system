@@ -8,6 +8,8 @@ export interface UpdateCompanyInput {
   companyId: string;
   name?: string;
   taxNumber?: string;
+  sgkNumber?: string | null;
+  iban?: string | null;
   city?: string | null;
   industry?: string | null;
   address?: string | null;
@@ -21,6 +23,8 @@ export interface UpdateCompanyResult {
   id: string;
   name: string;
   taxNumber: string;
+  sgkNumber: string | null;
+  iban: string | null;
   city: string | null;
   industry: string | null;
   isVerified: boolean;
@@ -55,6 +59,8 @@ export class UpdateCompanyUseCase {
       existing.id,
       input.name ?? existing.name,
       input.taxNumber ?? existing.taxNumber,
+      input.sgkNumber !== undefined ? input.sgkNumber : existing.sgkNumber,
+      input.iban !== undefined ? input.iban : existing.iban,
       input.city !== undefined ? input.city : existing.city,
       input.industry !== undefined ? input.industry : existing.industry,
       input.address !== undefined ? input.address : existing.address,
@@ -79,6 +85,8 @@ export class UpdateCompanyUseCase {
       id: saved.id,
       name: saved.name,
       taxNumber: saved.taxNumber,
+      sgkNumber: saved.sgkNumber,
+      iban: saved.iban,
       city: saved.city,
       industry: saved.industry,
       isVerified: saved.isVerified,

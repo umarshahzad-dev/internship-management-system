@@ -62,6 +62,8 @@ export class CompanyController {
     return this.createCompanyUseCase.execute({
       name: dto.name,
       taxNumber: dto.taxNumber,
+      sgkNumber: dto.sgkNumber,
+      iban: dto.iban,
       city: dto.city,
       industry: dto.industry,
       address: dto.address,
@@ -83,6 +85,8 @@ export class CompanyController {
       companyId: id,
       name: dto.name,
       taxNumber: dto.taxNumber,
+      sgkNumber: dto.sgkNumber,
+      iban: dto.iban,
       city: dto.city,
       industry: dto.industry,
       address: dto.address,
