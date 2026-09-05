@@ -69,12 +69,17 @@ export class DocumentTypeController {
   @Post()
   @Roles(UserRole.ADMIN, UserRole.ACADEMIC)
   @UseGuards(RolesGuard, CsrfGuard)
-  async create(@Body() dto: CreateDocumentTypeDto) {
+  async create(
+    @Body() dto: CreateDocumentTypeDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const departmentId = this.getDepartmentId(req);
     return this.createDocumentTypeUseCase.execute({
-      departmentId: dto.departmentId,
+      departmentId,
       name: dto.name,
-      description: dto.description,
+      description: dto.description ?? null,
       isRequired: dto.isRequired,
+      source: dto.source,
       allowedFileTypes: dto.allowedFileTypes,
       maxFileSize: dto.maxFileSize,
     });
@@ -86,12 +91,15 @@ export class DocumentTypeController {
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateDocumentTypeDto,
+    @Req() req: AuthenticatedRequest,
   ) {
+    const departmentId = this.getDepartmentId(req);
     return this.updateDocumentTypeUseCase.execute({
       documentTypeId: id,
       name: dto.name,
       description: dto.description,
       isRequired: dto.isRequired,
+      source: dto.source,
       allowedFileTypes: dto.allowedFileTypes,
       maxFileSize: dto.maxFileSize,
     });
