@@ -18,8 +18,10 @@ import { ListHolidaysUseCase } from '../../application/use-cases/holiday/list-ho
 import { CreateHolidayUseCase } from '../../application/use-cases/holiday/create-holiday.use-case';
 import { UpdateHolidayUseCase } from '../../application/use-cases/holiday/update-holiday.use-case';
 import { DeleteHolidayUseCase } from '../../application/use-cases/holiday/delete-holiday.use-case';
+import { CalculateWorkingDaysUseCase } from '../../application/use-cases/holiday/calculate-working-days.use-case';
 import { CreateHolidayDto } from './dto/create-holiday.dto';
 import { UpdateHolidayDto } from './dto/update-holiday.dto';
+import { CalculateWorkingDaysDto } from './dto/calculate-working-days.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
 import { DomainException } from '../../common/exceptions/domain.exception';
 
@@ -31,6 +33,7 @@ export class HolidayController {
     private readonly createHolidayUseCase: CreateHolidayUseCase,
     private readonly updateHolidayUseCase: UpdateHolidayUseCase,
     private readonly deleteHolidayUseCase: DeleteHolidayUseCase,
+    private readonly calculateWorkingDaysUseCase: CalculateWorkingDaysUseCase,
   ) {}
 
   private getDepartmentId(req: AuthenticatedRequest): string | undefined {
@@ -59,6 +62,26 @@ export class HolidayController {
     const departmentId = this.getDepartmentId(req);
     const holidays = await this.listHolidaysUseCase.execute(departmentId);
     return { holidays };
+  }
+
+  @Post('calculate-working-days')
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC, UserRole.ADMIN)
+  @UseGuards(RolesGuard, CsrfGuard)
+  async calculateWorkingDays(
+    @Body() dto: CalculateWorkingDaysDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const departmentId = this.getDepartmentId(req);
+    if (!departmentId) {
+      throw new DomainException('FORBIDDEN', 'User has no department', 403);
+    }
+
+    return this.calculateWorkingDaysUseCase.execute({
+      departmentId,
+      startDate: new Date(dto.startDate),
+      endDate: new Date(dto.endDate),
+      includeSaturdays: dto.includeSaturdays,
+    });
   }
 
   @Post()

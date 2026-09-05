@@ -6,6 +6,7 @@ import { ListHolidaysUseCase } from '../../application/use-cases/holiday/list-ho
 import { CreateHolidayUseCase } from '../../application/use-cases/holiday/create-holiday.use-case';
 import { UpdateHolidayUseCase } from '../../application/use-cases/holiday/update-holiday.use-case';
 import { DeleteHolidayUseCase } from '../../application/use-cases/holiday/delete-holiday.use-case';
+import { CalculateWorkingDaysUseCase } from '../../application/use-cases/holiday/calculate-working-days.use-case';
 import { HolidayRepository } from '../../infrastructure/repositories/holiday.repository';
 import { HolidayEntity } from '../../infrastructure/database/entities/holiday.entity';
 import { IHolidayRepository } from '../../application/ports/holiday.repository.port';
@@ -23,6 +24,7 @@ import { RolesGuard } from '../user/guards/roles.guard';
     CreateHolidayUseCase,
     UpdateHolidayUseCase,
     DeleteHolidayUseCase,
+    CalculateWorkingDaysUseCase,
     RolesGuard,
   ],
   exports: [IHolidayRepository],
