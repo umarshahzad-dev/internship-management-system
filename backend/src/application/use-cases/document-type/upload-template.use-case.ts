@@ -48,6 +48,7 @@ export class UploadTemplateUseCase {
       existing.name,
       existing.description,
       existing.isRequired,
+      existing.source,
       existing.allowedFileTypes,
       existing.maxFileSize,
       savedPath,
