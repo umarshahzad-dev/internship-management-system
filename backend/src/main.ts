@@ -14,6 +14,10 @@ async function bootstrap() {
     exclude: [
       { path: 'employer-evaluation/validate', method: RequestMethod.GET },
       { path: 'employer-evaluation/submit', method: RequestMethod.POST },
+      {
+        path: 'public/internship/employer-approve',
+        method: RequestMethod.POST,
+      },
     ],
   });
 
