@@ -41,6 +41,7 @@ import { RequestRevisionInternshipUseCase } from '../../application/use-cases/in
 import { GetInternshipHistoryUseCase } from '../../application/use-cases/internship/get-internship-history.use-case';
 import { EmployerApproveApplicationUseCase } from '../../application/use-cases/internship/employer-approve-application.use-case';
 import { CompleteInternshipUseCase } from '../../application/use-cases/internship/complete-internship.use-case';
+import { FinalizeInternshipUseCase } from '../../application/use-cases/internship/finalize-internship.use-case';
 import { SystemDateProvider } from '../../infrastructure/services/system-date-provider.service';
 import { EnvConfigProvider } from '../../infrastructure/services/env-config-provider.service';
 import { CryptoTokenGeneratorService } from '../../infrastructure/services/crypto-token-generator.service';
@@ -92,6 +93,7 @@ import { RolesGuard } from '../user/guards/roles.guard';
     GetInternshipHistoryUseCase,
     EmployerApproveApplicationUseCase,
     CompleteInternshipUseCase,
+    FinalizeInternshipUseCase,
     RolesGuard,
   ],
   exports: [

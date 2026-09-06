@@ -24,6 +24,7 @@ import { RejectInternshipUseCase } from '../../application/use-cases/internship/
 import { RequestRevisionInternshipUseCase } from '../../application/use-cases/internship/request-revision-internship.use-case';
 import { GetInternshipHistoryUseCase } from '../../application/use-cases/internship/get-internship-history.use-case';
 import { CompleteInternshipUseCase } from '../../application/use-cases/internship/complete-internship.use-case';
+import { FinalizeInternshipUseCase } from '../../application/use-cases/internship/finalize-internship.use-case';
 import { CreateDraftInternshipDto } from './dto/create-draft-internship.dto';
 import { UpdateDraftInternshipDto } from './dto/update-draft-internship.dto';
 import { ApproveInternshipDto } from './dto/approve-internship.dto';
@@ -47,6 +48,7 @@ export class InternshipController {
     private readonly requestRevisionInternshipUseCase: RequestRevisionInternshipUseCase,
     private readonly getInternshipHistoryUseCase: GetInternshipHistoryUseCase,
     private readonly completeInternshipUseCase: CompleteInternshipUseCase,
+    private readonly finalizeInternshipUseCase: FinalizeInternshipUseCase,
   ) {}
 
   private getDepartmentId(req: AuthenticatedRequest): string {
@@ -203,6 +205,22 @@ export class InternshipController {
     @Req() req: AuthenticatedRequest,
   ) {
     await this.completeInternshipUseCase.execute(id, req.user!.id);
+    return { success: true };
+  }
+
+  @Post(':id/finalize')
+  @Roles(UserRole.ACADEMIC, UserRole.ADMINISTRATIVE)
+  @UseGuards(RolesGuard, CsrfGuard)
+  async finalize(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const departmentId = this.getDepartmentId(req);
+    await this.finalizeInternshipUseCase.execute({
+      internshipId: id,
+      userId: req.user!.id,
+      departmentId,
+    });
     return { success: true };
   }
 
