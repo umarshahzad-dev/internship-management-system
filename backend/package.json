@@ -32,6 +32,7 @@
     "helmet": "latest",
     "papaparse": "^5.7.0",
     "pg": "latest",
+    "qrcode": "^1.5.4",
     "reflect-metadata": "latest",
     "rxjs": "latest",
     "typeorm": "latest"
@@ -43,6 +44,7 @@
     "@types/cookie-parser": "latest",
     "@types/express": "latest",
     "@types/node": "^26.4.0",
+    "@types/qrcode": "^1.5.6",
     "@vitest/coverage-v8": "latest",
     "ts-node": "latest",
     "typescript": "^6.0.0",

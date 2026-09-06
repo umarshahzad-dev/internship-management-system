@@ -1,11 +1,21 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { EmployerApproveApplicationUseCase } from '../../application/use-cases/internship/employer-approve-application.use-case';
+import { VerifyInternshipSignatureUseCase } from '../../application/use-cases/internship/verify-internship-signature.use-case';
 
 @Controller('public/internship')
 export class PublicInternshipController {
   constructor(
     private readonly employerApproveApplicationUseCase: EmployerApproveApplicationUseCase,
+    private readonly verifyInternshipSignatureUseCase: VerifyInternshipSignatureUseCase,
   ) {}
 
   @Post('employer-approve')
@@ -21,5 +31,10 @@ export class PublicInternshipController {
       iban: body.iban,
     });
     return { success: true };
+  }
+
+  @Get(':id/verify')
+  async verifySignature(@Param('id', ParseUUIDPipe) id: string) {
+    return this.verifyInternshipSignatureUseCase.execute(id);
   }
 }
