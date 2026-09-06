@@ -187,6 +187,29 @@ export class Internship {
     this._status = InternshipStatus.EVALUATION;
   }
 
+  markAsGraded(now: Date): void {
+    if (this._status !== InternshipStatus.EVALUATION) {
+      throw new DomainException(
+        'INVALID_STATE_TRANSITION',
+        'Only EVALUATION internships can be graded',
+        409,
+      );
+    }
+    this._status = InternshipStatus.GRADED;
+    this._locked = true;
+  }
+
+  finalize(now: Date): void {
+    if (this._status !== InternshipStatus.GRADED) {
+      throw new DomainException(
+        'INVALID_STATE_TRANSITION',
+        'Only GRADED internships can be finalized to COMPLETED',
+        409,
+      );
+    }
+    this._status = InternshipStatus.COMPLETED;
+  }
+
   updateStatus(newStatus: InternshipStatus, now: Date): void {
     this._status = newStatus;
     if (newStatus === InternshipStatus.APPROVED) {

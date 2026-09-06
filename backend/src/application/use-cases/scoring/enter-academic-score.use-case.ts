@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { FinalGrade } from '../../../domain/entities/final-grade.entity';
-import { Internship } from '../../../domain/entities/internship.entity';
 import { InternshipStatusHistory } from '../../../domain/entities/internship-status-history.entity';
-import { InternshipStatus } from '../../../domain/enums/internship-status.enum';
 import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { IInternshipStatusHistoryRepository } from '../../ports/internship-status-history.repository.port';
 import { IEmployerEvaluationRepository } from '../../ports/employer-evaluation.repository.port';
@@ -41,57 +39,43 @@ export class EnterAcademicScoreUseCase {
   async execute(
     input: EnterAcademicScoreInput,
   ): Promise<EnterAcademicScoreResult> {
-    if (input.logQuality < 0 || input.logQuality > 100) {
+    if (input.logQuality < 0 || input.logQuality > 100)
       throw new DomainException(
         'VALIDATION_ERROR',
         'Log quality must be between 0 and 100',
         400,
       );
-    }
-    if (input.reportQuality < 0 || input.reportQuality > 100) {
+    if (input.reportQuality < 0 || input.reportQuality > 100)
       throw new DomainException(
         'VALIDATION_ERROR',
         'Report quality must be between 0 and 100',
         400,
       );
-    }
 
     const internship = await this.internshipRepository.findById(
       input.internshipId,
     );
-    if (!internship) {
+    if (!internship)
       throw new DomainException('NOT_FOUND', 'Internship not found', 404);
-    }
-
-    if (internship.departmentId !== input.academicDepartmentId) {
+    if (internship.departmentId !== input.academicDepartmentId)
       throw new DomainException(
         'FORBIDDEN',
         'Academic cannot score other departments',
         403,
       );
-    }
 
-    if (internship.status !== InternshipStatus.EVALUATION) {
-      throw new DomainException(
-        'INVALID_STATE_TRANSITION',
-        'Academic score can only be entered when internship is in EVALUATION',
-        409,
-      );
-    }
+    const oldStatus = internship.status;
 
-    // Get employer evaluation
     const evaluation = await this.employerEvaluationRepository.findByInternship(
       internship.id,
     );
-    if (!evaluation) {
+    if (!evaluation)
       throw new DomainException(
         'EMPLOYER_EVALUATION_MISSING',
         'Employer evaluation is required before academic scoring',
         409,
       );
-    }
 
-    // Calculate academic score using weights from grading_data if present, else defaults
     const gradingData = internship.gradingData;
     let logWeight = 0.7;
     let reportWeight = 0.3;
@@ -102,8 +86,6 @@ export class EnterAcademicScoreUseCase {
 
     const academicScore =
       input.logQuality * logWeight + input.reportQuality * reportWeight;
-
-    // Calculate final score
     const employerScore = evaluation.calculateEmployerScore();
     let employerWeight = 0.4;
     let academicWeight = 0.6;
@@ -114,8 +96,6 @@ export class EnterAcademicScoreUseCase {
 
     const finalScore =
       employerScore * employerWeight + academicScore * academicWeight;
-
-    // Determine letter grade
     const letterGrade = this.determineLetterGrade(
       finalScore,
       gradingData?.letter_grade_scale,
@@ -132,32 +112,17 @@ export class EnterAcademicScoreUseCase {
       now,
       now,
     );
-
     const saved = await this.finalGradeRepository.create(finalGrade);
 
-    // Update internship to GRADED
-    const updatedInternship = new Internship(
-      internship.id,
-      internship.departmentId,
-      internship.studentId,
-      internship.companyId,
-      InternshipStatus.GRADED,
-      internship.startDate,
-      internship.endDate,
-      internship.gradingData,
-      true, // lock
-      internship.approvedAt,
-      internship.approvedBy,
-      internship.createdAt,
-      now,
-    );
-    await this.internshipRepository.update(updatedInternship);
+    // Securely update status via domain method
+    internship.markAsGraded(now);
+    await this.internshipRepository.update(internship);
 
     const history = new InternshipStatusHistory(
       randomUUID(),
       internship.id,
+      oldStatus,
       internship.status,
-      InternshipStatus.GRADED,
       null,
       input.academicId,
       now,
@@ -190,11 +155,8 @@ export class EnterAcademicScoreUseCase {
         FF: [0, 29],
       };
     }
-
     for (const [letter, range] of Object.entries(scale)) {
-      if (score >= range[0] && score <= range[1]) {
-        return letter;
-      }
+      if (score >= range[0] && score <= range[1]) return letter;
     }
     return 'FF';
   }
