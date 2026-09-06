@@ -15,18 +15,20 @@ export class TypstCompilerService implements IPdfCompiler {
 
   async compile(templateName: string, data: any): Promise<Buffer> {
     const tempId = randomUUID();
-    const tempDir = path.join(process.cwd(), 'temp');
+    // Use the templates directory directly to satisfy Typst's security sandbox
+    const tempDir = path.join(process.cwd(), 'templates');
     const dataPath = path.join(tempDir, `${tempId}.json`);
     const pdfPath = path.join(tempDir, `${tempId}.pdf`);
-    const templatePath = path.join(process.cwd(), 'templates', templateName);
 
     try {
+      // Ensure the templates directory exists
       await fs.mkdir(tempDir, { recursive: true });
       await fs.writeFile(dataPath, JSON.stringify(data), 'utf-8');
 
-      // Passes the JSON file path securely to Typst via sys.inputs
+      // Execute Typst directly inside the templates directory using flat filenames
       const { stderr } = await execAsync(
-        `typst compile ${templatePath} ${pdfPath} --input data_file=${dataPath}`,
+        `typst compile ${templateName} ${tempId}.pdf --input data_file=${tempId}.json`,
+        { cwd: tempDir },
       );
 
       if (stderr) {
@@ -42,6 +44,7 @@ export class TypstCompilerService implements IPdfCompiler {
         500,
       );
     } finally {
+      // Clean up the flat files
       await fs.rm(dataPath, { force: true }).catch(() => {});
       await fs.rm(pdfPath, { force: true }).catch(() => {});
     }

@@ -1,6 +1,6 @@
-#let data = json(read(sys.inputs.data_file))
+﻿#let data = json(sys.inputs.data_file)
 
-#set page(size: "A4", margin: 2cm)
+#set page(paper: "a4", margin: 2cm)
 #text(size: 18pt, weight: "bold")[Staj Başvuru Formu]
 #v(0.5cm)
 
