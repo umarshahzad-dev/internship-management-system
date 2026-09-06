@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { CompanyModule } from '../company/company.module';
+import { EmployerEvaluationModule } from '../employer-evaluation/employer-evaluation.module';
 import { InternshipController } from './internship.controller';
 import { PublicInternshipController } from './public-internship.controller';
 import { InternshipEntity } from '../../infrastructure/database/entities/internship.entity';
@@ -45,6 +46,8 @@ import { CompleteInternshipUseCase } from '../../application/use-cases/internshi
 import { FinalizeInternshipUseCase } from '../../application/use-cases/internship/finalize-internship.use-case';
 import { VerifyInternshipSignatureUseCase } from '../../application/use-cases/internship/verify-internship-signature.use-case';
 import { GenerateApplicationFormUseCase } from '../../application/use-cases/internship/generate-application-form.use-case';
+import { GenerateZorunluStajBelgesiUseCase } from '../../application/use-cases/internship/generate-zorunlu-staj-belgesi.use-case';
+import { GenerateSicilFisiUseCase } from '../../application/use-cases/internship/generate-sicil-fisi.use-case';
 import { SystemDateProvider } from '../../infrastructure/services/system-date-provider.service';
 import { EnvConfigProvider } from '../../infrastructure/services/env-config-provider.service';
 import { CryptoTokenGeneratorService } from '../../infrastructure/services/crypto-token-generator.service';
@@ -56,6 +59,7 @@ import { RolesGuard } from '../user/guards/roles.guard';
   imports: [
     AuthModule,
     CompanyModule,
+    EmployerEvaluationModule, // for IEmployerEvaluationRepository
     TypeOrmModule.forFeature([
       InternshipEntity,
       InternshipStatusHistoryEntity,
@@ -101,6 +105,8 @@ import { RolesGuard } from '../user/guards/roles.guard';
     FinalizeInternshipUseCase,
     VerifyInternshipSignatureUseCase,
     GenerateApplicationFormUseCase,
+    GenerateZorunluStajBelgesiUseCase,
+    GenerateSicilFisiUseCase,
     RolesGuard,
   ],
   exports: [

@@ -28,6 +28,8 @@ import { GetInternshipHistoryUseCase } from '../../application/use-cases/interns
 import { CompleteInternshipUseCase } from '../../application/use-cases/internship/complete-internship.use-case';
 import { FinalizeInternshipUseCase } from '../../application/use-cases/internship/finalize-internship.use-case';
 import { GenerateApplicationFormUseCase } from '../../application/use-cases/internship/generate-application-form.use-case';
+import { GenerateZorunluStajBelgesiUseCase } from '../../application/use-cases/internship/generate-zorunlu-staj-belgesi.use-case';
+import { GenerateSicilFisiUseCase } from '../../application/use-cases/internship/generate-sicil-fisi.use-case';
 import { CreateDraftInternshipDto } from './dto/create-draft-internship.dto';
 import { UpdateDraftInternshipDto } from './dto/update-draft-internship.dto';
 import { ApproveInternshipDto } from './dto/approve-internship.dto';
@@ -53,6 +55,8 @@ export class InternshipController {
     private readonly completeInternshipUseCase: CompleteInternshipUseCase,
     private readonly finalizeInternshipUseCase: FinalizeInternshipUseCase,
     private readonly generateApplicationFormUseCase: GenerateApplicationFormUseCase,
+    private readonly generateZorunluStajBelgesiUseCase: GenerateZorunluStajBelgesiUseCase,
+    private readonly generateSicilFisiUseCase: GenerateSicilFisiUseCase,
   ) {}
 
   private getDepartmentId(req: AuthenticatedRequest): string {
@@ -100,6 +104,24 @@ export class InternshipController {
       startDate: new Date(dto.startDate),
       endDate: new Date(dto.endDate),
     });
+  }
+
+  @Get('documents/zorunlu-staj-belgesi')
+  @Roles(UserRole.STUDENT)
+  @UseGuards(RolesGuard)
+  async getZorunluStajBelgesi(
+    @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
+  ) {
+    const pdfBuffer = await this.generateZorunluStajBelgesiUseCase.execute(
+      req.user!.id,
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="zorunlu_staj_belgesi.pdf"',
+      'Content-Length': pdfBuffer.length.toString(),
+    });
+    res.end(pdfBuffer);
   }
 
   @Get(':id')
@@ -226,6 +248,28 @@ export class InternshipController {
       departmentId,
     });
     return { success: true };
+  }
+
+  @Get(':id/sicil-fisi')
+  @Roles(UserRole.ACADEMIC, UserRole.ADMINISTRATIVE, UserRole.ADMIN)
+  @UseGuards(RolesGuard)
+  async getSicilFisi(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
+  ) {
+    const departmentId = this.getDepartmentId(req);
+    const pdfBuffer = await this.generateSicilFisiUseCase.execute(
+      id,
+      departmentId,
+      req.user!.role,
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="sicil_fisi.pdf"',
+      'Content-Length': pdfBuffer.length.toString(),
+    });
+    res.end(pdfBuffer);
   }
 
   @Get(':id/history')
