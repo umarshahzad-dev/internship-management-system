@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { CompanyModule } from '../company/company.module';
-import { EmployerEvaluationModule } from '../employer-evaluation/employer-evaluation.module';
 import { InternshipController } from './internship.controller';
 import { PublicInternshipController } from './public-internship.controller';
 import { InternshipEntity } from '../../infrastructure/database/entities/internship.entity';
@@ -10,6 +9,7 @@ import { InternshipStatusHistoryEntity } from '../../infrastructure/database/ent
 import { DocumentTypeEntity } from '../../infrastructure/database/entities/document-type.entity';
 import { ApplicationDocumentEntity } from '../../infrastructure/database/entities/application-document.entity';
 import { EmployerTokenEntity } from '../../infrastructure/database/entities/employer-token.entity';
+import { EmployerEvaluationEntity } from '../../infrastructure/database/entities/employer-evaluation.entity';
 import { CompanyEntity } from '../../infrastructure/database/entities/company.entity';
 import { SgkTrackingEntity } from '../../infrastructure/database/entities/sgk-tracking.entity';
 import { InternshipRepository } from '../../infrastructure/repositories/internship.repository';
@@ -17,6 +17,7 @@ import { InternshipStatusHistoryRepository } from '../../infrastructure/reposito
 import { DocumentTypeRepository } from '../../infrastructure/repositories/document-type.repository';
 import { ApplicationDocumentRepository } from '../../infrastructure/repositories/application-document.repository';
 import { EmployerTokenRepository } from '../../infrastructure/repositories/employer-token.repository';
+import { EmployerEvaluationRepository } from '../../infrastructure/repositories/employer-evaluation.repository';
 import { CompanyRepository } from '../../infrastructure/repositories/company.repository';
 import { SgkTrackingRepository } from '../../infrastructure/repositories/sgk-tracking.repository';
 import { IInternshipRepository } from '../../application/ports/internship.repository.port';
@@ -24,6 +25,7 @@ import { IInternshipStatusHistoryRepository } from '../../application/ports/inte
 import { IDocumentTypeRepository } from '../../application/ports/document-type.repository.port';
 import { IApplicationDocumentRepository } from '../../application/ports/application-document.repository.port';
 import { IEmployerTokenRepository } from '../../application/ports/employer-token.repository.port';
+import { IEmployerEvaluationRepository } from '../../application/ports/employer-evaluation.repository.port';
 import { ICompanyRepository } from '../../application/ports/company.repository.port';
 import { ISgkTrackingRepository } from '../../application/ports/sgk-tracking.repository.port';
 import { ITokenGenerator } from '../../application/ports/token-generator.port';
@@ -59,13 +61,13 @@ import { RolesGuard } from '../user/guards/roles.guard';
   imports: [
     AuthModule,
     CompanyModule,
-    EmployerEvaluationModule, // for IEmployerEvaluationRepository
     TypeOrmModule.forFeature([
       InternshipEntity,
       InternshipStatusHistoryEntity,
       DocumentTypeEntity,
       ApplicationDocumentEntity,
       EmployerTokenEntity,
+      EmployerEvaluationEntity,
       CompanyEntity,
       SgkTrackingEntity,
     ]),
@@ -83,6 +85,10 @@ import { RolesGuard } from '../user/guards/roles.guard';
       useClass: ApplicationDocumentRepository,
     },
     { provide: IEmployerTokenRepository, useClass: EmployerTokenRepository },
+    {
+      provide: IEmployerEvaluationRepository,
+      useClass: EmployerEvaluationRepository,
+    },
     { provide: ICompanyRepository, useClass: CompanyRepository },
     { provide: ISgkTrackingRepository, useClass: SgkTrackingRepository },
     { provide: ITokenGenerator, useClass: CryptoTokenGeneratorService },
@@ -115,6 +121,7 @@ import { RolesGuard } from '../user/guards/roles.guard';
     IDocumentTypeRepository,
     IApplicationDocumentRepository,
     IEmployerTokenRepository,
+    IEmployerEvaluationRepository,
     ICompanyRepository,
     ISgkTrackingRepository,
   ],
