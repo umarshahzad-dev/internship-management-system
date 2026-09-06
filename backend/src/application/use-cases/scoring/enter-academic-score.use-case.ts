@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { FinalGrade } from '../../../domain/entities/final-grade.entity';
 import { InternshipStatusHistory } from '../../../domain/entities/internship-status-history.entity';
+import { InternshipStatus } from '../../../domain/enums/internship-status.enum';
 import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { IInternshipStatusHistoryRepository } from '../../ports/internship-status-history.repository.port';
 import { IEmployerEvaluationRepository } from '../../ports/employer-evaluation.repository.port';
@@ -63,6 +64,15 @@ export class EnterAcademicScoreUseCase {
         'Academic cannot score other departments',
         403,
       );
+
+    // CRITICAL: Only allow grading when status is EVALUATION
+    if (internship.status !== InternshipStatus.EVALUATION) {
+      throw new DomainException(
+        'INVALID_STATE_TRANSITION',
+        'Only EVALUATION internships can be graded',
+        409,
+      );
+    }
 
     const oldStatus = internship.status;
 
