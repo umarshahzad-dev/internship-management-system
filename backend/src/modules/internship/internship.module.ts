@@ -29,6 +29,7 @@ import { ITokenGenerator } from '../../application/ports/token-generator.port';
 import { IEmailSender } from '../../application/ports/email-sender.port';
 import { IConfigProvider } from '../../application/ports/config-provider.port';
 import { IDateProvider } from '../../application/ports/date-provider.port';
+import { IPdfCompiler } from '../../application/ports/pdf-compiler.port';
 import { CreateDraftInternshipUseCase } from '../../application/use-cases/internship/create-draft-internship.use-case';
 import { ListInternshipsUseCase } from '../../application/use-cases/internship/list-internships.use-case';
 import { GetInternshipUseCase } from '../../application/use-cases/internship/get-internship.use-case';
@@ -42,10 +43,13 @@ import { GetInternshipHistoryUseCase } from '../../application/use-cases/interns
 import { EmployerApproveApplicationUseCase } from '../../application/use-cases/internship/employer-approve-application.use-case';
 import { CompleteInternshipUseCase } from '../../application/use-cases/internship/complete-internship.use-case';
 import { FinalizeInternshipUseCase } from '../../application/use-cases/internship/finalize-internship.use-case';
+import { VerifyInternshipSignatureUseCase } from '../../application/use-cases/internship/verify-internship-signature.use-case';
+import { GenerateApplicationFormUseCase } from '../../application/use-cases/internship/generate-application-form.use-case';
 import { SystemDateProvider } from '../../infrastructure/services/system-date-provider.service';
 import { EnvConfigProvider } from '../../infrastructure/services/env-config-provider.service';
 import { CryptoTokenGeneratorService } from '../../infrastructure/services/crypto-token-generator.service';
 import { ConsoleEmailSenderService } from '../../infrastructure/services/console-email-sender.service';
+import { TypstCompilerService } from '../../infrastructure/services/typst-compiler.service';
 import { RolesGuard } from '../user/guards/roles.guard';
 
 @Module({
@@ -81,6 +85,7 @@ import { RolesGuard } from '../user/guards/roles.guard';
     { provide: IEmailSender, useClass: ConsoleEmailSenderService },
     { provide: IConfigProvider, useClass: EnvConfigProvider },
     { provide: IDateProvider, useClass: SystemDateProvider },
+    { provide: IPdfCompiler, useClass: TypstCompilerService },
     CreateDraftInternshipUseCase,
     ListInternshipsUseCase,
     GetInternshipUseCase,
@@ -94,6 +99,8 @@ import { RolesGuard } from '../user/guards/roles.guard';
     EmployerApproveApplicationUseCase,
     CompleteInternshipUseCase,
     FinalizeInternshipUseCase,
+    VerifyInternshipSignatureUseCase,
+    GenerateApplicationFormUseCase,
     RolesGuard,
   ],
   exports: [

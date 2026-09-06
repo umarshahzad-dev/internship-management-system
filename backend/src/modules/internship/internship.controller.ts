@@ -7,8 +7,10 @@ import {
   Patch,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthGuard, AuthenticatedRequest } from '../auth/guards/auth.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { RolesGuard } from '../user/guards/roles.guard';
@@ -25,6 +27,7 @@ import { RequestRevisionInternshipUseCase } from '../../application/use-cases/in
 import { GetInternshipHistoryUseCase } from '../../application/use-cases/internship/get-internship-history.use-case';
 import { CompleteInternshipUseCase } from '../../application/use-cases/internship/complete-internship.use-case';
 import { FinalizeInternshipUseCase } from '../../application/use-cases/internship/finalize-internship.use-case';
+import { GenerateApplicationFormUseCase } from '../../application/use-cases/internship/generate-application-form.use-case';
 import { CreateDraftInternshipDto } from './dto/create-draft-internship.dto';
 import { UpdateDraftInternshipDto } from './dto/update-draft-internship.dto';
 import { ApproveInternshipDto } from './dto/approve-internship.dto';
@@ -49,6 +52,7 @@ export class InternshipController {
     private readonly getInternshipHistoryUseCase: GetInternshipHistoryUseCase,
     private readonly completeInternshipUseCase: CompleteInternshipUseCase,
     private readonly finalizeInternshipUseCase: FinalizeInternshipUseCase,
+    private readonly generateApplicationFormUseCase: GenerateApplicationFormUseCase,
   ) {}
 
   private getDepartmentId(req: AuthenticatedRequest): string {
@@ -227,5 +231,31 @@ export class InternshipController {
   @Get(':id/history')
   async history(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.getInternshipHistoryUseCase.execute(id);
+  }
+
+  @Get(':id/application-form')
+  @Roles(
+    UserRole.STUDENT,
+    UserRole.ACADEMIC,
+    UserRole.ADMINISTRATIVE,
+    UserRole.ADMIN,
+  )
+  @UseGuards(RolesGuard)
+  async getApplicationForm(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
+  ) {
+    const pdfBuffer = await this.generateApplicationFormUseCase.execute(
+      id,
+      req.user!.id,
+      req.user!.role,
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="basvuru_formu.pdf"',
+      'Content-Length': pdfBuffer.length.toString(),
+    });
+    res.end(pdfBuffer);
   }
 }

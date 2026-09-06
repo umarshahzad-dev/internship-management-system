@@ -18,6 +18,7 @@ async function bootstrap() {
         path: 'public/internship/employer-approve',
         method: RequestMethod.POST,
       },
+      { path: 'public/internship/:id/verify', method: RequestMethod.GET },
     ],
   });
 
