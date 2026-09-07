@@ -51,15 +51,20 @@ export class AuditInterceptor implements NestInterceptor {
             ipAddress,
             payload,
           ),
-        error: (error) =>
+        error: (error) => {
+          const statusCode =
+            error?.statusCode ||
+            error?.status ||
+            (typeof error?.getStatus === 'function' ? error.getStatus() : 500);
           this.logAction(
             request,
-            error.status || 500,
+            statusCode,
             userId,
             userRole,
             ipAddress,
             payload,
-          ),
+          );
+        },
       }),
     );
   }
