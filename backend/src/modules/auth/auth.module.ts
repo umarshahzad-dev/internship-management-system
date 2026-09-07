@@ -26,7 +26,6 @@ import { CryptoTokenGeneratorService } from '../../infrastructure/services/crypt
 import { JwtServiceAdapter } from '../../infrastructure/services/jwt.service';
 import { SystemDateProvider } from '../../infrastructure/services/system-date-provider.service';
 import { EnvConfigProvider } from '../../infrastructure/services/env-config-provider.service';
-import { ConsoleEmailSenderService } from '../../infrastructure/services/console-email-sender.service';
 
 // Entities
 import { UserEntity } from '../../infrastructure/database/entities/user.entity';
@@ -46,7 +45,6 @@ import { ITokenGenerator } from '../../application/ports/token-generator.port';
 import { IJwtService } from '../../application/ports/jwt.service.port';
 import { IDateProvider } from '../../application/ports/date-provider.port';
 import { IConfigProvider } from '../../application/ports/config-provider.port';
-import { IEmailSender } from '../../application/ports/email-sender.port';
 
 @Module({
   imports: [
@@ -77,7 +75,6 @@ import { IEmailSender } from '../../application/ports/email-sender.port';
     { provide: IJwtService, useClass: JwtServiceAdapter },
     { provide: IDateProvider, useClass: SystemDateProvider },
     { provide: IConfigProvider, useClass: EnvConfigProvider },
-    { provide: IEmailSender, useClass: ConsoleEmailSenderService },
     LoginUseCase,
     RefreshTokenUseCase,
     LogoutUseCase,
@@ -100,7 +97,6 @@ import { IEmailSender } from '../../application/ports/email-sender.port';
     IJwtService,
     IDateProvider,
     IConfigProvider,
-    IEmailSender,
   ],
 })
 export class AuthModule {}
