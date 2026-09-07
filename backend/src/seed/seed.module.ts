@@ -5,6 +5,7 @@ import { DepartmentEntity } from '../infrastructure/database/entities/department
 import { UserEntity } from '../infrastructure/database/entities/user.entity';
 import { UserSecurityStateEntity } from '../infrastructure/database/entities/user-security-state.entity';
 import { DocumentTypeEntity } from '../infrastructure/database/entities/document-type.entity';
+import { SystemConfigEntity } from '../infrastructure/database/entities/system-config.entity';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { DocumentTypeEntity } from '../infrastructure/database/entities/document
       UserEntity,
       UserSecurityStateEntity,
       DocumentTypeEntity,
+      SystemConfigEntity,
     ]),
   ],
   providers: [SeedService],

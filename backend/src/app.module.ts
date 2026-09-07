@@ -21,6 +21,7 @@ import { EmployerEvaluationModule } from './modules/employer-evaluation/employer
 import { ScoringModule } from './modules/scoring/scoring.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { SystemConfigModule } from './modules/system-config/system-config.module';
 import { AuditInterceptor } from './infrastructure/interceptors/audit.interceptor';
 import { SeedModule } from './seed/seed.module';
 
@@ -61,6 +62,7 @@ import { SeedModule } from './seed/seed.module';
     ScoringModule,
     NotificationModule,
     AuditModule,
+    SystemConfigModule,
     SeedModule,
   ],
   controllers: [AppController],

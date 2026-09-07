@@ -6,6 +6,7 @@ import { DepartmentEntity } from '../infrastructure/database/entities/department
 import { UserEntity } from '../infrastructure/database/entities/user.entity';
 import { UserSecurityStateEntity } from '../infrastructure/database/entities/user-security-state.entity';
 import { DocumentTypeEntity } from '../infrastructure/database/entities/document-type.entity';
+import { SystemConfigEntity } from '../infrastructure/database/entities/system-config.entity';
 import { UserRole } from '../domain/value-objects/role.vo';
 
 @Injectable()
@@ -21,6 +22,8 @@ export class SeedService implements OnApplicationBootstrap {
     private readonly securityStateRepository: Repository<UserSecurityStateEntity>,
     @InjectRepository(DocumentTypeEntity)
     private readonly documentTypeRepository: Repository<DocumentTypeEntity>,
+    @InjectRepository(SystemConfigEntity)
+    private readonly systemConfigRepository: Repository<SystemConfigEntity>,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -41,7 +44,7 @@ export class SeedService implements OnApplicationBootstrap {
       department = await this.departmentRepository.save(department);
     }
 
-    // Create users (same as before)
+    // Create users
     await this.createUserIfNotExists({
       email: 'admin@example.com',
       role: UserRole.ADMIN,
@@ -58,7 +61,6 @@ export class SeedService implements OnApplicationBootstrap {
       departmentId: department.id,
       studentNumber: null,
     });
-    
     await this.createUserIfNotExists({
       email: 'admin_staff@example.com',
       role: UserRole.ADMINISTRATIVE,
@@ -67,7 +69,6 @@ export class SeedService implements OnApplicationBootstrap {
       departmentId: department.id,
       studentNumber: null,
     });
-    
     await this.createUserIfNotExists({
       email: 'student@example.com',
       role: UserRole.STUDENT,
@@ -77,8 +78,11 @@ export class SeedService implements OnApplicationBootstrap {
       studentNumber: '20260001',
     });
 
-    // Seed document types for department
+    // Seed document types
     await this.seedDocumentTypes(department.id);
+
+    // Seed system configs
+    await this.seedSystemConfigs();
 
     this.logger.log('Seeding completed.');
   }
@@ -179,5 +183,51 @@ export class SeedService implements OnApplicationBootstrap {
       passwordChangedAt: new Date(),
     });
     await this.securityStateRepository.save(securityState);
+  }
+
+  private async seedSystemConfigs(): Promise<void> {
+    const defaults = [
+      {
+        key: 'ACADEMIC_YEAR',
+        value: '2026-2027',
+        description: 'Aktif akademik öğretim yılı',
+        isPublic: true,
+      },
+      {
+        key: 'ACTIVE_SEMESTER',
+        value: 'YAZ',
+        description: 'Aktif staj dönemi',
+        isPublic: true,
+      },
+      {
+        key: 'MIN_INTERNSHIP_DAYS',
+        value: '20',
+        description: 'Minimum zorunlu staj iş günü sayısı',
+        isPublic: false,
+      },
+      {
+        key: 'MAX_INTERNSHIP_DAYS',
+        value: '40',
+        description: 'Maksimum zorunlu staj iş günü sayısı',
+        isPublic: false,
+      },
+      {
+        key: 'APP_SUBMISSION_DEADLINE',
+        value: '2026-06-30',
+        description: 'Staj başvuru evrakları son teslim tarihi',
+        isPublic: true,
+      },
+    ];
+
+    for (const cfg of defaults) {
+      const exists = await this.systemConfigRepository.findOne({
+        where: { key: cfg.key },
+      });
+      if (!exists) {
+        await this.systemConfigRepository.save(
+          this.systemConfigRepository.create(cfg),
+        );
+      }
+    }
   }
 }
