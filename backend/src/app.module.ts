@@ -23,6 +23,7 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { SystemConfigModule } from './modules/system-config/system-config.module';
 import { AuditInterceptor } from './infrastructure/interceptors/audit.interceptor';
+import { ReportModule } from './modules/report/report.module';
 import { SeedModule } from './seed/seed.module';
 
 @Module({
@@ -63,6 +64,7 @@ import { SeedModule } from './seed/seed.module';
     NotificationModule,
     AuditModule,
     SystemConfigModule,
+    ReportModule,
     SeedModule,
   ],
   controllers: [AppController],
