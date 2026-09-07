@@ -55,6 +55,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     restart: unless-stopped
 
   frontend:
@@ -71,6 +73,14 @@ services:
       - "5173:5173"
     depends_on:
       - backend
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: imas_mailpit
+    ports:
+      - "8025:8025" # Web UI
+      - "1025:1025" # SMTP Port
     restart: unless-stopped
 
 volumes:

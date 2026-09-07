@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -18,6 +19,7 @@ import { DailyLogModule } from './modules/daily-log/daily-log.module';
 import { SgkModule } from './modules/sgk/sgk.module';
 import { EmployerEvaluationModule } from './modules/employer-evaluation/employer-evaluation.module';
 import { ScoringModule } from './modules/scoring/scoring.module';
+import { NotificationModule } from './modules/notification/notification.module';
 import { SeedModule } from './seed/seed.module';
 
 @Module({
@@ -27,6 +29,7 @@ import { SeedModule } from './seed/seed.module';
       envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -54,6 +57,7 @@ import { SeedModule } from './seed/seed.module';
     SgkModule,
     EmployerEvaluationModule,
     ScoringModule,
+    NotificationModule,
     SeedModule,
   ],
   controllers: [AppController],
