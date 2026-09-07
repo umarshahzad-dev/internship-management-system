@@ -73,3 +73,7 @@ cookies.txt
 
 # Backend uploads
 backend/uploads/
+
+IMAS.postman_collection.json
+IMAS_full_test.ps1
+*ps1
