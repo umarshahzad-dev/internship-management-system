@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
@@ -20,6 +20,8 @@ import { SgkModule } from './modules/sgk/sgk.module';
 import { EmployerEvaluationModule } from './modules/employer-evaluation/employer-evaluation.module';
 import { ScoringModule } from './modules/scoring/scoring.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { AuditModule } from './modules/audit/audit.module';
+import { AuditInterceptor } from './infrastructure/interceptors/audit.interceptor';
 import { SeedModule } from './seed/seed.module';
 
 @Module({
@@ -58,9 +60,14 @@ import { SeedModule } from './seed/seed.module';
     EmployerEvaluationModule,
     ScoringModule,
     NotificationModule,
+    AuditModule,
     SeedModule,
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+  ],
 })
 export class AppModule {}
