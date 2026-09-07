@@ -89,6 +89,7 @@ export class DailyLogController {
     const pdfBuffer = await this.generateStajDefteriUseCase.execute(
       internshipId,
       req.user!.id,
+      req.user!.role,
     );
     res.set({
       'Content-Type': 'application/pdf',

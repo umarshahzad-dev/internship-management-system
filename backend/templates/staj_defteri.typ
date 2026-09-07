@@ -16,7 +16,7 @@
   
   #rect(width: 80%, stroke: 1pt, inset: 1cm)[
     #align(left)[
-      #grid(columns: (100px, 1fr), row-gutter: 1.5em,
+      #grid(columns: (3cm, 1fr), row-gutter: 1.5em,
         [*BÖLÜMÜ*], [: #data.student.department],
         [*NUMARASI*], [: #data.student.number],
         [*ADI SOYADI*], [: #data.student.name]
@@ -43,7 +43,6 @@
 #table(
   columns: (3cm, 1fr, 3cm),
   stroke: 1pt,
-  
   [*ÖĞRENCİNİN*],
   [
     *Bölümü:* #data.student.department \
@@ -59,9 +58,8 @@
 #v(0.2cm)
 
 #table(
-  columns: (3cm, 1fr, 5cm),
+  columns: (3cm, 1fr, 5.5cm),
   stroke: 1pt,
-  
   [*İŞYERİNİN*],
   [
     *Adı ve Adresi:* #data.company.name \
@@ -72,10 +70,10 @@
     *Ünvanı:* #data.company.supervisorTitle \
   ],
   align(center + horizon)[
-    Yukarıda kimliği bulunan öğrencinin iş yerimizde #data.internship.totalDays iş günü pratik çalışma yaptığını ve bu defteri kendisinin düzenlediğini onaylarım. \
+    Yukarıda kimliği bulunan öğrencinin iş yerimizde #data.internship.totalDays iş günü pratik çalışma yaptığını onaylarım. \
     \
-    *İmza ve Mühür* \
-    ......./......./20.....
+    #image(data.qrCodeSvgPath, width: 2.2cm) \
+    #text(size: 8pt)[#data.evaluation.timestamp \ IP: #data.evaluation.ipAddress]
   ]
 )
 #v(0.2cm)
@@ -122,12 +120,10 @@
   
   #v(1fr) 
   #line(length: 100%, stroke: 0.5pt)
-  #grid(columns: (1fr, 1fr),
-    [],
-    align(center)[
-      *Onaylayan Amir* \
-      #data.company.supervisorName \
-      İmza / Kaşe
+  #align(center)[
+    #text(size: 9pt)[
+      *TÜM GÜNLÜK KAYITLAR DİJİTAL OLARAK ONAYLANMIŞTIR* \
+      İşyeri Amiri: #data.company.supervisorName | Onay Tarihi: #data.evaluation.timestamp
     ]
-  )
+  ]
 ]

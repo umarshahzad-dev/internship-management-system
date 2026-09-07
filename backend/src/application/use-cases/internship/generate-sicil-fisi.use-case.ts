@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import * as QRCode from 'qrcode';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import { randomUUID } from 'crypto';
 import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { IUserRepository } from '../../ports/user.repository.port';
 import { ICompanyRepository } from '../../ports/company.repository.port';
 import { IEmployerEvaluationRepository } from '../../ports/employer-evaluation.repository.port';
 import { IPdfCompiler } from '../../ports/pdf-compiler.port';
+import { IConfigProvider } from '../../ports/config-provider.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
 
 @Injectable()
@@ -14,6 +19,7 @@ export class GenerateSicilFisiUseCase {
     private readonly companyRepository: ICompanyRepository,
     private readonly evaluationRepository: IEmployerEvaluationRepository,
     private readonly pdfCompiler: IPdfCompiler,
+    private readonly config: IConfigProvider,
   ) {}
 
   async execute(
@@ -24,7 +30,6 @@ export class GenerateSicilFisiUseCase {
     const internship = await this.internshipRepository.findById(internshipId);
     if (!internship)
       throw new DomainException('NOT_FOUND', 'Internship not found', 404);
-
     if (role !== 'ADMIN' && internship.departmentId !== departmentId) {
       throw new DomainException(
         'FORBIDDEN',
@@ -38,7 +43,6 @@ export class GenerateSicilFisiUseCase {
       this.companyRepository.findById(internship.companyId),
       this.evaluationRepository.findByInternship(internship.id),
     ]);
-
     if (!student || !company)
       throw new DomainException(
         'INTERNAL_ERROR',
@@ -52,11 +56,20 @@ export class GenerateSicilFisiUseCase {
         404,
       );
 
-    // Extract grades from our domain entity (grades are { criterion: { letter, score } })
+    const frontendUrls = await this.config.get<string>(
+      'FRONTEND_URLS',
+      'http://localhost:5173',
+    );
+    const verificationUrl = `${frontendUrls.split(',')[0].trim()}/verify/sicil-fisi/${internship.id}`;
+
+    const qrSvg = await QRCode.toString(verificationUrl, { type: 'svg' });
+    const qrFilename = `qr_${randomUUID()}.svg`;
+    const qrFilePath = path.join(process.cwd(), 'templates', qrFilename);
+    await fs.writeFile(qrFilePath, qrSvg, 'utf-8');
+
     const grades = evaluation.grades || {};
     const getLetter = (key: string) => grades[key]?.letter || 'N/A';
 
-    // Calculate total days based on start/end dates (basic difference)
     const start = new Date(internship.startDate);
     const end = new Date(internship.endDate);
     const totalDays = Math.max(
@@ -67,7 +80,7 @@ export class GenerateSicilFisiUseCase {
     const payload = {
       student: {
         name: `${student.firstName} ${student.lastName}`,
-        department: 'Yazılım Mühendisliği', // static; replace with dynamic if available
+        department: 'Yazılım Mühendisliği',
         number: student.studentNumber || 'N/A',
         classYear: 'N/A',
         birthYear: 'N/A',
@@ -87,12 +100,12 @@ export class GenerateSicilFisiUseCase {
         attendance: getLetter('attendance'),
         effort: getLetter('effort'),
         timeliness: getLetter('timeliness'),
-        behavior: getLetter('conduct'), // our domain uses 'conduct' for behavior
+        behavior: getLetter('conduct'),
         teamwork: getLetter('teamwork'),
         ethics: getLetter('ethics'),
-        learning: getLetter('self_improvement'), // mapped to learning
+        learning: getLetter('self_improvement'),
         innovation: getLetter('innovation') || 'N/A',
-        ipAddress: 'Bilinmiyor', // no IP stored in evaluation
+        ipAddress: internship.employerApprovalIp || 'Bilinmiyor',
         timestamp: evaluation.submittedAt
           ? new Date(evaluation.submittedAt)
               .toISOString()
@@ -100,8 +113,14 @@ export class GenerateSicilFisiUseCase {
               .replace('T', ' ')
           : 'N/A',
       },
+      qrCodeSvgPath: qrFilename,
+      verificationUrl,
     };
 
-    return this.pdfCompiler.compile('sicil_fisi.typ', payload);
+    try {
+      return await this.pdfCompiler.compile('sicil_fisi.typ', payload);
+    } finally {
+      await fs.rm(qrFilePath, { force: true }).catch(() => {});
+    }
   }
 }

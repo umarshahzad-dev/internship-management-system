@@ -45,3 +45,12 @@
     #data.department.headTitle
   ]
 ]
+
+#v(1fr)
+#grid(columns: (1fr, auto),
+  [],
+  align(center)[
+    #image(data.qrCodeSvgPath, width: 2.5cm) \
+    #text(size: 8pt)[Belge Doğrulama Kodu]
+  ]
+)

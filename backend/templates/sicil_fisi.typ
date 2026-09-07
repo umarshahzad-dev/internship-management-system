@@ -80,7 +80,7 @@
   align(center + horizon)[
     *NETİCEYİ TASDİK FAKÜLTEYE AİTTİR*
   ],
-  rect(width: 100%, height: 3cm, stroke: none)[
+  rect(width: 100%, height: 3.5cm, stroke: none)[
     #align(left)[
       #v(0.2cm)
       *İsim:* #data.company.supervisorName \
@@ -88,7 +88,10 @@
       *IP Onayı:* #data.evaluation.ipAddress
     ]
   ],
-  rect(width: 100%, height: 3cm, stroke: none)[
-    // Empty for Academic Signature
+  rect(width: 100%, height: 3.5cm, stroke: none)[
+    #align(center + horizon)[
+      #image(data.qrCodeSvgPath, width: 2cm) \
+      #text(size: 8pt)[Dijital Sicil Arşiv Doğrulaması]
+    ]
   ]
 )

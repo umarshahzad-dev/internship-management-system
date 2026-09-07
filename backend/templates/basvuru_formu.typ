@@ -33,4 +33,7 @@
 ]
 #v(0.5cm)
 
-#text(size: 10pt)[Doğrulama: #data.verificationUrl]
+#align(center)[
+  #image(data.qrCodeSvgPath, width: 2.5cm) \
+  #text(size: 8pt)[Doğrulama: #data.verificationUrl]
+]
