@@ -1,7 +1,17 @@
 ﻿#let data = json(sys.inputs.data_file)
 
 #set page(paper: "a4", margin: 2cm)
-#text(size: 18pt, weight: "bold")[Staj Başvuru Formu]
+#set text(font: "Times New Roman", size: 12pt)
+
+// University Logo
+#align(center)[
+  #image("logo.png", width: 2.5cm)
+]
+#v(0.5cm)
+
+#align(center)[
+  #text(weight: "bold", size: 18pt)[Staj Başvuru Formu]
+]
 #v(0.5cm)
 
 #text(size: 12pt)[
@@ -35,5 +45,5 @@
 
 #align(center)[
   #image(data.qrCodeSvgPath, width: 2.5cm) \
-  #text(size: 8pt)[Doğrulama: #data.verificationUrl]
+  #text(size: 8pt)[Dijital Doğrulama Kodu]
 ]

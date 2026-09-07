@@ -2,9 +2,10 @@
 #set page(paper: "a4", margin: 1.5cm)
 #set text(font: "Times New Roman", size: 10pt)
 
-// Header & Photo Box
+// Header with Logo
 #grid(
-  columns: (1fr, auto),
+  columns: (auto, 1fr, auto),
+  align(left)[#image("logo.png", width: 2.5cm)],
   align(center)[
     #text(weight: "bold", size: 12pt)[
       T.C. \
@@ -12,50 +13,46 @@
       MÜHENDİSLİK VE DOĞA BİLİMLERİ FAKÜLTESİ \
       DEKANLIĞI
     ] \
-    #v(1cm)
+    #v(0.5cm)
     #text(weight: "bold", size: 14pt)[PRATİK SİCİL FİŞİ]
   ],
   rect(width: 3.5cm, height: 4.5cm, stroke: 1pt)[
-    #align(center + horizon)[Fotoğraf]
+    #align(center + horizon)[Fotoğraf Alanı]
   ]
 )
 #v(0.5cm)
 
-// Student & Internship Info Table
+// Student Info (Added Inset for Padding)
 #table(
   columns: (3cm, 1fr, 2.5cm, 1fr),
   stroke: 0.5pt,
+  inset: 6pt, 
   
-  [ADI SOYADI], [#data.student.name], [BÖLÜMÜ], [#data.student.department],
-  [OKUL NO], [#data.student.number], [SINIFI], [#data.student.classYear],
-  [DOĞUM YILI], [#data.student.birthYear], [D. YERİ], [#data.student.birthPlace],
+  [*ADI SOYADI*], [#data.student.name], [*BÖLÜMÜ*], [#data.student.department],
+  [*OKUL NO*], [#data.student.number], [*SINIFI*], [#data.student.classYear],
+  [*DOĞUM YILI*], [#data.student.birthYear], [*D. YERİ*], [#data.student.birthPlace],
   
-  [TARİH], 
+  [*TARİH*], 
   table.cell(colspan: 3)[
-    #grid(columns: (auto, 1fr, auto, 1fr),
-      [İşe Başlama :], [#data.internship.startDate],
-      [İşi Bitiş :], [#data.internship.endDate]
-    )
+    İşe Başlama: #data.internship.startDate | İş Bitiş: #data.internship.endDate
   ],
   
-  [GÜNLER],
+  [*GÜNLER*],
   table.cell(colspan: 3)[
-    #grid(columns: (auto, 1fr, auto, 1fr),
-      [Çalıştığı :], [#data.internship.workedDays],
-      [Çalışmadığı :], [#data.internship.absentDays]
-    )
+    Çalıştığı: #data.internship.workedDays | Çalışmadığı: #data.internship.absentDays
   ],
   
-  [ÇALIŞTIĞI KISIMLAR], table.cell(colspan: 3)[#data.internship.departmentsWorked]
+  [*ÇALIŞTIĞI KISIMLAR*], table.cell(colspan: 3)[#data.internship.departmentsWorked]
 )
 #v(0.5cm)
 
-// Evaluation Grades Table
+// Grades Table (Added Padding and Center Alignment)
 #table(
-  columns: (1fr, 3cm),
+  columns: (1fr, 3.5cm),
   stroke: 0.5pt,
+  inset: 6pt,
   
-  [*DEĞERLENDİRME KRİTERİ*], [*NOTU (A/B/C/D/E)*],
+  align(left)[*DEĞERLENDİRME KRİTERİ*], align(center)[*NOTU (A/B/C/D/E)*],
   [DEVAM VE DİSİPLİN], align(center)[#data.evaluation.attendance],
   [ÇALIŞMA VE GAYRET], align(center)[#data.evaluation.effort],
   [İŞİ VAKTİNDE VE TAM YAPMA], align(center)[#data.evaluation.timeliness],
@@ -69,20 +66,16 @@
 #text(size: 9pt)[*Notlar:* A- Pekiyi, B- İyi, C- Orta, D- Geçer, E- Fena]
 #v(0.5cm)
 
-// Signatures Table
+// Signatures Table (Cleaned up QR)
 #table(
   columns: (1fr, 1fr),
   stroke: 0.5pt,
-  align(center)[
-    *ÇALIŞMAYI KONTROL EDEN İŞ YERİ AMİRİNİN* \
-    *İSİM, İMZA VE MÜHÜRÜ*
-  ],
-  align(center + horizon)[
-    *NETİCEYİ TASDİK FAKÜLTEYE AİTTİR*
-  ],
+  inset: 8pt,
+  align(center)[*İŞ YERİ AMİRİ ONAYI*],
+  align(center)[*FAKÜLTE TASDİKİ*],
+  
   rect(width: 100%, height: 3.5cm, stroke: none)[
     #align(left)[
-      #v(0.2cm)
       *İsim:* #data.company.supervisorName \
       *Tarih:* #data.evaluation.timestamp \
       *IP Onayı:* #data.evaluation.ipAddress
@@ -90,8 +83,8 @@
   ],
   rect(width: 100%, height: 3.5cm, stroke: none)[
     #align(center + horizon)[
-      #image(data.qrCodeSvgPath, width: 2cm) \
-      #text(size: 8pt)[Dijital Sicil Arşiv Doğrulaması]
+      #image(data.qrCodeSvgPath, width: 2.2cm) \
+      #text(size: 8pt)[Dijital Doğrulama Kodu]
     ]
   ]
 )

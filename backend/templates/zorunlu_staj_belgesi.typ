@@ -1,7 +1,14 @@
 #let data = json(sys.inputs.data_file)
+
 #set page(paper: "a4", margin: (top: 3cm, bottom: 3cm, left: 2.5cm, right: 2.5cm))
 #set text(font: "Times New Roman", size: 12pt)
 #set par(justify: true, leading: 1.5em)
+
+// University Logo
+#align(center)[
+  #image("logo.png", width: 2.5cm)
+]
+#v(0.5cm)
 
 #align(center)[
   #text(weight: "bold")[
@@ -51,6 +58,6 @@
   [],
   align(center)[
     #image(data.qrCodeSvgPath, width: 2.5cm) \
-    #text(size: 8pt)[Belge Doğrulama Kodu]
+    #text(size: 8pt)[Dijital Doğrulama Kodu]
   ]
 )
