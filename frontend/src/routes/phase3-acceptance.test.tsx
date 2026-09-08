@@ -49,6 +49,8 @@ describe('Phase 3 routing acceptance criteria', () => {
     expect(canAccessRoute('users', 'STUDENT')).toBe(false)
     expect(ROUTE_PERMISSIONS.companies).toContain('ACADEMIC')
     expect(ROUTE_PERMISSIONS.companies).toContain('ADMIN')
+    expect(canAccessRoute('stajDefteri', 'STUDENT')).toBe(true)
+    expect(canAccessRoute('stajDefteri', 'ACADEMIC')).toBe(false)
   })
 
   it('updates document titles for authenticated route changes', () => {
