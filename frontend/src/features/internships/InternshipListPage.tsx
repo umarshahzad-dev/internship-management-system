@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Badge, Button, ConfirmDialog, DataToolbar, EmptyState, ErrorState, Input, LoadingState, PageHeader, Panel, Pagination, Select, Table } from '../../components/ui'
 import { DocumentTitle } from '../../routes/pages'
 import { useInternships } from './internship.queries'
@@ -18,14 +18,16 @@ export function DraftEditForm({ initial, onSubmit, onCancel, loading = false }: 
   return <div className="grid gap-3 sm:grid-cols-3"><Input label="Kurum ID" value={value.companyId} onChange={(event) => setValue({ ...value, companyId: event.target.value })} /><Input label="Başlangıç" type="date" value={value.startDate} onChange={(event) => setValue({ ...value, startDate: event.target.value })} /><Input label="Bitiş" type="date" value={value.endDate} onChange={(event) => setValue({ ...value, endDate: event.target.value })} /><div className="sm:col-span-3 flex gap-2"><Button loading={loading} onClick={() => onSubmit(value)}>Taslağı kaydet</Button>{onCancel ? <Button variant="outline" onClick={onCancel}>Vazgeç</Button> : null}</div></div>
 }
 
-function InternshipRowActions({ row }: { row: InternshipListItem }) {
+function InternshipRowActions({ row, role }: { row: InternshipListItem; role: UserRole }) {
   const client = useQueryClient()
   const [confirm, setConfirm] = useState<'submit' | 'withdraw' | 'complete' | null>(null)
   const [editing, setEditing] = useState(false)
   const action = useMutation({ mutationFn: (name: string) => api.post(`/internships/${row.id}/${name}`), onSuccess: () => invalidateDomainQueries(client, [queryKeys.internships.all, queryKeys.internships.detail(row.id)]) })
   const edit = useMutation({ mutationFn: (value: { companyId: string; startDate: string; endDate: string }) => api.patch(`/internships/${row.id}`, value), onSuccess: () => { setEditing(false); void invalidateDomainQueries(client, [queryKeys.internships.all, queryKeys.internships.detail(row.id)]) } })
+  const required = useQuery({ queryKey: ['internships', row.id, 'required-documents'], queryFn: async () => { const [docs, types] = await Promise.all([api.get<Array<{ documentTypeId?: string; status?: string }>>(`/internships/${row.id}/documents`), api.get<Array<{ id: string; isRequired?: boolean; source?: string }>>('/document-types')]); const requiredTypes = types.data.filter((type) => type.isRequired && (type.source ?? 'EXTERNAL_UPLOAD') === 'EXTERNAL_UPLOAD'); return requiredTypes.every((type) => docs.data.some((doc) => doc.documentTypeId === type.id && doc.status === 'ACCEPTED')) }, enabled: role === 'STUDENT' && row.status === 'DRAFT' })
   const label = confirm === 'submit' ? 'Gönder' : confirm === 'withdraw' ? 'Geri çek' : 'Tamamla'
-  return <><div className="flex flex-wrap items-center gap-2"><Link className="font-semibold text-navy underline-offset-4 hover:text-red hover:underline" to={`/internships/${row.id}`}>Detayı aç</Link>{(row.status === 'DRAFT' || row.status === 'REVISION_REQUIRED') ? <button type="button" className="font-semibold text-navy underline hover:text-red" onClick={() => setEditing((open) => !open)}>Düzenle</button> : null}{row.status === 'DRAFT' ? <button type="button" className="font-semibold text-navy underline hover:text-red" onClick={() => setConfirm('submit')}>Gönder</button> : null}{row.status === 'SUBMITTED' ? <button type="button" className="font-semibold text-red underline" onClick={() => setConfirm('withdraw')}>Geri çek</button> : null}{row.status === 'ONGOING' ? <button type="button" className="font-semibold text-red underline" onClick={() => setConfirm('complete')}>Tamamla</button> : null}</div>{editing ? <div className="mt-3 min-w-[32rem] rounded border border-gray-200 bg-gray-50 p-3"><DraftEditForm initial={row} loading={edit.isPending} onCancel={() => setEditing(false)} onSubmit={(value) => void edit.mutateAsync(value)} /></div> : null}<ConfirmDialog open={Boolean(confirm)} title={`${label} işlemini onayla`} description="Bu durum değişikliği staj akışını etkiler." confirmLabel={label} onCancel={() => setConfirm(null)} onConfirm={() => { if (confirm) void action.mutateAsync(confirm).finally(() => setConfirm(null)) }} /></>
+  const canSubmit = role !== 'STUDENT' || required.data === true
+  return <><div className="flex flex-wrap items-center gap-2"><Link className="font-semibold text-navy underline-offset-4 hover:text-red hover:underline" to={`/internships/${row.id}`}>Detayı aç</Link>{role === 'STUDENT' && (row.status === 'DRAFT' || row.status === 'REVISION_REQUIRED') ? <button type="button" className="font-semibold text-navy underline hover:text-red" onClick={() => setEditing((open) => !open)}>Düzenle</button> : null}{role === 'STUDENT' && row.status === 'DRAFT' ? <button type="button" disabled={!canSubmit} title={!canSubmit ? 'Gönderim için zorunlu belgeleri kabul ettirin.' : undefined} className="font-semibold text-navy underline hover:text-red disabled:cursor-not-allowed disabled:opacity-50" onClick={() => setConfirm('submit')}>Gönder</button> : null}{role === 'STUDENT' && row.status === 'SUBMITTED' ? <button type="button" className="font-semibold text-red underline" onClick={() => setConfirm('withdraw')}>Geri çek</button> : null}{role === 'STUDENT' && row.status === 'ONGOING' ? <button type="button" className="font-semibold text-red underline" onClick={() => setConfirm('complete')}>Tamamla</button> : null}</div>{!canSubmit ? <p className="text-xs text-red">Zorunlu belgeler kabul edilmeden gönderim yapılamaz.</p> : null}{editing ? <div className="mt-3 min-w-[32rem] rounded border border-gray-200 bg-gray-50 p-3"><DraftEditForm initial={row} loading={edit.isPending} onCancel={() => setEditing(false)} onSubmit={(value) => void edit.mutateAsync(value)} /></div> : null}<ConfirmDialog open={Boolean(confirm)} title={`${label} işlemini onayla`} description="Bu durum değişikliği staj akışını etkiler." confirmLabel={label} onCancel={() => setConfirm(null)} onConfirm={() => { if (confirm) void action.mutateAsync(confirm).finally(() => setConfirm(null)) }} /></>
 }
 
 export function InternshipListPage({ role }: { role: UserRole }) {
@@ -43,7 +45,7 @@ export function InternshipListPage({ role }: { role: UserRole }) {
     { key: 'company', header: 'Kurum', render: (row: InternshipListItem) => row.companyName ?? 'Kurum bilgisi bekleniyor' },
     { key: 'period', header: 'Tarih aralığı', render: (row: InternshipListItem) => `${row.startDate} — ${row.endDate}` },
     { key: 'status', header: 'Durum', render: (row: InternshipListItem) => <Badge variant={statusVariant(row.status)}>{internshipStatusLabels[row.status] ?? row.status}</Badge> },
-    { key: 'actions', header: 'İşlem', render: (row: InternshipListItem) => <InternshipRowActions row={row} /> },
+    { key: 'actions', header: 'İşlem', render: (row: InternshipListItem) => <InternshipRowActions row={row} role={role} /> },
   ]
   return <>
     <DocumentTitle title={isStudent ? 'Stajlarım' : 'Staj başvuruları'} />

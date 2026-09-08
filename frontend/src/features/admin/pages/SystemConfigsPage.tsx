@@ -1,0 +1,13 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { Button, DataToolbar, EmptyState, ErrorState, Input, LoadingState, PageHeader, Panel, Table } from '../../../components/ui'
+import { api } from '../../../lib/api'
+import { DocumentTitle } from '../../../routes/pages'
+import { useTableUrlState } from '../../shared/hooks/useTableUrlState'
+
+interface SystemConfig { key: string; value: string; description?: string; isPublic?: boolean; updatedAt?: string }
+
+export function SystemConfigsPage({ role }: { role: 'ADMIN' | 'PUBLIC' | string }) {
+  const isAdmin = role === 'ADMIN'; const client = useQueryClient(); const table = useTableUrlState(); const [values, setValues] = useState<Record<string, string>>({}); const query = useQuery({ queryKey: ['system-configs', isAdmin ? 'admin' : 'public'], queryFn: async () => (await api.get<SystemConfig[]>(isAdmin ? '/system-configs/admin' : '/system-configs/public')).data }); const update = useMutation({ mutationFn: ({ key, value }: { key: string; value: string }) => api.patch(`/system-configs/${encodeURIComponent(key)}`, { value }), onSuccess: () => void client.invalidateQueries({ queryKey: ['system-configs', 'admin'] }) }); const rows = (query.data ?? []).filter((row) => `${row.key} ${row.value} ${row.description ?? ''}`.toLowerCase().includes(table.search.toLowerCase()));
+  return <><DocumentTitle title="Sistem ayarları" /><PageHeader title="Sistem ayarları" description={isAdmin ? 'Kurum yapılandırmalarını güncelleyin.' : 'Yayınlanan sistem yapılandırmalarını görüntüleyin.'} /><Panel><DataToolbar search={{ value: table.search, onChange: (value) => table.update({ search: value }), placeholder: 'Ayar ara' }} /><div className="mt-4">{query.isLoading ? <LoadingState label="Ayarlar yükleniyor" /> : query.isError ? <ErrorState title="Ayarlar alınamadı" message="Tekrar deneyin." onRetry={() => void query.refetch()} /> : rows.length === 0 ? <EmptyState title="Ayar bulunamadı" message="Arama ölçütünü değiştirip tekrar deneyin." /> : <Table caption="Sistem ayarları" columns={[{ key: 'key', header: 'Anahtar' }, { key: 'value', header: 'Değer', render: (row) => isAdmin ? <Input label={`${row.key} değeri`} value={values[row.key] ?? row.value} onChange={(event) => setValues({ ...values, [row.key]: event.target.value })} /> : String(row.value ?? '—') }, { key: 'description', header: 'Açıklama' }, ...(isAdmin ? [{ key: 'actions', header: 'İşlem', render: (row: SystemConfig) => <Button loading={update.isPending} onClick={() => void update.mutateAsync({ key: row.key, value: values[row.key] ?? row.value })}>Kaydet</Button> }] : [])]} data={rows} rowKey={(row) => row.key} />}</div></Panel></>
+}

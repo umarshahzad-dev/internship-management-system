@@ -5,7 +5,7 @@ export const ROUTE_PERMISSIONS = {
   internships: ['STUDENT', 'ACADEMIC', 'ADMINISTRATIVE', 'ADMIN'],
   internshipDetail: ['STUDENT', 'ACADEMIC', 'ADMINISTRATIVE', 'ADMIN'],
   internshipDocuments: ['STUDENT', 'ACADEMIC', 'ADMIN'],
-  stajDefteri: ['STUDENT', 'ACADEMIC', 'ADMIN'],
+  stajDefteri: ['STUDENT'],
   mandatoryLetter: ['STUDENT'],
   profile: ['STUDENT'],
   companies: ['ACADEMIC', 'ADMIN'],

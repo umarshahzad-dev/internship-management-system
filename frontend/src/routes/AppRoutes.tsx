@@ -3,15 +3,15 @@ import type { ReactNode } from 'react'
 import { AuthenticatedLayout } from '../layout/AuthenticatedLayout'
 import { PublicLayout } from '../layout/PublicLayout'
 import { LoginPage } from '../features/auth/LoginPage'
+import { ForgotPasswordPage, ResetPasswordPage } from '../features/auth/PasswordResetPages'
 import type { UserRole } from '../features/auth/auth.types'
 import { AuthGuard, RoleGuard } from './guards'
-import { DocumentTitle, NotFoundPage, PublicRoutePage } from './pages'
+import { DocumentTitle, NotFoundPage } from './pages'
 import { RouteErrorBoundary } from './RouteErrorBoundary'
 import { canAccessRoute, type RoutePermissionKey } from './route-permissions'
 import { useAuth } from '../features/auth/auth-context'
 import { InternshipListPage } from '../features/internships/InternshipListPage'
 import { InternshipDetailPage } from '../features/internships/InternshipDetailPage'
-import { DomainListPage } from '../features/domain/DomainListPage'
 import { InternshipDocumentsPage } from '../features/domain/InternshipDocumentsPage'
 import { SgkPage } from '../features/domain/SgkPage'
 import { InternshipActionPage } from '../features/domain/InternshipActionPage'
@@ -28,6 +28,7 @@ import { AdminCrudPage } from '../features/admin/pages/AdminCrudPages'
 import { EmployerApprovalPage } from '../features/public/pages/EmployerApprovalPage'
 import { EmployerEvaluationPage } from '../features/public/pages/EmployerEvaluationPage'
 import { PublicVerificationPage } from '../features/public/pages/PublicVerificationPage'
+import { SystemConfigsPage } from '../features/admin/pages/SystemConfigsPage'
 
 export interface AppRoutesProps { isAuthenticated?: boolean; role?: UserRole }
 function permitted(role: UserRole, permission: RoutePermissionKey, page: ReactNode) { return <RoleGuard role={role} allowedRoles={permissionRoles(permission)}>{page}</RoleGuard> }
@@ -49,8 +50,8 @@ export function AppRoutes({ isAuthenticated, role }: AppRoutesProps) {
   return <RouteErrorBoundary><Routes>
     <Route path="/" element={<Navigate to="/login" replace />} />
     <Route path="/login" element={<PublicLayout><DocumentTitle title="Oturum aç" /><LoginPage onAuthenticated={auth.setSessionUser} /></PublicLayout>} />
-    <Route path="/forgot-password" element={<PublicRoutePage title="Şifre yenileme" description="Kurumsal hesabınız için yenileme bağlantısı isteyin." />} />
-    <Route path="/reset-password" element={<PublicRoutePage title="Şifreyi yenile" description="Yeni şifrenizi belirlemek için bağlantıdaki adımları tamamlayın." />} />
+    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <Route path="/reset-password" element={<ResetPasswordPage />} />
     <Route path="/employer/approve/:token" element={<PublicLayout><EmployerApprovalPage /></PublicLayout>} />
     <Route path="/employer/evaluate/:token" element={<PublicLayout><EmployerEvaluationPage /></PublicLayout>} />
     <Route path="/verify/:internshipId" element={<PublicLayout><PublicVerificationPage /></PublicLayout>} />
@@ -80,7 +81,7 @@ export function AppRoutes({ isAuthenticated, role }: AppRoutesProps) {
       <Route path="/users" element={permitted(effectiveRole, 'users', <AdminOperationsPage mode="users" />)} />
       <Route path="/departments" element={permitted(effectiveRole, 'departments', <AdminOperationsPage mode="departments" />)} />
       <Route path="/reports" element={permitted(effectiveRole, 'reports', <ReportsPage />)} />
-      <Route path="/system-configs" element={permitted(effectiveRole, 'systemConfigs', <DomainListPage title="Sistem ayarları" description="Kurum genelindeki sistem yapılandırmalarını görüntüleyin." endpoint={effectiveRole === 'ADMIN' ? '/system-configs/admin' : '/system-configs/public'} queryKey={['system-configs', effectiveRole === 'ADMIN' ? 'admin' : 'public']} columns={[{ key: 'key', header: 'Anahtar' }, { key: 'value', header: 'Değer' }]} />)} />
+      <Route path="/system-configs" element={permitted(effectiveRole, 'systemConfigs', <SystemConfigsPage role={effectiveRole} />)} />
       <Route path="*" element={<NotFoundPage />} />
     </Route></Route>
     <Route path="*" element={<NotFoundPage />} />

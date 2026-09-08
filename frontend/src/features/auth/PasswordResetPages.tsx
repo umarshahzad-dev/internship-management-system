@@ -1,0 +1,18 @@
+import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { Button, ErrorState, Input, PageHeader, Panel } from '../../components/ui'
+import { api, normalizeApiError } from '../../lib/api'
+import { PublicLayout } from '../../layout/PublicLayout'
+import { DocumentTitle } from '../../routes/pages'
+
+export function ForgotPasswordPage() {
+  const [email, setEmail] = useState(''); const [state, setState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle'); const [message, setMessage] = useState('')
+  async function submit() { setState('loading'); try { await api.post('/auth/password-reset/request', { email: email.trim() }); setState('success') } catch (error) { setMessage(normalizeApiError(error).message); setState('error') } }
+  return <PublicLayout><main className="mx-auto flex min-h-screen max-w-xl items-center p-6"><div className="w-full"><DocumentTitle title="Şifre yenileme" /><PageHeader title="Şifre yenileme" description="Kurumsal hesabınıza bağlı e-posta adresine yenileme bağlantısı gönderin." /><Panel title="E-posta adresi">{state === 'success' ? <p className="border-l-4 border-gold bg-gold/10 px-4 py-3 text-sm text-navy" role="status">E-posta adresiniz kayıtlıysa yenileme bağlantısı gönderildi.</p> : state === 'error' ? <ErrorState title="İstek tamamlanamadı" message={message} onRetry={() => setState('idle')} /> : <><Input label="E-posta adresi" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /><Button className="mt-4" loading={state === 'loading'} disabled={!email.trim()} onClick={() => void submit()}>Yenileme bağlantısı gönder</Button></>}</Panel></div></main></PublicLayout>
+}
+
+export function ResetPasswordPage() {
+  const [params] = useSearchParams(); const token = params.get('token') ?? ''; const [password, setPassword] = useState(''); const [confirm, setConfirm] = useState(''); const [state, setState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle'); const [message, setMessage] = useState('')
+  async function submit() { if (!token || password.length < 8 || password !== confirm) return; setState('loading'); try { await api.post('/auth/password-reset/confirm', { token, newPassword: password }); setState('success') } catch (error) { setMessage(normalizeApiError(error).message); setState('error') } }
+  return <PublicLayout><main className="mx-auto flex min-h-screen max-w-xl items-center p-6"><div className="w-full"><DocumentTitle title="Şifreyi yenile" /><PageHeader title="Şifreyi yenile" description="Yeni şifrenizi belirleyin." /><Panel title="Yeni şifre">{state === 'success' ? <p className="border-l-4 border-gold bg-gold/10 px-4 py-3 text-sm text-navy" role="status">Şifreniz güncellendi. Yeni şifrenizle giriş yapabilirsiniz.</p> : state === 'error' ? <ErrorState title="Şifre güncellenemedi" message={message} onRetry={() => setState('idle')} /> : !token ? <ErrorState title="Geçersiz bağlantı" message="Şifre yenileme tokenı bulunamadı." /> : <><Input label="Yeni şifre" type="password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} helperText="En az 8 karakter kullanın." /><Input className="mt-3" label="Yeni şifre (tekrar)" type="password" autoComplete="new-password" value={confirm} onChange={(event) => setConfirm(event.target.value)} error={confirm && password !== confirm ? 'Şifreler eşleşmiyor.' : undefined} /><Button className="mt-4" loading={state === 'loading'} disabled={password.length < 8 || password !== confirm} onClick={() => void submit()}>Şifreyi güncelle</Button></>}</Panel></div></main></PublicLayout>
+}

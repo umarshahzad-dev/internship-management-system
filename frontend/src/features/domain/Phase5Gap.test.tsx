@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { buildDocumentChecklist } from './InternshipDocumentsPage'
@@ -37,8 +38,9 @@ describe('Phase 5 workflow coverage', () => {
   })
 
   it('persists document table search, sort, and page size in URL state', async () => {
+    const user = userEvent.setup()
     render(<MemoryRouter><TableStateProbe /></MemoryRouter>)
-    screen.getByRole('button').click()
+    await user.click(screen.getByRole('button'))
     await waitFor(() => expect(screen.getByRole('button')).toHaveTextContent('update accepted status 25'))
   })
 })
