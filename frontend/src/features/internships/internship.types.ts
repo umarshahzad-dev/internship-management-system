@@ -1,4 +1,19 @@
-export type InternshipStatus = 'DRAFT' | 'SUBMITTED' | 'REVISION_REQUIRED' | 'APPROVED' | 'ONGOING' | 'EVALUATION' | 'GRADED' | 'COMPLETED' | string
+export type InternshipStatus =
+  | 'DRAFT'
+  | 'APPLIED'
+  | 'REVISION'
+  | 'REVISION_REQUESTED'
+  | 'PENDING_EMPLOYER'
+  | 'PENDING_COMMISSION'
+  | 'APPROVED'
+  | 'APPROVED_PENDING_SGK'
+  | 'REJECTED'
+  | 'ONGOING'
+  | 'EVALUATION'
+  | 'GRADED'
+  | 'COMPLETED'
+  | 'WITHDRAWN'
+  | string
 
 export interface InternshipListItem {
   id: string
@@ -27,6 +42,21 @@ export interface DailyLog {
 }
 
 export const internshipStatusLabels: Record<string, string> = {
-  DRAFT: 'Taslak', SUBMITTED: 'Gönderildi', REVISION_REQUIRED: 'Revizyon gerekli', APPROVED: 'Onaylandı',
-  ONGOING: 'Devam ediyor', EVALUATION: 'Değerlendirmede', GRADED: 'Notlandırıldı', COMPLETED: 'Tamamlandı',
+  DRAFT: 'Taslak',
+  APPLIED: 'Başvuruldu',
+  REVISION: 'Revizyon gerekli',
+  REVISION_REQUESTED: 'Revizyon istendi',
+  PENDING_EMPLOYER: 'İşveren onayı bekleniyor',
+  PENDING_COMMISSION: 'Komisyon onayı bekleniyor',
+  APPROVED: 'Onaylandı',
+  APPROVED_PENDING_SGK: 'SGK işlemi bekleniyor',
+  REJECTED: 'Reddedildi',
+  WITHDRAWN: 'Geri çekildi',
+  // Kept for compatibility with older API payloads.
+  SUBMITTED: 'Gönderildi',
+  REVISION_REQUIRED: 'Revizyon gerekli',
+  ONGOING: 'Devam ediyor',
+  EVALUATION: 'Değerlendirmede',
+  GRADED: 'Notlandırıldı',
+  COMPLETED: 'Tamamlandı',
 }

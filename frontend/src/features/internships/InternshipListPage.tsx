@@ -3,15 +3,21 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Badge, Button, ConfirmDialog, DataToolbar, EmptyState, ErrorState, Input, LoadingState, PageHeader, Panel, Pagination, Select, Table } from '../../components/ui'
 import { DocumentTitle } from '../../routes/pages'
-import { useInternships } from './internship.queries'
+import { useCompanies, useInternships } from './internship.queries'
 import { internshipStatusLabels, type InternshipListItem } from './internship.types'
 import type { UserRole } from '../auth/auth.types'
 import { useTableUrlState } from '../shared/hooks/useTableUrlState'
 import { api } from '../../lib/api'
 import { invalidateDomainQueries } from '../../lib/mutation-invalidation'
 import { queryKeys } from '../../lib/query-keys'
+import { useAdminDepartment } from '../departments/department-context'
 
-function statusVariant(status: string) { return status === 'COMPLETED' || status === 'GRADED' ? 'success' : status === 'SUBMITTED' || status === 'REVISION_REQUIRED' ? 'warning' : 'info' as const }
+function statusVariant(status: string) {
+  if (status === 'COMPLETED' || status === 'GRADED') return 'success' as const
+  if (['PENDING_EMPLOYER', 'PENDING_COMMISSION', 'APPROVED_PENDING_SGK', 'SUBMITTED', 'REVISION', 'REVISION_REQUESTED', 'REVISION_REQUIRED'].includes(status)) return 'warning' as const
+  if (status === 'REJECTED' || status === 'WITHDRAWN') return 'danger' as const
+  return 'info' as const
+}
 
 export function DraftEditForm({ initial, onSubmit, onCancel, loading = false }: { initial: { companyId?: string; startDate: string; endDate: string }; onSubmit: (value: { companyId: string; startDate: string; endDate: string }) => void; onCancel?: () => void; loading?: boolean }) {
   const [value, setValue] = useState({ companyId: initial.companyId ?? '', startDate: initial.startDate, endDate: initial.endDate })
@@ -24,21 +30,24 @@ function InternshipRowActions({ row, role }: { row: InternshipListItem; role: Us
   const [editing, setEditing] = useState(false)
   const action = useMutation({ mutationFn: (name: string) => api.post(`/internships/${row.id}/${name}`), onSuccess: () => invalidateDomainQueries(client, [queryKeys.internships.all, queryKeys.internships.detail(row.id)]) })
   const edit = useMutation({ mutationFn: (value: { companyId: string; startDate: string; endDate: string }) => api.patch(`/internships/${row.id}`, value), onSuccess: () => { setEditing(false); void invalidateDomainQueries(client, [queryKeys.internships.all, queryKeys.internships.detail(row.id)]) } })
-  const required = useQuery({ queryKey: ['internships', row.id, 'required-documents'], queryFn: async () => { const [docs, types] = await Promise.all([api.get<Array<{ documentTypeId?: string; status?: string }>>(`/internships/${row.id}/documents`), api.get<Array<{ id: string; isRequired?: boolean; source?: string }>>('/document-types')]); const requiredTypes = types.data.filter((type) => type.isRequired && (type.source ?? 'EXTERNAL_UPLOAD') === 'EXTERNAL_UPLOAD'); return requiredTypes.every((type) => docs.data.some((doc) => doc.documentTypeId === type.id && doc.status === 'ACCEPTED')) }, enabled: role === 'STUDENT' && row.status === 'DRAFT' })
+  const checklistApplies = role === 'STUDENT' && row.status === 'DRAFT'
+  const required = useQuery({ queryKey: ['internships', row.id, 'required-documents'], queryFn: async () => { const [docs, types] = await Promise.all([api.get<Array<{ documentTypeId?: string; status?: string }>>(`/internships/${row.id}/documents`), api.get<Array<{ id: string; isRequired?: boolean; source?: string }>>('/document-types')]); const requiredTypes = types.data.filter((type) => type.isRequired && (type.source ?? 'EXTERNAL_UPLOAD') === 'EXTERNAL_UPLOAD'); return requiredTypes.every((type) => docs.data.some((doc) => doc.documentTypeId === type.id && doc.status === 'ACCEPTED')) }, enabled: checklistApplies })
   const label = confirm === 'submit' ? 'Gönder' : confirm === 'withdraw' ? 'Geri çek' : 'Tamamla'
-  const canSubmit = role !== 'STUDENT' || required.data === true
-  return <><div className="flex flex-wrap items-center gap-2"><Link className="font-semibold text-navy underline-offset-4 hover:text-red hover:underline" to={`/internships/${row.id}`}>Detayı aç</Link>{role === 'STUDENT' && (row.status === 'DRAFT' || row.status === 'REVISION_REQUIRED') ? <button type="button" className="font-semibold text-navy underline hover:text-red" onClick={() => setEditing((open) => !open)}>Düzenle</button> : null}{role === 'STUDENT' && row.status === 'DRAFT' ? <button type="button" disabled={!canSubmit} title={!canSubmit ? 'Gönderim için zorunlu belgeleri kabul ettirin.' : undefined} className="font-semibold text-navy underline hover:text-red disabled:cursor-not-allowed disabled:opacity-50" onClick={() => setConfirm('submit')}>Gönder</button> : null}{role === 'STUDENT' && row.status === 'SUBMITTED' ? <button type="button" className="font-semibold text-red underline" onClick={() => setConfirm('withdraw')}>Geri çek</button> : null}{role === 'STUDENT' && row.status === 'ONGOING' ? <button type="button" className="font-semibold text-red underline" onClick={() => setConfirm('complete')}>Tamamla</button> : null}</div>{!canSubmit ? <p className="text-xs text-red">Zorunlu belgeler kabul edilmeden gönderim yapılamaz.</p> : null}{editing ? <div className="mt-3 min-w-[32rem] rounded border border-gray-200 bg-gray-50 p-3"><DraftEditForm initial={row} loading={edit.isPending} onCancel={() => setEditing(false)} onSubmit={(value) => void edit.mutateAsync(value)} /></div> : null}<ConfirmDialog open={Boolean(confirm)} title={`${label} işlemini onayla`} description="Bu durum değişikliği staj akışını etkiler." confirmLabel={label} onCancel={() => setConfirm(null)} onConfirm={() => { if (confirm) void action.mutateAsync(confirm).finally(() => setConfirm(null)) }} /></>
+  const canSubmit = role !== 'STUDENT' || !checklistApplies || required.data === true
+  return <><div className="flex flex-wrap items-center gap-2"><Link className="font-semibold text-navy underline-offset-4 hover:text-red hover:underline" to={`/internships/${row.id}`}>Detayı aç</Link>{role === 'STUDENT' && (row.status === 'DRAFT' || row.status === 'REVISION' || row.status === 'REVISION_REQUESTED' || row.status === 'REVISION_REQUIRED') ? <button type="button" className="font-semibold text-navy underline hover:text-red" onClick={() => setEditing((open) => !open)}>Düzenle</button> : null}{role === 'STUDENT' && row.status === 'DRAFT' ? <button type="button" disabled={!canSubmit} title={!canSubmit ? 'Gönderim için zorunlu belgeleri kabul ettirin.' : undefined} className="font-semibold text-navy underline hover:text-red disabled:cursor-not-allowed disabled:opacity-50" onClick={() => setConfirm('submit')}>Gönder</button> : null}{role === 'STUDENT' && ['PENDING_EMPLOYER', 'PENDING_COMMISSION', 'SUBMITTED'].includes(row.status) ? <button type="button" className="font-semibold text-red underline" onClick={() => setConfirm('withdraw')}>Geri çek</button> : null}{role === 'STUDENT' && row.status === 'ONGOING' ? <button type="button" className="font-semibold text-red underline" onClick={() => setConfirm('complete')}>Tamamla</button> : null}</div>{checklistApplies && !canSubmit ? <p className="text-xs text-red">Zorunlu belgeler kabul edilmeden gönderim yapılamaz.</p> : null}{editing ? <div className="mt-3 min-w-[32rem] rounded border border-gray-200 bg-gray-50 p-3"><DraftEditForm initial={row} loading={edit.isPending} onCancel={() => setEditing(false)} onSubmit={(value) => void edit.mutateAsync(value)} /></div> : null}<ConfirmDialog open={Boolean(confirm)} title={`${label} işlemini onayla`} description="Bu durum değişikliği staj akışını etkiler." confirmLabel={label} onCancel={() => setConfirm(null)} onConfirm={() => { if (confirm) void action.mutateAsync(confirm).finally(() => setConfirm(null)) }} /></>
 }
 
 export function InternshipListPage({ role }: { role: UserRole }) {
-  const query = useInternships()
+  const { departmentId } = useAdminDepartment()
+  const query = useInternships(role === 'ADMIN' ? departmentId : undefined)
+  const companies = useCompanies(role !== 'ADMINISTRATIVE')
   const client = useQueryClient()
   const [createOpen, setCreateOpen] = useState(false)
   const [draft, setDraft] = useState({ companyId: '', startDate: '', endDate: '' })
   const createDraft = useMutation({ mutationFn: () => api.post('/internships', draft), onSuccess: () => { setCreateOpen(false); void invalidateDomainQueries(client, [queryKeys.internships.all]) } })
   const table = useTableUrlState()
   const isStudent = role === 'STUDENT'
-  const rows = (query.data ?? []).filter((row) => `${row.companyName ?? ''} ${row.status}`.toLowerCase().includes(table.search.toLowerCase())).sort((a, b) => table.sort === 'date' ? a.startDate.localeCompare(b.startDate) : table.sort === 'status' ? a.status.localeCompare(b.status) : 0)
+  const rows = (query.data ?? []).map((row) => ({ ...row, companyName: row.companyName ?? companies.data?.find((company) => company.id === row.companyId)?.name })).filter((row) => `${row.companyName ?? ''} ${row.status}`.toLowerCase().includes(table.search.toLowerCase())).sort((a, b) => table.sort === 'date' ? a.startDate.localeCompare(b.startDate) : table.sort === 'status' ? a.status.localeCompare(b.status) : 0)
   const totalPages = Math.max(1, Math.ceil(rows.length / table.pageSize))
   const pageRows = rows.slice((table.page - 1) * table.pageSize, table.page * table.pageSize)
   const columns = [

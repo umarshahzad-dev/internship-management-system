@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import type { QueryClient } from '@tanstack/react-query'
 import { queryClient as defaultQueryClient } from '../../lib/query-client'
+import { getDepartmentScope, setDepartmentScope } from '../../lib/department-scope'
 
 const departmentScopedDomains = new Set([
   'departments',
@@ -35,11 +36,12 @@ export interface AdminDepartmentProviderProps {
 }
 
 export function AdminDepartmentProvider({ children, initialDepartmentId = null, queryClient = defaultQueryClient }: AdminDepartmentProviderProps) {
-  const [departmentId, setDepartmentIdState] = useState<string | null>(initialDepartmentId)
+  const [departmentId, setDepartmentIdState] = useState<string | null>(() => initialDepartmentId ?? getDepartmentScope())
 
   const setDepartmentId = useCallback((nextDepartmentId: string | null) => {
     setDepartmentIdState((currentDepartmentId) => {
       if (currentDepartmentId !== nextDepartmentId) void invalidateDepartmentScopedQueries(queryClient)
+      setDepartmentScope(nextDepartmentId)
       return nextDepartmentId
     })
   }, [queryClient])

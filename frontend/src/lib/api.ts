@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { csrfStore } from './csrf-store'
+import { getDepartmentScope } from './department-scope'
 
 const mutationMethods = new Set(['post', 'patch', 'put', 'delete'])
 const apiBaseUrl = import.meta.env.VITE_API_URL || '/api/v1'
@@ -43,6 +44,8 @@ export const publicApi = axios.create({
 })
 
 api.interceptors.request.use((config) => {
+  const departmentId = getDepartmentScope()
+  if (departmentId) config.headers.set('X-Department-Id', departmentId)
   if (config.method && mutationMethods.has(config.method.toLowerCase())) {
     const csrfToken = csrfStore.getToken()
     if (csrfToken) config.headers.set('X-CSRF-Token', csrfToken)

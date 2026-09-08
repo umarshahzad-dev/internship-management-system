@@ -4,10 +4,27 @@ import { invalidateDomainQueries } from '../../lib/mutation-invalidation'
 import { queryKeys } from '../../lib/query-keys'
 import type { DailyLog, InternshipDetail, InternshipListItem } from './internship.types'
 
-export function useInternships() {
+export interface CompanyListItem {
+  id: string
+  name: string
+  city?: string | null
+  industry?: string | null
+  isActive?: boolean
+}
+
+export function useInternships(departmentId?: string | null) {
   return useQuery({
-    queryKey: queryKeys.internships.all,
-    queryFn: async () => (await api.get<InternshipListItem[]>('/internships')).data,
+    queryKey: [...queryKeys.internships.all, departmentId ?? 'self'],
+    queryFn: async () => (await api.get<InternshipListItem[]>('/internships', departmentId ? { headers: { 'X-Department-Id': departmentId } } : undefined)).data,
+    enabled: departmentId !== null,
+  })
+}
+
+export function useCompanies(enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.companies.all,
+    queryFn: async () => (await api.get<CompanyListItem[]>('/companies')).data,
+    enabled,
   })
 }
 
