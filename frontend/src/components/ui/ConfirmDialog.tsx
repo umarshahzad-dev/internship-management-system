@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { Button } from './Button'
+import type { ReactNode } from 'react'
 
 export interface ConfirmDialogProps {
   open: boolean
@@ -9,6 +10,7 @@ export interface ConfirmDialogProps {
   onCancel?: () => void
   confirmLabel?: string
   cancelLabel?: string
+  children?: ReactNode
 }
 
 export function ConfirmDialog({
@@ -19,6 +21,7 @@ export function ConfirmDialog({
   onCancel,
   confirmLabel = 'Onayla',
   cancelLabel = 'Vazgeç',
+  children,
 }: ConfirmDialogProps) {
   return (
     <Dialog.Root open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onCancel?.() }}>
@@ -27,6 +30,7 @@ export function ConfirmDialog({
         <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-xl focus:outline-none">
           <Dialog.Title className="text-xl font-bold leading-tight text-gray-900">{title}</Dialog.Title>
           <Dialog.Description className="mt-2 text-sm text-gray-500">{description}</Dialog.Description>
+          {children ? <div className="mt-4">{children}</div> : null}
           <div className="mt-6 flex justify-end gap-3">
             <Dialog.Close asChild>
               <Button variant="outline">{cancelLabel}</Button>

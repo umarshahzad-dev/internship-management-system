@@ -24,6 +24,7 @@ import { AcademicDashboardPage } from '../features/academic/pages/AcademicDashbo
 import { AdministrativeDashboardPage } from '../features/administrative/pages/AdministrativeDashboardPage'
 import { AdminDashboardPage } from '../features/admin/pages/AdminDashboardPage'
 import { AdminOperationsPage } from '../features/admin/pages/AdminOperationsPage'
+import { AdminCrudPage } from '../features/admin/pages/AdminCrudPages'
 
 export interface AppRoutesProps { isAuthenticated?: boolean; role?: UserRole }
 function permitted(role: UserRole, permission: RoutePermissionKey, page: ReactNode) { return <RoleGuard role={role} allowedRoles={permissionRoles(permission)}>{page}</RoleGuard> }
@@ -58,10 +59,10 @@ export function AppRoutes({ isAuthenticated, role }: AppRoutesProps) {
       <Route path="/internships/:id/documents" element={permitted(effectiveRole, 'internshipDocuments', <InternshipDocumentsPage role={effectiveRole} />)} />
       <Route path="/internships/:id/staj-defteri" element={permitted(effectiveRole, 'stajDefteri', <PdfDownloadPage title="Staj defteri" endpoint="/internships/:id/staj-defteri" filename="staj-defteri.pdf" />)} />
       <Route path="/profile" element={permitted(effectiveRole, 'profile', <ProfilePage />)} />
-      <Route path="/companies" element={permitted(effectiveRole, 'companies', <DomainListPage title="Firmalar" description="Staj kurumlarını ve doğrulama durumlarını yönetin." endpoint="/companies" queryKey={['companies']} columns={[{ key: 'name', header: 'Firma' }, { key: 'city', header: 'Şehir' }, { key: 'isVerified', header: 'Doğrulama' }]} />)} />
-      <Route path="/document-types" element={permitted(effectiveRole, 'documentTypes', <DomainListPage title="Belge türleri" description="Staj başvurularında kullanılan belge türlerini yönetin." endpoint="/document-types" queryKey={['document-types']} columns={[{ key: 'name', header: 'Belge' }, { key: 'isRequired', header: 'Zorunlu' }, { key: 'source', header: 'Kaynak' }]} />)} />
-      <Route path="/calendars" element={permitted(effectiveRole, 'calendars', <DomainListPage title="Akademik takvimler" description="Başvuru ve staj tarihlerini takip edin." endpoint="/calendars" queryKey={['calendars']} columns={[{ key: 'termName', header: 'Dönem' }, { key: 'applicationStart', header: 'Başlangıç' }, { key: 'applicationEnd', header: 'Bitiş' }]} />)} />
-      <Route path="/holidays" element={permitted(effectiveRole, 'holidays', <DomainListPage title="Tatiller" description="Çalışma günü hesaplamalarında kullanılan tatilleri görüntüleyin." endpoint="/holidays" queryKey={['holidays']} columns={[{ key: 'holidayDate', header: 'Tarih' }, { key: 'name', header: 'Açıklama' }]} />)} />
+      <Route path="/companies" element={permitted(effectiveRole, 'companies', <AdminCrudPage domain="companies" />)} />
+      <Route path="/document-types" element={permitted(effectiveRole, 'documentTypes', <AdminCrudPage domain="document-types" />)} />
+      <Route path="/calendars" element={permitted(effectiveRole, 'calendars', <AdminCrudPage domain="calendars" />)} />
+      <Route path="/holidays" element={permitted(effectiveRole, 'holidays', <AdminCrudPage domain="holidays" />)} />
       <Route path="/sgk" element={permitted(effectiveRole, 'sgk', <SgkPage />)} />
       <Route path="/internships/:id/sgk" element={permitted(effectiveRole, 'internshipSgk', <SgkPage />)} />
       <Route path="/sgk/:id/upload" element={permitted(effectiveRole, 'sgkUpload', <SgkPage />)} />
