@@ -39,6 +39,8 @@ export class CompanyController {
   ) {}
 
   @Get()
+  @Roles(UserRole.ADMIN, UserRole.ACADEMIC, UserRole.STUDENT)
+  @UseGuards(RolesGuard)
   async list(
     @Query('search') search?: string,
     @Query('city') city?: string,

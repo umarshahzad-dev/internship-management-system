@@ -3,12 +3,14 @@ import { ValidateEmployerTokenUseCase } from '../../application/use-cases/employ
 import { SubmitDigitalEvaluationUseCase } from '../../application/use-cases/employer-evaluation/submit-digital-evaluation.use-case';
 import { SubmitDigitalEvaluationDto } from './dto/submit-digital-evaluation.dto';
 import { DomainException } from '../../common/exceptions/domain.exception';
+import { GetEmployerEvaluationDailyLogsUseCase } from '../../application/use-cases/employer-evaluation/get-employer-evaluation-daily-logs.use-case';
 
 @Controller('employer-evaluation')
 export class PublicEmployerEvaluationController {
   constructor(
     private readonly validateEmployerTokenUseCase: ValidateEmployerTokenUseCase,
     private readonly submitDigitalEvaluationUseCase: SubmitDigitalEvaluationUseCase,
+    private readonly getEmployerEvaluationDailyLogsUseCase: GetEmployerEvaluationDailyLogsUseCase,
   ) {}
 
   @Get('validate')
@@ -17,6 +19,14 @@ export class PublicEmployerEvaluationController {
       throw new DomainException('VALIDATION_ERROR', 'Token is required', 400);
     }
     return this.validateEmployerTokenUseCase.execute({ plainToken: token });
+  }
+
+  @Get('daily-logs')
+  async dailyLogs(@Query('token') token: string) {
+    if (!token) {
+      throw new DomainException('VALIDATION_ERROR', 'Token is required', 400);
+    }
+    return this.getEmployerEvaluationDailyLogsUseCase.execute(token);
   }
 
   @Post('submit')

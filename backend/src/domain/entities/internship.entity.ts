@@ -17,6 +17,7 @@ export class Internship {
   private _employerApprovalTimestamp: Date | null;
   private _commissionApprovalUserId: string | null;
   private _commissionApprovalTimestamp: Date | null;
+  private _employerLogsApprovedAt: Date | null;
   private readonly _createdAt: Date;
   private readonly _updatedAt: Date;
 
@@ -38,6 +39,7 @@ export class Internship {
     employerApprovalTimestamp: Date | null = null,
     commissionApprovalUserId: string | null = null,
     commissionApprovalTimestamp: Date | null = null,
+    employerLogsApprovedAt: Date | null = null,
   ) {
     if (!id) throw new Error('Internship id is required');
     if (!departmentId) throw new Error('Department id is required');
@@ -65,6 +67,7 @@ export class Internship {
     this._employerApprovalTimestamp = employerApprovalTimestamp;
     this._commissionApprovalUserId = commissionApprovalUserId;
     this._commissionApprovalTimestamp = commissionApprovalTimestamp;
+    this._employerLogsApprovedAt = employerLogsApprovedAt;
     this._createdAt = createdAt;
     this._updatedAt = updatedAt;
   }
@@ -113,6 +116,9 @@ export class Internship {
   }
   get commissionApprovalTimestamp(): Date | null {
     return this._commissionApprovalTimestamp;
+  }
+  get employerLogsApprovedAt(): Date | null {
+    return this._employerLogsApprovedAt;
   }
   get createdAt(): Date {
     return this._createdAt;
@@ -233,6 +239,10 @@ export class Internship {
 
   lock(): void {
     this._locked = true;
+  }
+
+  markEmployerLogsApproved(now: Date): void {
+    this._employerLogsApprovedAt = now;
   }
 
   isLocked(): boolean {

@@ -86,6 +86,7 @@ export class TransitionToOngoingUseCase {
       internship.employerApprovalTimestamp,
       internship.commissionApprovalUserId,
       internship.commissionApprovalTimestamp,
+      internship.employerLogsApprovedAt,
     );
     await this.internshipRepository.update(updated);
 

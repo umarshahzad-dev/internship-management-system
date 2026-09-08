@@ -24,6 +24,7 @@ import { ImportUsersUseCase } from '../../application/use-cases/user/import-user
 import { UploadProfilePhotoUseCase } from '../../application/use-cases/user/upload-profile-photo.use-case';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateOwnProfileDto } from './dto/update-own-profile.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
 import { DomainException } from '../../common/exceptions/domain.exception';
 
@@ -76,8 +77,25 @@ export class UserController {
   @Roles(UserRole.STUDENT)
   @UseGuards(RolesGuard)
   async getPhoto(@Req() req: AuthenticatedRequest) {
-    // Placeholder – will implement later
-    return { message: 'Photo retrieval not implemented yet' };
+    const user = await this.getUserUseCase.execute({
+      userId: req.user!.id,
+      currentUserId: req.user!.id,
+      currentUserRole: req.user!.role,
+    });
+    return { profilePhotoPath: user.profilePhotoPath };
+  }
+
+  @Patch('me')
+  @UseGuards(CsrfGuard)
+  async updateOwnProfile(
+    @Body() dto: UpdateOwnProfileDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.updateUserUseCase.execute({
+      userId: req.user!.id,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+    });
   }
 
   @Post('me/photo')

@@ -13,6 +13,7 @@ import { RolesGuard } from '../user/guards/roles.guard';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserRole } from '../../domain/value-objects/role.vo';
 import { UpdateSystemConfigDto } from './dto/update-system-config.dto';
+import { CsrfGuard } from '../auth/guards/csrf.guard';
 
 @Controller('system-configs')
 export class SystemConfigController {
@@ -31,7 +32,7 @@ export class SystemConfigController {
   }
 
   @Patch(':key')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard, CsrfGuard)
   @Roles(UserRole.ADMIN)
   async updateConfig(
     @Param('key') key: string,

@@ -5,6 +5,7 @@ import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { ICompanyRepository } from '../../ports/company.repository.port';
 import { IUserRepository } from '../../ports/user.repository.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
+import { EmployerTokenType } from '../../../domain/enums/employer-token-type.enum';
 
 export interface ValidateEmployerTokenInput {
   plainToken: string;
@@ -38,6 +39,13 @@ export class ValidateEmployerTokenUseCase {
 
     if (!token) {
       throw new DomainException('NOT_FOUND', 'Invalid token', 404);
+    }
+    if (token.type !== EmployerTokenType.EVALUATION) {
+      throw new DomainException(
+        'FORBIDDEN',
+        'Token cannot be used for employer evaluation',
+        403,
+      );
     }
     if (token.isUsed) {
       throw new DomainException('TOKEN_USED', 'Token already used', 404);

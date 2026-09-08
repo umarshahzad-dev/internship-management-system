@@ -61,6 +61,8 @@ export class DocumentTypeController {
   }
 
   @Get()
+  @Roles(UserRole.ADMIN, UserRole.ACADEMIC, UserRole.STUDENT)
+  @UseGuards(RolesGuard)
   async list(@Req() req: AuthenticatedRequest) {
     const departmentId = this.getDepartmentId(req);
     return this.listDocumentTypesUseCase.execute(departmentId);
@@ -96,6 +98,7 @@ export class DocumentTypeController {
     const departmentId = this.getDepartmentId(req);
     return this.updateDocumentTypeUseCase.execute({
       documentTypeId: id,
+      departmentId,
       name: dto.name,
       description: dto.description,
       isRequired: dto.isRequired,

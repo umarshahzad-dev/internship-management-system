@@ -22,6 +22,7 @@ export interface InternshipListItem {
   employerApprovalTimestamp: string | null;
   commissionApprovalUserId: string | null;
   commissionApprovalTimestamp: string | null;
+  employerLogsApprovedAt: string | null;
 }
 
 @Injectable()
@@ -62,6 +63,9 @@ export class ListInternshipsUseCase {
       commissionApprovalUserId: internship.commissionApprovalUserId,
       commissionApprovalTimestamp: internship.commissionApprovalTimestamp
         ? internship.commissionApprovalTimestamp.toISOString()
+        : null,
+      employerLogsApprovedAt: internship.employerLogsApprovedAt
+        ? internship.employerLogsApprovedAt.toISOString()
         : null,
     }));
   }

@@ -1,0 +1,14 @@
+import { useState } from 'react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Button, DataToolbar, FileUpload, Input, LoadingState, PageHeader, Panel, Table } from '../../../components/ui'
+import { api } from '../../../lib/api'
+import { invalidateDomainQueries } from '../../../lib/mutation-invalidation'
+import { queryClient } from '../../../lib/query-client'
+
+export function AdminOperationsPage({ mode }: { mode: 'users' | 'departments' }) {
+  const [name, setName] = useState(''); const [facultyName, setFacultyName] = useState(''); const [message, setMessage] = useState('')
+  const list = useQuery({ queryKey: [mode], queryFn: async () => (await api.get<Array<Record<string, unknown>>>(`/${mode}`)).data })
+  const create = useMutation({ mutationFn: () => api.post(`/${mode}`, mode === 'departments' ? { name, facultyName } : { name }), onSuccess: async () => { setMessage('Kayıt oluşturuldu.'); await invalidateDomainQueries(queryClient, [[mode]]) } })
+  const importUsers = useMutation({ mutationFn: (file: File) => { const data = new FormData(); data.append('file', file); return api.post('/users/import', data) }, onSuccess: () => setMessage('CSV içe aktarma tamamlandı.') })
+  return <><PageHeader title={mode === 'users' ? 'Kullanıcı yönetimi' : 'Bölüm yönetimi'} description="Yönetim işlemlerini tekil formlar ve tablo görünümüyle yürütün." /><div className="grid gap-4 lg:grid-cols-[1fr_1.5fr]"><Panel title={mode === 'users' ? 'Kullanıcı oluştur' : 'Bölüm oluştur'}>{mode === 'departments' ? <><Input label="Bölüm adı" value={name} onChange={(event) => setName(event.target.value)} /><Input className="mt-3" label="Fakülte adı" value={facultyName} onChange={(event) => setFacultyName(event.target.value)} /></> : <Input label="Kullanıcı adı" value={name} onChange={(event) => setName(event.target.value)} />}<Button className="mt-4" loading={create.isPending} onClick={() => void create.mutateAsync()}>Kaydet</Button>{message ? <p className="mt-3 text-sm text-navy" role="status">{message}</p> : null}</Panel>{mode === 'users' ? <Panel title="CSV içe aktar"><FileUpload label="Kullanıcı CSV dosyası" accept=".csv,text/csv" onFilesSelected={(files) => { const file = files[0]; if (file) void importUsers.mutateAsync(file) }} /></Panel> : null}</div><Panel className="mt-4" title="Kayıtlar"><DataToolbar search={{ value: '', onChange: () => undefined, placeholder: 'Kayıtlarda ara' }} />{list.isLoading ? <LoadingState label="Kayıtlar yükleniyor" /> : list.isError ? <p className="text-sm text-red" role="alert">Kayıtlar alınamadı.</p> : <Table caption={mode} columns={(mode === 'departments' ? [{ key: 'name', header: 'Bölüm' }, { key: 'facultyName', header: 'Fakülte' }] : [{ key: 'email', header: 'E-posta' }, { key: 'role', header: 'Rol' }])} data={list.data ?? []} rowKey={(row, index) => String(row.id ?? index)} />}</Panel></>
+}

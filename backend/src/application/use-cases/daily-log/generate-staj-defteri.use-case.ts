@@ -68,7 +68,7 @@ export class GenerateStajDefteriUseCase {
       'FRONTEND_URLS',
       'http://localhost:5173',
     );
-    const verificationUrl = `${frontendUrls.split(',')[0].trim()}/verify/staj-defteri/${internship.id}`;
+    const verificationUrl = `${frontendUrls.split(',')[0].trim()}/verify/${internship.id}`;
 
     const qrSvg = await QRCode.toString(verificationUrl, { type: 'svg' });
     const qrFilename = `qr_${randomUUID()}.svg`;
@@ -93,11 +93,11 @@ export class GenerateStajDefteriUseCase {
         totalDays: logs.length.toString(),
       },
       evaluation: {
-        timestamp: evaluation?.submittedAt
-          ? new Date(evaluation.submittedAt)
+        timestamp: internship.employerLogsApprovedAt
+          ? `Digitally Signed by Employer on ${internship.employerLogsApprovedAt
               .toISOString()
               .slice(0, 16)
-              .replace('T', ' ')
+              .replace('T', ' ')}`
           : 'ONAY BEKLİYOR',
         ipAddress: internship.employerApprovalIp || 'SİSTEM',
       },

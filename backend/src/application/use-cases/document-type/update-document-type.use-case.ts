@@ -7,6 +7,7 @@ import { DocumentSource } from '../../../domain/enums/document-source.enum';
 
 export interface UpdateDocumentTypeInput {
   documentTypeId: string;
+  departmentId: string;
   name?: string;
   description?: string | null;
   isRequired?: boolean;
@@ -42,6 +43,13 @@ export class UpdateDocumentTypeUseCase {
     );
     if (!existing) {
       throw new DomainException('NOT_FOUND', 'Document type not found', 404);
+    }
+    if (existing.departmentId !== input.departmentId) {
+      throw new DomainException(
+        'FORBIDDEN',
+        'Cannot update a document type from another department',
+        403,
+      );
     }
 
     const now = this.dateProvider.now();

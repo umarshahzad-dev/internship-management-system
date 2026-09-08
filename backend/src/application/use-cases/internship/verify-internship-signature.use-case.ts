@@ -16,6 +16,7 @@ export interface VerifySignatureResult {
   employerApprovalIp: string | null;
   employerApprovalTimestamp: string | null;
   commissionApprovalTimestamp: string | null;
+  employerLogsApprovedAt: string | null;
   isValid: boolean;
 }
 
@@ -71,6 +72,9 @@ export class VerifyInternshipSignatureUseCase {
         : null,
       commissionApprovalTimestamp: internship.commissionApprovalTimestamp
         ? internship.commissionApprovalTimestamp.toISOString()
+        : null,
+      employerLogsApprovedAt: internship.employerLogsApprovedAt
+        ? internship.employerLogsApprovedAt.toISOString()
         : null,
       isValid: isApproved,
     };

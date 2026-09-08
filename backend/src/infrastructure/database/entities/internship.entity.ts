@@ -87,6 +87,13 @@ export class InternshipEntity {
   })
   commissionApprovalTimestamp: Date | null;
 
+  @Column({
+    name: 'employer_logs_approved_at',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  employerLogsApprovedAt: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

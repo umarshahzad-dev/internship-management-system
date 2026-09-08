@@ -49,6 +49,7 @@ import { VerifyInternshipSignatureUseCase } from '../../application/use-cases/in
 import { GenerateApplicationFormUseCase } from '../../application/use-cases/internship/generate-application-form.use-case';
 import { GenerateZorunluStajBelgesiUseCase } from '../../application/use-cases/internship/generate-zorunlu-staj-belgesi.use-case';
 import { GenerateSicilFisiUseCase } from '../../application/use-cases/internship/generate-sicil-fisi.use-case';
+import { VerifyZorunluStajBelgesiUseCase } from '../../application/use-cases/internship/verify-zorunlu-staj-belgesi.use-case';
 import { SystemDateProvider } from '../../infrastructure/services/system-date-provider.service';
 import { EnvConfigProvider } from '../../infrastructure/services/env-config-provider.service';
 import { CryptoTokenGeneratorService } from '../../infrastructure/services/crypto-token-generator.service';
@@ -110,6 +111,7 @@ import { RolesGuard } from '../user/guards/roles.guard';
     GenerateApplicationFormUseCase,
     GenerateZorunluStajBelgesiUseCase,
     GenerateSicilFisiUseCase,
+    VerifyZorunluStajBelgesiUseCase,
     RolesGuard,
   ],
   exports: [

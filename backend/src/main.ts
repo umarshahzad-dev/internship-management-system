@@ -13,12 +13,20 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1', {
     exclude: [
       { path: 'employer-evaluation/validate', method: RequestMethod.GET },
+      {
+        path: 'employer-evaluation/daily-logs',
+        method: RequestMethod.GET,
+      },
       { path: 'employer-evaluation/submit', method: RequestMethod.POST },
       {
         path: 'public/internship/employer-approve',
         method: RequestMethod.POST,
       },
       { path: 'public/internship/:id/verify', method: RequestMethod.GET },
+      {
+        path: 'public/internship/student/:id/verify',
+        method: RequestMethod.GET,
+      },
     ],
   });
 

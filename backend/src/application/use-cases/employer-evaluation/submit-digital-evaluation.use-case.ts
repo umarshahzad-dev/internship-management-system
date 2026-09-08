@@ -47,6 +47,13 @@ export class SubmitDigitalEvaluationUseCase {
     if (!token) {
       throw new DomainException('NOT_FOUND', 'Invalid token', 404);
     }
+    if (token.type !== EmployerTokenType.EVALUATION) {
+      throw new DomainException(
+        'FORBIDDEN',
+        'Token cannot be used for employer evaluation',
+        403,
+      );
+    }
     if (token.isUsed) {
       throw new DomainException('TOKEN_USED', 'Token already used', 404);
     }
@@ -89,6 +96,9 @@ export class SubmitDigitalEvaluationUseCase {
     );
 
     const saved = await this.employerEvaluationRepository.create(evaluation);
+
+    internship.markEmployerLogsApproved(now);
+    await this.internshipRepository.update(internship);
 
     // Mark token used
     const usedToken = new EmployerToken(

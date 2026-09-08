@@ -32,7 +32,6 @@ import { GenerateZorunluStajBelgesiUseCase } from '../../application/use-cases/i
 import { GenerateSicilFisiUseCase } from '../../application/use-cases/internship/generate-sicil-fisi.use-case';
 import { CreateDraftInternshipDto } from './dto/create-draft-internship.dto';
 import { UpdateDraftInternshipDto } from './dto/update-draft-internship.dto';
-import { ApproveInternshipDto } from './dto/approve-internship.dto';
 import { RejectInternshipDto } from './dto/reject-internship.dto';
 import { RequestRevisionInternshipDto } from './dto/request-revision-internship.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
@@ -185,7 +184,6 @@ export class InternshipController {
   async approve(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: AuthenticatedRequest,
-    @Body() dto: ApproveInternshipDto,
   ) {
     await this.approveInternshipUseCase.execute(id, req.user!.id);
     return { message: 'Application approved' };
@@ -273,8 +271,16 @@ export class InternshipController {
   }
 
   @Get(':id/history')
-  async history(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.getInternshipHistoryUseCase.execute(id);
+  async history(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.getInternshipHistoryUseCase.execute({
+      internshipId: id,
+      currentUserId: req.user!.id,
+      currentUserRole: req.user!.role,
+      currentUserDepartmentId: req.user!.departmentId,
+    });
   }
 
   @Get(':id/application-form')

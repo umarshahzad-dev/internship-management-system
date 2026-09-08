@@ -49,14 +49,17 @@ export class ListApplicationDocumentsUseCase {
           403,
         );
       }
-    } else if (input.currentUserRole === 'ACADEMIC') {
+    } else if (
+      input.currentUserRole === 'ACADEMIC' ||
+      input.currentUserRole === 'ADMINISTRATIVE'
+    ) {
       if (
         !input.currentUserDepartmentId ||
         internship.departmentId !== input.currentUserDepartmentId
       ) {
         throw new DomainException(
           'FORBIDDEN',
-          'Academic cannot view documents of other departments',
+          'User cannot view documents of other departments',
           403,
         );
       }

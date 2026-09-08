@@ -21,13 +21,21 @@ import { SubmitDigitalEvaluationUseCase } from '../../application/use-cases/empl
 import { CreateManualEvaluationUseCase } from '../../application/use-cases/employer-evaluation/create-manual-evaluation.use-case';
 import { GetEmployerEvaluationUseCase } from '../../application/use-cases/employer-evaluation/get-employer-evaluation.use-case';
 import { RolesGuard } from '../user/guards/roles.guard';
+import { DailyLogEntity } from '../../infrastructure/database/entities/daily-log.entity';
+import { DailyLogRepository } from '../../infrastructure/repositories/daily-log.repository';
+import { IDailyLogRepository } from '../../application/ports/daily-log.repository.port';
+import { GetEmployerEvaluationDailyLogsUseCase } from '../../application/use-cases/employer-evaluation/get-employer-evaluation-daily-logs.use-case';
 
 @Module({
   imports: [
     AuthModule,
     InternshipModule,
     CompanyModule,
-    TypeOrmModule.forFeature([EmployerTokenEntity, EmployerEvaluationEntity]),
+    TypeOrmModule.forFeature([
+      EmployerTokenEntity,
+      EmployerEvaluationEntity,
+      DailyLogEntity,
+    ]),
   ],
   controllers: [
     EmployerEvaluationController,
@@ -41,11 +49,13 @@ import { RolesGuard } from '../user/guards/roles.guard';
     },
     { provide: IFileStorage, useClass: LocalFileStorageService },
     { provide: IDateProvider, useClass: SystemDateProvider },
+    { provide: IDailyLogRepository, useClass: DailyLogRepository },
     GenerateEvaluationLinkUseCase,
     ValidateEmployerTokenUseCase,
     SubmitDigitalEvaluationUseCase,
     CreateManualEvaluationUseCase,
     GetEmployerEvaluationUseCase,
+    GetEmployerEvaluationDailyLogsUseCase,
     RolesGuard,
   ],
   exports: [IEmployerEvaluationRepository],

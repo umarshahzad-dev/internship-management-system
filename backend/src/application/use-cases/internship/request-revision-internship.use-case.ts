@@ -60,6 +60,7 @@ export class RequestRevisionInternshipUseCase {
       internship.employerApprovalTimestamp,
       internship.commissionApprovalUserId,
       internship.commissionApprovalTimestamp,
+      internship.employerLogsApprovedAt,
     );
 
     await this.internshipRepository.update(updated);

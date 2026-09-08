@@ -21,6 +21,7 @@ export class InternshipMapper {
       entity.employerApprovalTimestamp,
       entity.commissionApprovalUserId,
       entity.commissionApprovalTimestamp,
+      entity.employerLogsApprovedAt,
     );
   }
 
@@ -41,6 +42,7 @@ export class InternshipMapper {
     entity.employerApprovalTimestamp = domain.employerApprovalTimestamp;
     entity.commissionApprovalUserId = domain.commissionApprovalUserId;
     entity.commissionApprovalTimestamp = domain.commissionApprovalTimestamp;
+    entity.employerLogsApprovedAt = domain.employerLogsApprovedAt;
     entity.createdAt = domain.createdAt;
     entity.updatedAt = domain.updatedAt;
     return entity;
