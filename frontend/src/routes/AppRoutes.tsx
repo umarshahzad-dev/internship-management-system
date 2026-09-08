@@ -25,6 +25,9 @@ import { AdministrativeDashboardPage } from '../features/administrative/pages/Ad
 import { AdminDashboardPage } from '../features/admin/pages/AdminDashboardPage'
 import { AdminOperationsPage } from '../features/admin/pages/AdminOperationsPage'
 import { AdminCrudPage } from '../features/admin/pages/AdminCrudPages'
+import { EmployerApprovalPage } from '../features/public/pages/EmployerApprovalPage'
+import { EmployerEvaluationPage } from '../features/public/pages/EmployerEvaluationPage'
+import { PublicVerificationPage } from '../features/public/pages/PublicVerificationPage'
 
 export interface AppRoutesProps { isAuthenticated?: boolean; role?: UserRole }
 function permitted(role: UserRole, permission: RoutePermissionKey, page: ReactNode) { return <RoleGuard role={role} allowedRoles={permissionRoles(permission)}>{page}</RoleGuard> }
@@ -48,9 +51,9 @@ export function AppRoutes({ isAuthenticated, role }: AppRoutesProps) {
     <Route path="/login" element={<PublicLayout><DocumentTitle title="Oturum aç" /><LoginPage onAuthenticated={auth.setSessionUser} /></PublicLayout>} />
     <Route path="/forgot-password" element={<PublicRoutePage title="Şifre yenileme" description="Kurumsal hesabınız için yenileme bağlantısı isteyin." />} />
     <Route path="/reset-password" element={<PublicRoutePage title="Şifreyi yenile" description="Yeni şifrenizi belirlemek için bağlantıdaki adımları tamamlayın." />} />
-    <Route path="/employer/approve/:token" element={<PublicRoutePage title="İşveren onayı" description="Staj başvurusunu işveren tokenı ile onaylayın." />} />
-    <Route path="/employer/evaluate/:token" element={<PublicRoutePage title="İşveren değerlendirmesi" description="Stajı değerlendirmek ve günlük kayıtları imzalamak için formu tamamlayın." />} />
-    <Route path="/verify/:internshipId" element={<PublicRoutePage title="Staj doğrulama" description="Staj kaydının doğrulama sonucunu görüntüleyin." />} />
+    <Route path="/employer/approve/:token" element={<PublicLayout><EmployerApprovalPage /></PublicLayout>} />
+    <Route path="/employer/evaluate/:token" element={<PublicLayout><EmployerEvaluationPage /></PublicLayout>} />
+    <Route path="/verify/:internshipId" element={<PublicLayout><PublicVerificationPage /></PublicLayout>} />
     <Route element={<AuthGuard isAuthenticated={effectiveIsAuthenticated} isLoading={effectiveLoading} />}><Route element={<AuthenticatedLayout role={effectiveRole} />}>
       <Route path="/dashboard" element={permitted(effectiveRole, 'dashboard', dashboardForRole(effectiveRole))} />
       <Route path="/internships" element={permitted(effectiveRole, 'internships', <InternshipListPage role={effectiveRole} />)} />
