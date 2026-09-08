@@ -49,7 +49,7 @@ export function AppRoutes({ isAuthenticated, role }: AppRoutesProps) {
   const effectiveLoading = isAuthenticated === undefined ? auth.isLoading : false
   return <RouteErrorBoundary><Routes>
     <Route path="/" element={<Navigate to="/login" replace />} />
-    <Route path="/login" element={<PublicLayout><DocumentTitle title="Oturum aç" /><LoginPage onAuthenticated={auth.setSessionUser} /></PublicLayout>} />
+    <Route path="/login" element={auth.isAuthenticated ? <Navigate to="/dashboard" replace /> : <PublicLayout><DocumentTitle title="Oturum aç" /><LoginPage onAuthenticated={auth.setSessionUser} /></PublicLayout>} />
     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
     <Route path="/reset-password" element={<ResetPasswordPage />} />
     <Route path="/employer/approve/:token" element={<PublicLayout><EmployerApprovalPage /></PublicLayout>} />

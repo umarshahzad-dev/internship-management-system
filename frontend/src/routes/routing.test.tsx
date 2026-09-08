@@ -1,13 +1,15 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import App from '../App'
+import { api } from '../lib/api'
 
 describe('Phase 3 routing and permissions', () => {
   beforeEach(() => {
     window.history.pushState({}, '', '/login')
   })
+  afterEach(() => vi.restoreAllMocks())
 
   it('serves public employer token and verification routes without the authenticated shell', () => {
     window.history.pushState({}, '', '/employer/evaluate/demo-token')
@@ -47,10 +49,28 @@ describe('Phase 3 routing and permissions', () => {
 
   it('supports logout navigation from the authenticated shell', async () => {
     const user = userEvent.setup()
+    vi.spyOn(api, 'post').mockResolvedValue({ data: {} } as never)
     window.history.pushState({}, '', '/dashboard')
     render(<App isAuthenticated role="ACADEMIC" />)
 
     await user.click(screen.getByRole('button', { name: 'Oturumu kapat' }))
-    expect(screen.getByRole('heading', { name: 'Oturum aç' })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: 'Oturum aç' })).toBeVisible()
+  })
+
+  it('redirects to the dashboard after a successful browser login', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(api, 'get').mockImplementation(async (url) => {
+      if (url === '/auth/me') throw new Error('no active session')
+      return { data: { csrfToken: 'csrf-login' } } as never
+    })
+    vi.spyOn(api, 'post').mockResolvedValue({ data: { user: { id: 'admin-1', email: 'admin@example.com', firstName: 'System', lastName: 'Admin', role: 'ADMIN', departmentId: null, profilePhotoPath: null }, csrfToken: 'csrf-login' } } as never)
+
+    render(<App />)
+    await user.type(screen.getByLabelText('E-posta adresi'), 'admin@example.com')
+    await user.type(screen.getByLabelText('Şifre'), 'Test1234')
+    await user.click(screen.getByRole('button', { name: 'Giriş yap' }))
+
+    await screen.findByRole('heading', { name: 'Yönetim çalışma alanı' })
+    expect(window.location.pathname).toBe('/dashboard')
   })
 })

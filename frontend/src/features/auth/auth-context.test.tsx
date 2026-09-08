@@ -5,10 +5,16 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { api } from '../../lib/api'
 import { csrfStore } from '../../lib/csrf-store'
 import { AuthProvider, useAuth } from './auth-context'
+import type { UserProfile } from './auth.types'
 
 function Probe() {
   const auth = useAuth()
   return <div><span data-testid="loading">{String(auth.isLoading)}</span><span data-testid="authenticated">{String(auth.isAuthenticated)}</span><span data-testid="user">{auth.user?.email ?? 'none'}</span><span data-testid="csrf">{auth.csrfToken ?? 'none'}</span><button onClick={() => auth.logout()}>Çıkış</button></div>
+}
+
+function LoginProbe() {
+  const auth = useAuth()
+  return <><button onClick={() => void auth.login({ email: 'admin@example.com', password: 'Test1234' })}>Giriş</button><span data-testid="authenticated">{String(auth.isAuthenticated)}</span><span data-testid="user">{auth.user?.email ?? 'none'}</span></>
 }
 
 describe('AuthProvider session lifecycle', () => {
@@ -38,5 +44,24 @@ describe('AuthProvider session lifecycle', () => {
     expect(screen.getByTestId('authenticated')).toHaveTextContent('false')
     expect(csrfStore.getToken()).toBeNull()
     expect(get).toHaveBeenCalled()
+  })
+
+  it('does not let a late session probe overwrite a successful login', async () => {
+    let resolveMe!: (value: { data: UserProfile }) => void
+    const delayedMe = new Promise<{ data: UserProfile }>((resolve) => { resolveMe = resolve })
+    vi.spyOn(api, 'get').mockImplementation(async (url) => {
+      if (url === '/auth/me') return delayedMe
+      return { data: { csrfToken: 'csrf-login' } } as never
+    })
+    vi.spyOn(api, 'post').mockResolvedValue({ data: { user: { id: 'admin-1', email: 'admin@example.com', firstName: 'System', lastName: 'Admin', role: 'ADMIN', departmentId: null, profilePhotoPath: null }, csrfToken: 'csrf-login' } } as never)
+
+    const user = userEvent.setup()
+    render(<AuthProvider><LoginProbe /></AuthProvider>)
+    await user.click(screen.getByRole('button', { name: 'Giriş' }))
+    expect(screen.getByTestId('user')).toHaveTextContent('admin@example.com')
+
+    resolveMe({ data: { id: 'stale', email: 'stale@example.com', firstName: 'Stale', lastName: 'Probe', role: 'STUDENT', departmentId: null, profilePhotoPath: null } })
+    await screen.findByTestId('authenticated')
+    expect(screen.getByTestId('user')).toHaveTextContent('admin@example.com')
   })
 })

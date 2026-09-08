@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { api } from '../../lib/api'
 import { csrfStore } from '../../lib/csrf-store'
 import { queryClient } from '../../lib/query-client'
@@ -32,6 +32,7 @@ export function AuthProvider({ children, initialUser = null, restoreSession = tr
   const [user, setUser] = useState<UserProfile | null>(initialUser)
   const [isLoading, setIsLoading] = useState(restoreSession)
   const [csrfToken, setCsrfTokenState] = useState(csrfStore.getToken())
+  const authGeneration = useRef(0)
 
   const setCsrfToken = useCallback((token: string | null) => {
     csrfStore.setToken(token)
@@ -39,15 +40,20 @@ export function AuthProvider({ children, initialUser = null, restoreSession = tr
   }, [])
 
   const refreshSession = useCallback(async () => {
+    const probeGeneration = authGeneration.current
     try {
       const { data: nextUser } = await api.get<UserProfile>('/auth/me')
+      if (probeGeneration !== authGeneration.current) return null
       setUser(nextUser)
       const { data } = await api.get<CsrfResponse>('/auth/csrf')
+      if (probeGeneration !== authGeneration.current) return null
       setCsrfToken(data.csrfToken)
       return nextUser
     } catch {
-      setUser(null)
-      setCsrfToken(null)
+      if (probeGeneration === authGeneration.current) {
+        setUser(null)
+        setCsrfToken(null)
+      }
       return null
     }
   }, [setCsrfToken])
@@ -62,6 +68,7 @@ export function AuthProvider({ children, initialUser = null, restoreSession = tr
   }, [refreshSession, restoreSession])
 
   const login = useCallback(async (credentials: LoginRequest) => {
+    authGeneration.current += 1
     const nextUser = await authLogin(credentials)
     setUser(nextUser)
     setCsrfToken(csrfStore.getToken())

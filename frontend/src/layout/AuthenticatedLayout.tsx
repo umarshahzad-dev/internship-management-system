@@ -15,6 +15,7 @@ import type { UserRole } from '../features/auth/auth.types'
 import { canAccessRoute, NAVIGATION_ITEMS, type NavigationIcon } from '../routes/route-permissions'
 import { MobileNavigation } from './MobileNavigation'
 import { DepartmentSelector } from '../features/admin/components/DepartmentSelector'
+import { useAuth } from '../features/auth/auth-context'
 
 const icons: Record<NavigationIcon, ReactNode> = {
   dashboard: <Gauge aria-hidden="true" className="h-4 w-4" />, internships: <BriefcaseBusiness aria-hidden="true" className="h-4 w-4" />, calendar: <CalendarDays aria-hidden="true" className="h-4 w-4" />, users: <Users aria-hidden="true" className="h-4 w-4" />, departments: <Landmark aria-hidden="true" className="h-4 w-4" />, companies: <Landmark aria-hidden="true" className="h-4 w-4" />, documents: <FileText aria-hidden="true" className="h-4 w-4" />, shield: <ShieldCheck aria-hidden="true" className="h-4 w-4" />, settings: <Settings aria-hidden="true" className="h-4 w-4" />,
@@ -32,7 +33,11 @@ export interface AuthenticatedLayoutProps { role: UserRole }
 
 export function AuthenticatedLayout({ role }: AuthenticatedLayoutProps) {
   const navigate = useNavigate()
+  const { logout } = useAuth()
   const navigation = NAVIGATION_ITEMS.filter((item) => canAccessRoute(item.permission, role))
+  async function handleLogout() {
+    try { await logout() } catch { /* AuthProvider clears local state even if the server is unreachable. */ } finally { navigate('/login', { replace: true }) }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -44,7 +49,7 @@ export function AuthenticatedLayout({ role }: AuthenticatedLayoutProps) {
         <div className="border-t border-white/15 p-4"><p className="truncate text-xs font-semibold">Konya Teknik Üniversitesi</p><p className="mt-1 text-[11px] text-white/60">{roleLabels[role]}</p></div>
       </aside>
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-3 shadow-sm sm:px-6"><div className="flex items-center gap-3"><MobileNavigation role={role} /><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-red">IMAS</p><p className="text-sm font-semibold text-navy">Staj yönetim sistemi</p></div></div><div className="flex items-center gap-3">{role === 'ADMIN' ? <DepartmentSelector /> : null}<span className="hidden text-sm text-gray-500 sm:inline">{roleLabels[role]}</span><button type="button" onClick={() => navigate('/login', { replace: true })} className="inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-navy transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-navy"><LogOut aria-hidden="true" className="h-4 w-4" />Oturumu kapat</button></div></header>
+        <header className="sticky top-0 z-20 flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-3 shadow-sm sm:px-6"><div className="flex items-center gap-3"><MobileNavigation role={role} /><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-red">IMAS</p><p className="text-sm font-semibold text-navy">Staj yönetim sistemi</p></div></div><div className="flex items-center gap-3">{role === 'ADMIN' ? <DepartmentSelector /> : null}<span className="hidden text-sm text-gray-500 sm:inline">{roleLabels[role]}</span><button type="button" onClick={() => void handleLogout()} className="inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-navy transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-navy"><LogOut aria-hidden="true" className="h-4 w-4" />Oturumu kapat</button></div></header>
         <main className="p-4 sm:p-6"><Outlet /></main>
       </div>
     </div>
