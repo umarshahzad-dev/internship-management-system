@@ -62,6 +62,7 @@ volumes/
 
 # Vite cache
 frontend/.vite/
+.worktrees/
 
 # Misc
 *.local
