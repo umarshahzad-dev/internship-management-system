@@ -15,7 +15,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import type { UserRole } from '../features/auth/auth.types'
 import { canAccessRoute, NAVIGATION_ITEMS, type NavigationIcon } from '../routes/route-permissions'
-import ktunLogo from '../assets/ktun-logo.png'
+import ktunLogo from '../assets/ktun-icon.png'
 
 const icons: Record<NavigationIcon, ReactNode> = {
   dashboard: <Gauge aria-hidden="true" className="h-4 w-4" />,

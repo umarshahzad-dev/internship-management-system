@@ -28,6 +28,7 @@ describe('LoginPage', () => {
     render(<LoginPage />)
 
     expect(screen.getByText('Email adresiniz ve erişim şifreniz ile giriş yapabilirsiniz.')).toBeInTheDocument()
+    expect(screen.getByText('Bu sistem yalnızca yetkili kullanıcıların erişimi içindir. Giriş yaparak kurumun bilgi güvenliği kurallarını kabul etmiş olursunuz.')).toBeInTheDocument()
     expect(screen.getAllByRole('img', { name: 'Konya Teknik Üniversitesi' })[0].getAttribute('src')).toMatch(/ktun-logo/)
   })
 })

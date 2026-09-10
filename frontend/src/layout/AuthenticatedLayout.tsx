@@ -17,7 +17,7 @@ import { canAccessRoute, NAVIGATION_ITEMS, type NavigationIcon } from '../routes
 import { MobileNavigation } from './MobileNavigation'
 import { DepartmentSelector } from '../features/admin/components/DepartmentSelector'
 import { useAuth } from '../features/auth/auth-context'
-import ktunLogo from '../assets/ktun-logo.png'
+import ktunLogo from '../assets/ktun-icon.png'
 
 const icons: Record<NavigationIcon, ReactNode> = {
   dashboard: <Gauge aria-hidden="true" className="h-4 w-4" />, internships: <BriefcaseBusiness aria-hidden="true" className="h-4 w-4" />, calendar: <CalendarDays aria-hidden="true" className="h-4 w-4" />, users: <Users aria-hidden="true" className="h-4 w-4" />, departments: <Landmark aria-hidden="true" className="h-4 w-4" />, companies: <Landmark aria-hidden="true" className="h-4 w-4" />, documents: <FileText aria-hidden="true" className="h-4 w-4" />, shield: <ShieldCheck aria-hidden="true" className="h-4 w-4" />, settings: <Settings aria-hidden="true" className="h-4 w-4" />, announcement: <Megaphone aria-hidden="true" className="h-4 w-4" />,
