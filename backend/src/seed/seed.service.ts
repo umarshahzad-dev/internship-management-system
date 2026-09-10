@@ -20,6 +20,7 @@ import { FinalGradeEntity } from '../infrastructure/database/entities/final-grad
 import { EmployerTokenEntity } from '../infrastructure/database/entities/employer-token.entity';
 import { AuditLogEntity } from '../infrastructure/database/entities/audit-log.entity';
 import { NotificationOutboxEntity, OutboxStatus } from '../infrastructure/database/entities/notification-outbox.entity';
+import { AnnouncementEntity } from '../infrastructure/database/entities/announcement.entity';
 import { UserRole } from '../domain/value-objects/role.vo';
 import { DocumentSource } from '../domain/enums/document-source.enum';
 import { ApplicationDocumentStatus } from '../domain/enums/application-document-status.enum';
@@ -52,10 +53,14 @@ export class SeedService implements OnApplicationBootstrap {
     @InjectRepository(EmployerTokenEntity) private readonly employerTokenRepository: Repository<EmployerTokenEntity>,
     @InjectRepository(AuditLogEntity) private readonly auditLogRepository: Repository<AuditLogEntity>,
     @InjectRepository(NotificationOutboxEntity) private readonly notificationRepository: Repository<NotificationOutboxEntity>,
+    @InjectRepository(AnnouncementEntity) private readonly announcementRepository: Repository<AnnouncementEntity>,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    if (process.env.SEED !== 'true') return;
+    if (process.env.NODE_ENV === 'production' || process.env.SEED !== 'true') {
+      this.logger.warn('Seed skipped: requires NODE_ENV !== production and SEED=true');
+      return;
+    }
     this.logger.log('Seeding deterministic demo data...');
     const departments = await this.seedDepartments();
     const users = await this.seedUsers(departments);
@@ -73,6 +78,7 @@ export class SeedService implements OnApplicationBootstrap {
     await this.seedSystemConfigs();
     await this.seedAuditLogs(users);
     await this.seedNotifications(users);
+    await this.seedAnnouncements();
     this.logger.log('Demo data seeding completed.');
   }
 
@@ -277,6 +283,18 @@ export class SeedService implements OnApplicationBootstrap {
     const definitions = [[users.studentComputer.email, 'Staj başvurunuz alındı', 'Başvurunuz komisyon incelemesine gönderildi.', OutboxStatus.SENT], [users.academicComputer.email, 'Yeni staj başvurusu', 'İncelemeniz gereken yeni bir başvuru var.', OutboxStatus.PENDING], [users.studentElectrical.email, 'SGK belgeniz hazır', 'SGK işe giriş bildirgeniz sisteme yüklendi.', OutboxStatus.SENT]] as const;
     for (const [recipientEmail, subject, body, status] of definitions) {
       if (!(await this.notificationRepository.findOne({ where: { recipientEmail, subject } }))) await this.notificationRepository.save(this.notificationRepository.create({ recipientEmail, subject, body, status, retryCount: 0, lastError: null }));
+    }
+  }
+
+  private async seedAnnouncements(): Promise<void> {
+    const definitions = [
+      ['2026 Yaz dönemi staj başvuruları', 'Başvuru evraklarınızı son teslim tarihinden önce bölüm komisyonuna iletmeyi unutmayın.', [UserRole.STUDENT, UserRole.ACADEMIC, UserRole.ADMINISTRATIVE] as UserRole[]],
+      ['SGK belgeleri hakkında', 'Onaylanan stajlar SGK işlem kuyruğuna otomatik olarak aktarılır.', [UserRole.STUDENT, UserRole.ADMINISTRATIVE] as UserRole[]],
+    ] as const;
+    for (const [title, content, targetRoles] of definitions) {
+      if (!(await this.announcementRepository.findOne({ where: { title } }))) {
+        await this.announcementRepository.save(this.announcementRepository.create({ title, content, targetRoles, departmentId: null, expiresAt: this.date('2027-12-31'), isActive: true }));
+      }
     }
   }
 }

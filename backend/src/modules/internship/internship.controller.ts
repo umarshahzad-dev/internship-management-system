@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -36,6 +37,7 @@ import { RejectInternshipDto } from './dto/reject-internship.dto';
 import { RequestRevisionInternshipDto } from './dto/request-revision-internship.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
 import { DomainException } from '../../common/exceptions/domain.exception';
+import { paginate } from '../../common/pagination/paginate';
 
 @Controller('internships')
 @UseGuards(AuthGuard)
@@ -77,7 +79,9 @@ export class InternshipController {
   }
 
   @Get()
-  async list(@Req() req: AuthenticatedRequest) {
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC)
+  @UseGuards(RolesGuard)
+  async list(@Req() req: AuthenticatedRequest, @Query('page') page?: string, @Query('pageSize') pageSize?: string) {
     const role = req.user!.role;
     const userId = req.user!.id;
     const departmentId =
@@ -85,7 +89,7 @@ export class InternshipController {
         ? req.user!.departmentId
         : this.getDepartmentId(req);
 
-    return this.listInternshipsUseCase.execute({ role, userId, departmentId });
+    return paginate(await this.listInternshipsUseCase.execute({ role, userId, departmentId }), page, pageSize);
   }
 
   @Post()
@@ -106,14 +110,20 @@ export class InternshipController {
   }
 
   @Get('documents/zorunlu-staj-belgesi')
-  @Roles(UserRole.STUDENT)
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC, UserRole.ADMIN)
   @UseGuards(RolesGuard)
   async getZorunluStajBelgesi(
     @Req() req: AuthenticatedRequest,
+    @Query('studentId') studentId: string | undefined,
     @Res() res: Response,
   ) {
+    const targetStudentId = req.user!.role === UserRole.STUDENT ? req.user!.id : studentId;
+    if (!targetStudentId) {
+      throw new DomainException('VALIDATION_ERROR', 'studentId query is required for staff access', 400);
+    }
     const pdfBuffer = await this.generateZorunluStajBelgesiUseCase.execute(
-      req.user!.id,
+      targetStudentId,
+      { role: req.user!.role, departmentId: req.user!.departmentId },
     );
     res.set({
       'Content-Type': 'application/pdf',
@@ -124,6 +134,8 @@ export class InternshipController {
   }
 
   @Get(':id')
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC)
+  @UseGuards(RolesGuard)
   async getById(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: AuthenticatedRequest,
@@ -233,7 +245,7 @@ export class InternshipController {
   }
 
   @Post(':id/finalize')
-  @Roles(UserRole.ACADEMIC, UserRole.ADMINISTRATIVE)
+  @Roles(UserRole.ACADEMIC)
   @UseGuards(RolesGuard, CsrfGuard)
   async finalize(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -249,7 +261,7 @@ export class InternshipController {
   }
 
   @Get(':id/sicil-fisi')
-  @Roles(UserRole.ACADEMIC, UserRole.ADMINISTRATIVE, UserRole.ADMIN)
+  @Roles(UserRole.ACADEMIC)
   @UseGuards(RolesGuard)
   async getSicilFisi(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -271,6 +283,8 @@ export class InternshipController {
   }
 
   @Get(':id/history')
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC)
+  @UseGuards(RolesGuard)
   async history(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: AuthenticatedRequest,
@@ -288,7 +302,6 @@ export class InternshipController {
     UserRole.STUDENT,
     UserRole.ACADEMIC,
     UserRole.ADMINISTRATIVE,
-    UserRole.ADMIN,
   )
   @UseGuards(RolesGuard)
   async getApplicationForm(
@@ -300,6 +313,7 @@ export class InternshipController {
       id,
       req.user!.id,
       req.user!.role,
+      req.user!.departmentId,
     );
     res.set({
       'Content-Type': 'application/pdf',

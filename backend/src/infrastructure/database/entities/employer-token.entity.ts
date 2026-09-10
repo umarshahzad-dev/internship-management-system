@@ -5,11 +5,14 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
+  Index,
 } from 'typeorm';
 import { InternshipEntity } from './internship.entity';
 import { EmployerTokenType } from '../../../domain/enums/employer-token-type.enum';
 
 @Entity('employer_tokens')
+@Index('idx_employer_tokens_internship_id', ['internshipId'])
+@Index('idx_employer_tokens_token_hash', ['tokenHash'])
 export class EmployerTokenEntity {
   @PrimaryColumn({ name: 'token_hash', type: 'char', length: 64 })
   tokenHash: string;

@@ -10,6 +10,10 @@ export interface ConfirmDialogProps {
   onCancel?: () => void
   confirmLabel?: string
   cancelLabel?: string
+  confirmDisabled?: boolean
+  confirmLoading?: boolean
+  variant?: 'primary' | 'danger' | 'success' | 'outline' | 'secondary'
+  loading?: boolean
   children?: ReactNode
 }
 
@@ -21,6 +25,10 @@ export function ConfirmDialog({
   onCancel,
   confirmLabel = 'Onayla',
   cancelLabel = 'Vazgeç',
+  confirmDisabled = false,
+  confirmLoading = false,
+  variant = 'danger',
+  loading = false,
   children,
 }: ConfirmDialogProps) {
   return (
@@ -35,7 +43,7 @@ export function ConfirmDialog({
             <Dialog.Close asChild>
               <Button variant="outline">{cancelLabel}</Button>
             </Dialog.Close>
-            <Button variant="danger" onClick={onConfirm}>{confirmLabel}</Button>
+            <Button variant={variant} loading={confirmLoading || loading} disabled={confirmDisabled} onClick={onConfirm}>{confirmLabel}</Button>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

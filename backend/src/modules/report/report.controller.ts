@@ -5,13 +5,21 @@ import { RolesGuard } from '../user/guards/roles.guard';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserRole } from '../../domain/value-objects/role.vo';
 import { GenerateInternshipCsvUseCase } from '../../application/use-cases/report/generate-internship-csv.use-case';
+import { GetInternshipSummaryUseCase } from '../../application/use-cases/report/get-internship-summary.use-case';
 
 @Controller('reports')
 @UseGuards(AuthGuard, RolesGuard)
 export class ReportController {
   constructor(
     private readonly generateCsvUseCase: GenerateInternshipCsvUseCase,
+    private readonly getSummaryUseCase: GetInternshipSummaryUseCase,
   ) {}
+
+  @Get('summary')
+  @Roles(UserRole.ADMIN)
+  async summary(@Req() req: AuthenticatedRequest) {
+    return this.getSummaryUseCase.execute(req.user!.role);
+  }
 
   @Get('internships/csv')
   @Roles(UserRole.ADMIN)

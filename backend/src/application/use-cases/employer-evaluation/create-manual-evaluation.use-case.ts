@@ -11,6 +11,7 @@ import { IFileStorage } from '../../ports/file-storage.port';
 import { IDateProvider } from '../../ports/date-provider.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
 import { EvaluationMethod } from '../../../domain/enums/evaluation-method.enum';
+import { assertMimeType } from '../../../common/files/validate-upload';
 
 export interface CreateManualEvaluationInput {
   internshipId: string;
@@ -77,6 +78,7 @@ export class CreateManualEvaluationUseCase {
         .extname(input.scannedSicilFisi.originalname)
         .slice(1)
         .toLowerCase();
+      assertMimeType(input.scannedSicilFisi, ['application/pdf']);
       if (!['pdf', 'jpg', 'png'].includes(ext)) {
         throw new DomainException(
           'FILE_TYPE_NOT_ALLOWED',

@@ -22,6 +22,7 @@ export class GenerateSicilFisiUseCase {
     private readonly config: IConfigProvider,
   ) {}
 
+  // PDF compilation is synchronous for now; move heavy generation to a background job under load.
   async execute(
     internshipId: string,
     departmentId: string,

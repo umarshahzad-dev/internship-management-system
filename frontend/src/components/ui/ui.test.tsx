@@ -1,10 +1,15 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 
-import { Button, Input, Modal, Table, Toast } from './index'
+import { Button, Input, Modal, PageHeader, Table, Toast } from './index'
 
 describe('Phase 2 UI primitives', () => {
+  it('renders an explicit back link for detail pages', () => {
+    render(<MemoryRouter><PageHeader title="Staj detayı" backHref="/internships" backLabel="Stajlara dön" /></MemoryRouter>)
+    expect(screen.getByRole('link', { name: /Stajlara dön/ })).toHaveAttribute('href', '/internships')
+  })
   it('renders institutional button variants and exposes a loading state', () => {
     render(
       <Button variant="danger" loading>

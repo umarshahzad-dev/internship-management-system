@@ -1,7 +1,7 @@
 import { Loader2 } from 'lucide-react'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
-type ButtonVariant = 'primary' | 'danger' | 'success' | 'outline'
+type ButtonVariant = 'primary' | 'danger' | 'success' | 'outline' | 'secondary'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
@@ -14,6 +14,7 @@ const variantClasses: Record<ButtonVariant, string> = {
   danger: 'bg-red text-white hover:bg-[#a90d27]',
   success: 'bg-gold text-navy hover:bg-[#e6bd00]',
   outline: 'border border-navy bg-white text-navy hover:bg-gray-50',
+  secondary: 'border border-gray-300 bg-white text-navy hover:bg-gray-50',
 }
 
 export function Button({ variant = 'primary', loading = false, disabled, children, className = '', ...props }: ButtonProps) {

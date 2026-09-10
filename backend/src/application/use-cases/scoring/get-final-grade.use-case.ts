@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IFinalGradeRepository } from '../../ports/final-grade.repository.port';
 import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
+import { InternshipStatus } from '../../../domain/enums/internship-status.enum';
 
 export interface GetFinalGradeInput {
   internshipId: string;
@@ -40,6 +41,17 @@ export class GetFinalGradeUseCase {
         throw new DomainException(
           'FORBIDDEN',
           'Only owner can view final grade',
+          403,
+        );
+      }
+      if (
+        ![InternshipStatus.GRADED, InternshipStatus.COMPLETED].includes(
+          internship.status,
+        )
+      ) {
+        throw new DomainException(
+          'FORBIDDEN',
+          'Final grades are available after grading',
           403,
         );
       }

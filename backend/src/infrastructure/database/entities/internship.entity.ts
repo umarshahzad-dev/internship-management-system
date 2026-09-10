@@ -6,6 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { DepartmentEntity } from './department.entity';
 import { UserEntity } from './user.entity';
@@ -13,6 +14,11 @@ import { CompanyEntity } from './company.entity';
 import { InternshipStatus } from '../../../domain/enums/internship-status.enum';
 
 @Entity('internships')
+@Index('idx_internships_status', ['status'])
+@Index('idx_internships_department_id', ['departmentId'])
+@Index('idx_internships_student_id', ['studentId'])
+@Index('idx_internships_company_id', ['companyId'])
+@Index('idx_internships_created_at', ['createdAt'])
 export class InternshipEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

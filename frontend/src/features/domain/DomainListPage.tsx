@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { DataToolbar, EmptyState, ErrorState, LoadingState, PageHeader, Panel, Pagination, Select, Table } from '../../components/ui'
 import { DocumentTitle } from '../../routes/pages'
-import { api } from '../../lib/api'
+import { api, unwrapPaginated } from '../../lib/api'
 import { useTableUrlState } from '../shared/hooks/useTableUrlState'
 
 interface DomainListPageProps { title: string; description: string; endpoint: string; queryKey: readonly unknown[]; columns?: Array<{ key: string; header: string }> }
 
 export function DomainListPage({ title, description, endpoint, queryKey, columns = [{ key: 'name', header: 'Ad' }] }: DomainListPageProps) {
-  const query = useQuery({ queryKey, queryFn: async () => (await api.get<unknown[]>(endpoint)).data })
+  const query = useQuery({ queryKey, queryFn: async () => unwrapPaginated((await api.get<unknown[] | { items: unknown[] }>(endpoint)).data) })
   const rows = (query.data ?? []) as Array<Record<string, unknown>>
   const table = useTableUrlState()
   const filteredRows = rows.filter((row) => Object.values(row).some((value) => String(value ?? '').toLowerCase().includes(table.search.toLowerCase()))).sort((a, b) => table.sort ? String(a[table.sort] ?? '').localeCompare(String(b[table.sort] ?? '')) : 0)

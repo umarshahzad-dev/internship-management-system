@@ -6,6 +6,7 @@ import { IFileStorage } from '../../ports/file-storage.port';
 import { IDateProvider } from '../../ports/date-provider.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
 import { DocumentType } from '../../../domain/entities/document-type.entity';
+import { assertMimeType } from '../../../common/files/validate-upload';
 
 @Injectable()
 export class UploadTemplateUseCase {
@@ -26,6 +27,7 @@ export class UploadTemplateUseCase {
 
     // Validate file extension against allowed types
     const ext = path.extname(file.originalname).slice(1).toLowerCase();
+    assertMimeType(file, ['application/pdf', 'image/jpeg', 'image/png', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
     if (!existing.allowedFileTypes.includes(ext)) {
       throw new DomainException(
         'FILE_TYPE_NOT_ALLOWED',

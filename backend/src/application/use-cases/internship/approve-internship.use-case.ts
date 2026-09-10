@@ -75,14 +75,22 @@ export class ApproveInternshipUseCase {
     await this.historyRepository.create(history);
 
     // 5. Auto-Queue SGK record for administrative staff
-    const sgkTracking = new SgkTracking(
-      randomUUID(),
+    // Approval can be retried by the UI or a worker. The database also has a
+    // unique internship_id constraint, but checking here keeps retries
+    // idempotent and avoids turning a successful approval into a 500.
+    const existingSgk = await this.sgkTrackingRepository.findByInternship(
       internship.id,
-      SgkStatus.PENDING,
-      null,
-      now,
-      now,
     );
-    await this.sgkTrackingRepository.create(sgkTracking);
+    if (!existingSgk) {
+      const sgkTracking = new SgkTracking(
+        randomUUID(),
+        internship.id,
+        SgkStatus.PENDING,
+        null,
+        now,
+        now,
+      );
+      await this.sgkTrackingRepository.create(sgkTracking);
+    }
   }
 }

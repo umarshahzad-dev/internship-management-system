@@ -8,6 +8,16 @@ export class LocalFileStorageService extends IFileStorage {
   private readonly logger = new Logger(LocalFileStorageService.name);
   private readonly baseDir = process.env.UPLOAD_DIR || './uploads';
 
+  // Local storage is process-local and is not shared across replicas; use MinIO/S3 in production.
+  private resolveWithinBase(filePath: string): string {
+    const root = path.resolve(this.baseDir);
+    const candidate = path.resolve(filePath);
+    if (candidate !== root && !candidate.startsWith(`${root}${path.sep}`)) {
+      throw new Error('FILE_ACCESS_DENIED');
+    }
+    return candidate;
+  }
+
   async save(
     file: Buffer,
     directory: string,
@@ -22,12 +32,12 @@ export class LocalFileStorageService extends IFileStorage {
   }
 
   async get(filePath: string): Promise<Buffer> {
-    return fs.readFile(filePath);
+    return fs.readFile(this.resolveWithinBase(filePath));
   }
 
   async delete(filePath: string): Promise<void> {
     try {
-      await fs.unlink(filePath);
+      await fs.unlink(this.resolveWithinBase(filePath));
     } catch (error) {
       this.logger.warn(`Failed to delete file ${filePath}: ${error}`);
     }

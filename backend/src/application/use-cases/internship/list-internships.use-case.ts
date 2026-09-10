@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { InternshipStatus } from '../../../domain/enums/internship-status.enum';
+import { DomainException } from '../../../common/exceptions/domain.exception';
+import { IUserRepository } from '../../ports/user.repository.port';
+import { ICompanyRepository } from '../../ports/company.repository.port';
 
 export interface ListInternshipsInput {
   role: string;
@@ -23,28 +26,49 @@ export interface InternshipListItem {
   commissionApprovalUserId: string | null;
   commissionApprovalTimestamp: string | null;
   employerLogsApprovedAt: string | null;
+  studentName?: string;
+  studentNumber?: string | null;
+  companyName?: string;
 }
 
 @Injectable()
 export class ListInternshipsUseCase {
-  constructor(private readonly internshipRepository: IInternshipRepository) {}
+  constructor(
+    private readonly internshipRepository: IInternshipRepository,
+    @Optional() private readonly userRepository?: IUserRepository,
+    @Optional() private readonly companyRepository?: ICompanyRepository,
+  ) {}
 
   async execute(input: ListInternshipsInput): Promise<InternshipListItem[]> {
     let internships;
+    let projections: Array<{ internship: any; studentName: string; studentNumber: string | null; companyName: string }> | undefined;
     if (input.role === 'STUDENT') {
-      internships = await this.internshipRepository.findAllByStudent(
-        input.userId,
-      );
-    } else {
+      projections = this.internshipRepository.findAllWithProjection
+        ? await this.internshipRepository.findAllWithProjection({ studentId: input.userId })
+        : undefined;
+      if (!projections) internships = await this.internshipRepository.findAllByStudent(input.userId);
+      else
+      internships = projections.map((item) => item.internship);
+    } else if (input.role === 'ACADEMIC') {
       if (!input.departmentId) {
         throw new Error('Department ID is required for non-student list');
       }
-      internships = await this.internshipRepository.findAllByDepartment(
-        input.departmentId,
-      );
+      projections = this.internshipRepository.findAllWithProjection
+        ? await this.internshipRepository.findAllWithProjection({ departmentId: input.departmentId })
+        : undefined;
+      if (!projections) internships = await this.internshipRepository.findAllByDepartment(input.departmentId);
+      else internships = projections.map((item) => item.internship);
+    } else {
+      throw new DomainException('FORBIDDEN', 'Insufficient permissions', 403);
     }
 
-    return internships.map((internship) => ({
+    return Promise.all(internships.map(async (internship) => {
+      const projection = projections?.find((item) => item.internship.id === internship.id);
+      const [student, company] = projection ? [null, null] : await Promise.all([
+        this.userRepository?.findById(internship.studentId),
+        this.companyRepository?.findById(internship.companyId),
+      ]);
+      return {
       id: internship.id,
       departmentId: internship.departmentId,
       studentId: internship.studentId,
@@ -67,6 +91,10 @@ export class ListInternshipsUseCase {
       employerLogsApprovedAt: internship.employerLogsApprovedAt
         ? internship.employerLogsApprovedAt.toISOString()
         : null,
+        studentName: projection?.studentName ?? (student ? `${student.firstName} ${student.lastName}`.trim() : undefined),
+        studentNumber: projection?.studentNumber ?? student?.studentNumber,
+        companyName: projection?.companyName ?? company?.name,
+      };
     }));
   }
 }

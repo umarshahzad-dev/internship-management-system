@@ -1,3 +1,4 @@
+/* oxlint-disable react(only-export-components), react(set-state-in-effect) */
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { api } from '../../lib/api'
 import { csrfStore } from '../../lib/csrf-store'

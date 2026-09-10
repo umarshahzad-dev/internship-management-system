@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { IApplicationDocumentRepository } from '../../ports/application-document.repository.port';
 import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { ApplicationDocumentStatus } from '../../../domain/enums/application-document-status.enum';
 import { DomainException } from '../../../common/exceptions/domain.exception';
 import { InternshipStatus } from '../../../domain/enums/internship-status.enum';
+import { IDocumentTypeRepository } from '../../ports/document-type.repository.port';
 
 export interface ListApplicationDocumentsInput {
   internshipId: string;
@@ -21,6 +22,9 @@ export interface ApplicationDocumentListItem {
   originalFilename: string;
   rejectionReason: string | null;
   uploadedAt: string;
+  documentTypeName?: string;
+  documentTypeIsRequired?: boolean;
+  documentTypeSource?: string;
 }
 
 @Injectable()
@@ -28,6 +32,7 @@ export class ListApplicationDocumentsUseCase {
   constructor(
     private readonly applicationDocumentRepository: IApplicationDocumentRepository,
     private readonly internshipRepository: IInternshipRepository,
+    @Optional() private readonly documentTypeRepository?: IDocumentTypeRepository,
   ) {}
 
   async execute(
@@ -49,10 +54,7 @@ export class ListApplicationDocumentsUseCase {
           403,
         );
       }
-    } else if (
-      input.currentUserRole === 'ACADEMIC' ||
-      input.currentUserRole === 'ADMINISTRATIVE'
-    ) {
+    } else if (input.currentUserRole === 'ACADEMIC') {
       if (
         !input.currentUserDepartmentId ||
         internship.departmentId !== input.currentUserDepartmentId
@@ -63,6 +65,12 @@ export class ListApplicationDocumentsUseCase {
           403,
         );
       }
+    } else {
+      throw new DomainException(
+        'FORBIDDEN',
+        'Insufficient permissions',
+        403,
+      );
     }
 
     const documents =
@@ -70,15 +78,25 @@ export class ListApplicationDocumentsUseCase {
         input.internshipId,
       );
 
-    return documents.map((doc) => ({
-      id: doc.id,
-      internshipId: doc.internshipId,
-      documentTypeId: doc.documentTypeId,
-      status: doc.status,
-      versionNumber: doc.versionNumber,
-      originalFilename: doc.originalFilename,
-      rejectionReason: doc.rejectionReason,
-      uploadedAt: doc.uploadedAt.toISOString(),
-    }));
+    return Promise.all(
+      documents.map(async (doc) => {
+        const type = await this.documentTypeRepository?.findById(
+          doc.documentTypeId,
+        );
+        return {
+          id: doc.id,
+          internshipId: doc.internshipId,
+          documentTypeId: doc.documentTypeId,
+          status: doc.status,
+          versionNumber: doc.versionNumber,
+          originalFilename: doc.originalFilename,
+          rejectionReason: doc.rejectionReason,
+          uploadedAt: doc.uploadedAt.toISOString(),
+          documentTypeName: type?.name,
+          documentTypeIsRequired: type?.isRequired,
+          documentTypeSource: type?.source,
+        };
+      }),
+    );
   }
 }

@@ -1,13 +1,16 @@
 import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 
 export interface PageHeaderProps {
   title: string
   description?: ReactNode
   breadcrumbs?: Array<{ label: string; href?: string }>
   actions?: ReactNode
+  backHref?: string
+  backLabel?: string
 }
 
-export function PageHeader({ title, description, breadcrumbs, actions }: PageHeaderProps) {
+export function PageHeader({ title, description, breadcrumbs, actions, backHref, backLabel = 'Geri dön' }: PageHeaderProps) {
   return (
     <header className="mb-6 border-b border-gray-200 pb-4">
       {breadcrumbs && breadcrumbs.length > 0 ? (
@@ -22,6 +25,7 @@ export function PageHeader({ title, description, breadcrumbs, actions }: PageHea
       ) : null}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
+          {backHref ? <Link to={backHref} className="mb-2 inline-flex items-center text-sm font-semibold text-navy hover:underline focus:outline-none focus:ring-2 focus:ring-navy focus:ring-offset-2">← {backLabel}</Link> : null}
           <h1 className="text-2xl font-bold leading-tight text-gray-900">{title}</h1>
           {description ? <p className="mt-1 text-sm text-gray-500">{description}</p> : null}
         </div>

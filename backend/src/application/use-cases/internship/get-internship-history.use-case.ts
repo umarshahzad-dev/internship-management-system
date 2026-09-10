@@ -42,9 +42,14 @@ export class GetInternshipHistoryUseCase {
       throw new DomainException('FORBIDDEN', 'Access denied', 403);
     }
     if (
-      (input.currentUserRole === 'ACADEMIC' ||
-        input.currentUserRole === 'ADMINISTRATIVE') &&
+      input.currentUserRole === 'ACADEMIC' &&
       internship.departmentId !== input.currentUserDepartmentId
+    ) {
+      throw new DomainException('FORBIDDEN', 'Access denied', 403);
+    }
+    if (
+      input.currentUserRole !== 'STUDENT' &&
+      input.currentUserRole !== 'ACADEMIC'
     ) {
       throw new DomainException('FORBIDDEN', 'Access denied', 403);
     }

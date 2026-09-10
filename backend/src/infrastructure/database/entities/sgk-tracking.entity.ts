@@ -6,11 +6,14 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { InternshipEntity } from './internship.entity';
 import { SgkStatus } from '../../../domain/enums/sgk-status.enum';
 
 @Entity('sgk_tracking')
+@Index('idx_sgk_tracking_internship_id', ['internshipId'])
+@Index('idx_sgk_tracking_status', ['status'])
 export class SgkTrackingEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

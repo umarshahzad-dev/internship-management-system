@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IEmployerEvaluationRepository } from '../../ports/employer-evaluation.repository.port';
 import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
+import { InternshipStatus } from '../../../domain/enums/internship-status.enum';
 
 export interface GetEmployerEvaluationInput {
   internshipId: string;
@@ -21,6 +22,7 @@ export interface EmployerEvaluationResult {
   scannedSicilFisiPath: string | null;
   submittedAt: string;
   updatedAt: string;
+  employerLogsApprovedAt: string | null;
 }
 
 @Injectable()
@@ -45,6 +47,17 @@ export class GetEmployerEvaluationUseCase {
         throw new DomainException(
           'FORBIDDEN',
           'Only owner can view evaluation',
+          403,
+        );
+      }
+      if (
+        ![InternshipStatus.GRADED, InternshipStatus.COMPLETED].includes(
+          internship.status,
+        )
+      ) {
+        throw new DomainException(
+          'FORBIDDEN',
+          'Evaluation results are available after grading',
           403,
         );
       }
@@ -85,6 +98,7 @@ export class GetEmployerEvaluationUseCase {
       scannedSicilFisiPath: evaluation.scannedSicilFisiPath,
       submittedAt: evaluation.submittedAt.toISOString(),
       updatedAt: evaluation.updatedAt.toISOString(),
+      employerLogsApprovedAt: internship.employerLogsApprovedAt?.toISOString() ?? null,
     };
   }
 }

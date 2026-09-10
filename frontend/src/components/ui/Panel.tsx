@@ -10,7 +10,7 @@ export interface PanelProps {
 
 export function Panel({ title, description, actions, children, className = '' }: PanelProps) {
   return (
-    <section className={`rounded-md border border-gray-200 bg-white p-6 shadow-sm ${className}`}>
+    <section className={`rounded-md border border-gray-200 bg-white p-4 shadow-sm sm:p-5 ${className}`}>
       {title || description || actions ? (
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-gray-200 pb-4">
           <div>

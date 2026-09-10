@@ -50,6 +50,8 @@ export class DailyLogController {
   }
 
   @Get('internships/:id/daily-logs')
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC)
+  @UseGuards(RolesGuard)
   async list(
     @Param('id', new ParseUUIDPipe()) internshipId: string,
     @Req() req: AuthenticatedRequest,
@@ -79,7 +81,7 @@ export class DailyLogController {
   }
 
   @Get('internships/:id/staj-defteri')
-  @Roles(UserRole.STUDENT)
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC)
   @UseGuards(RolesGuard)
   async generateDefter(
     @Param('id', new ParseUUIDPipe()) internshipId: string,

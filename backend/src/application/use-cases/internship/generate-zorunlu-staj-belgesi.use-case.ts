@@ -18,10 +18,20 @@ export class GenerateZorunluStajBelgesiUseCase {
     private readonly config: IConfigProvider,
   ) {}
 
-  async execute(studentId: string): Promise<Buffer> {
+  // PDF compilation is synchronous for now; move heavy generation to a background job under load.
+  async execute(
+    studentId: string,
+    requester?: { role: string; departmentId?: string | null },
+  ): Promise<Buffer> {
     const student = await this.userRepository.findById(studentId);
     if (!student)
       throw new DomainException('NOT_FOUND', 'Student not found', 404);
+    if (requester?.role === 'ACADEMIC' && requester.departmentId !== student.departmentId) {
+      throw new DomainException('FORBIDDEN', 'Department access denied', 403);
+    }
+    if (requester && !['STUDENT', 'ACADEMIC', 'ADMIN'].includes(requester.role)) {
+      throw new DomainException('FORBIDDEN', 'Access denied', 403);
+    }
 
     const now = this.dateProvider.now();
     const currentYear = now.getFullYear();

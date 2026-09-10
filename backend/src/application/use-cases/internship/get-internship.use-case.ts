@@ -44,18 +44,16 @@ export class GetInternshipUseCase {
       if (internship.studentId !== input.currentUserId) {
         throw new DomainException('FORBIDDEN', 'Insufficient permissions', 403);
       }
-    } else if (
-      input.currentUserRole === 'ACADEMIC' ||
-      input.currentUserRole === 'ADMINISTRATIVE'
-    ) {
+    } else if (input.currentUserRole === 'ACADEMIC') {
       if (
         !input.currentUserDepartmentId ||
         internship.departmentId !== input.currentUserDepartmentId
       ) {
         throw new DomainException('FORBIDDEN', 'Insufficient permissions', 403);
       }
+    } else {
+      throw new DomainException('FORBIDDEN', 'Insufficient permissions', 403);
     }
-    // Admin can view any
 
     return {
       id: internship.id,

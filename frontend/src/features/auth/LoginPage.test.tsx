@@ -23,4 +23,11 @@ describe('LoginPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('E-posta adresi veya şifre hatalı')
     expect(window.location.pathname).toBe('/login')
   })
+
+  it('uses the institutional subtitle and bundled KTÜN mark', () => {
+    render(<LoginPage />)
+
+    expect(screen.getByText('Email adresiniz ve erişim şifreniz ile giriş yapabilirsiniz.')).toBeInTheDocument()
+    expect(screen.getAllByRole('img', { name: 'Konya Teknik Üniversitesi' })[0].getAttribute('src')).toMatch(/ktun-logo/)
+  })
 })

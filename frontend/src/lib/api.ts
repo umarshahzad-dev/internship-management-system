@@ -15,6 +15,10 @@ export interface NormalizedApiError {
   status?: number
 }
 
+export function unwrapPaginated<T>(payload: T[] | { items?: T[] }): T[] {
+  return Array.isArray(payload) ? payload : payload.items ?? []
+}
+
 export function normalizeApiError(error: unknown): NormalizedApiError {
   const response = (error as { response?: { status?: number; data?: { error?: { code?: unknown; message?: unknown } } } }).response
   const domainError = response?.data?.error

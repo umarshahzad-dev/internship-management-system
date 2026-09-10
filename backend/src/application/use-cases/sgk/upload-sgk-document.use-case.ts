@@ -10,6 +10,7 @@ import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { IFileStorage } from '../../ports/file-storage.port';
 import { IDateProvider } from '../../ports/date-provider.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
+import { assertMimeType } from '../../../common/files/validate-upload';
 
 export interface UploadSgkDocumentInput {
   sgkTrackingId: string;
@@ -59,6 +60,7 @@ export class UploadSgkDocumentUseCase {
     }
 
     const ext = path.extname(input.file.originalname).slice(1).toLowerCase();
+    assertMimeType(input.file, ['application/pdf']);
     if (!['pdf', 'jpg', 'png'].includes(ext)) {
       throw new DomainException(
         'FILE_TYPE_NOT_ALLOWED',

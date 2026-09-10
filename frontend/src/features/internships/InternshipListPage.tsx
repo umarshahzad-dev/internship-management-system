@@ -47,10 +47,11 @@ export function InternshipListPage({ role }: { role: UserRole }) {
   const createDraft = useMutation({ mutationFn: () => api.post('/internships', draft), onSuccess: () => { setCreateOpen(false); void invalidateDomainQueries(client, [queryKeys.internships.all]) } })
   const table = useTableUrlState()
   const isStudent = role === 'STUDENT'
-  const rows = (query.data ?? []).map((row) => ({ ...row, companyName: row.companyName ?? companies.data?.find((company) => company.id === row.companyId)?.name })).filter((row) => `${row.companyName ?? ''} ${row.status}`.toLowerCase().includes(table.search.toLowerCase())).sort((a, b) => table.sort === 'date' ? a.startDate.localeCompare(b.startDate) : table.sort === 'status' ? a.status.localeCompare(b.status) : 0)
+  const rows = (query.data ?? []).map((row) => ({ ...row, companyName: row.companyName ?? companies.data?.find((company) => company.id === row.companyId)?.name })).filter((row) => `${row.companyName ?? ''} ${row.studentName ?? ''} ${row.studentNumber ?? ''} ${row.status}`.toLowerCase().includes(table.search.toLowerCase())).sort((a, b) => table.sort === 'date' ? a.startDate.localeCompare(b.startDate) : table.sort === 'status' ? a.status.localeCompare(b.status) : 0)
   const totalPages = Math.max(1, Math.ceil(rows.length / table.pageSize))
   const pageRows = rows.slice((table.page - 1) * table.pageSize, table.page * table.pageSize)
   const columns = [
+    ...(role === 'ACADEMIC' ? [{ key: 'student', header: 'Öğrenci', render: (row: InternshipListItem) => row.studentName ? `${row.studentName}${row.studentNumber ? ` · ${row.studentNumber}` : ''}` : row.studentId ?? '—' }] : []),
     { key: 'company', header: 'Kurum', render: (row: InternshipListItem) => row.companyName ?? 'Kurum bilgisi bekleniyor' },
     { key: 'period', header: 'Tarih aralığı', render: (row: InternshipListItem) => `${row.startDate} — ${row.endDate}` },
     { key: 'status', header: 'Durum', render: (row: InternshipListItem) => <Badge variant={statusVariant(row.status)}>{internshipStatusLabels[row.status] ?? row.status}</Badge> },

@@ -21,10 +21,12 @@ export class GenerateApplicationFormUseCase {
     private readonly config: IConfigProvider,
   ) {}
 
+  // PDF compilation is synchronous for now; move heavy generation to a background job under load.
   async execute(
     internshipId: string,
     currentUserId: string,
     currentUserRole: string,
+    currentUserDepartmentId?: string | null,
   ): Promise<Buffer> {
     const internship = await this.internshipRepository.findById(internshipId);
     if (!internship)
@@ -49,6 +51,11 @@ export class GenerateApplicationFormUseCase {
     ]);
     if (!student || !company)
       throw new DomainException('INTERNAL_ERROR', 'Data integrity failure', 500);
+    if (currentUserRole === 'ACADEMIC' || currentUserRole === 'ADMINISTRATIVE') {
+      if (currentUserDepartmentId !== internship.departmentId || student.departmentId !== internship.departmentId) {
+        throw new DomainException('FORBIDDEN', 'Department access denied', 403);
+      }
+    }
 
     const frontendUrls = await this.config.get<string>(
       'FRONTEND_URLS',

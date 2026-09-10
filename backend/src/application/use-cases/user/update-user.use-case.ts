@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { User } from '../../../domain/entities/user.entity';
 import { Email } from '../../../domain/value-objects/email.vo';
 import { Role, UserRole } from '../../../domain/value-objects/role.vo';
 import { IUserRepository } from '../../ports/user.repository.port';
 import { IDateProvider } from '../../ports/date-provider.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
+import { IDepartmentRepository } from '../../ports/department.repository.port';
 
 export interface UpdateUserInput {
   userId: string;
@@ -13,6 +14,7 @@ export interface UpdateUserInput {
   role?: UserRole;
   isActive?: boolean;
   studentNumber?: string | null;
+  departmentId?: string | null;
 }
 
 export interface UpdateUserResult {
@@ -31,6 +33,7 @@ export class UpdateUserUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly dateProvider: IDateProvider,
+    @Optional() private readonly departmentRepository?: IDepartmentRepository,
   ) {}
 
   async execute(input: UpdateUserInput): Promise<UpdateUserResult> {
@@ -48,10 +51,18 @@ export class UpdateUserUseCase {
       input.studentNumber !== undefined
         ? input.studentNumber
         : existing.studentNumber;
+    const departmentId =
+      input.departmentId !== undefined ? input.departmentId : existing.departmentId;
+    if (departmentId) {
+      const department = await this.departmentRepository?.findById(departmentId);
+      if (!department) {
+        throw new DomainException('VALIDATION_ERROR', 'Department not found', 400);
+      }
+    }
 
     const updatedUser = new User(
       existing.id,
-      existing.departmentId,
+      departmentId,
       existing.email,
       existing.passwordHash,
       role,

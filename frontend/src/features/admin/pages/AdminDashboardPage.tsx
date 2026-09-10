@@ -1,2 +1,19 @@
-import { DashboardPage } from '../../dashboard/DashboardPage'
-export function AdminDashboardPage() { return <DashboardPage role="ADMIN" /> }
+import { NavLink } from 'react-router-dom'
+import { Panel, PageHeader, LoadingState, ErrorState } from '../../../components/ui'
+import { DocumentTitle } from '../../../routes/pages'
+import { useQuery } from '@tanstack/react-query'
+import { api } from '../../../lib/api'
+
+export function AdminDashboardPage() {
+  const summary = useQuery({ queryKey: ['admin', 'dashboard-summary'], queryFn: async () => (await api.get<{ totalInternships: number; byStatus: Record<string, number>; byDepartment: Array<{ departmentId: string; departmentName: string; total: number }>; totalUsers: number; totalCompanies: number }>('/admin/dashboard-summary')).data })
+  return <>
+    <DocumentTitle title="Yönetim çalışma alanı" />
+    <PageHeader title="Yönetim çalışma alanı" description="Kullanıcı, bölüm, kurum tanımı ve raporlama işlemlerini yönetin." />
+    <Panel className="mb-4" title="Kurum geneli istatistikler" description="Tüm bölümlerdeki başvuruların anlık özeti.">{summary.isLoading ? <LoadingState label="İstatistikler yükleniyor" /> : summary.isError ? <ErrorState title="İstatistikler alınamadı" message="İstatistik paneli geçici olarak kullanılamıyor." onRetry={() => void summary.refetch()} /> : <><div className="grid gap-3 sm:grid-cols-4"><div className="rounded border border-gray-200 bg-gray-50 p-3"><p className="text-xs font-semibold uppercase text-gray-500">Toplam staj</p><p className="mt-1 text-2xl font-bold text-navy">{summary.data?.totalInternships ?? 0}</p></div><div className="rounded border border-gray-200 bg-gray-50 p-3"><p className="text-xs font-semibold uppercase text-gray-500">Kullanıcı</p><p className="mt-1 text-2xl font-bold text-navy">{summary.data?.totalUsers ?? 0}</p></div><div className="rounded border border-gray-200 bg-gray-50 p-3"><p className="text-xs font-semibold uppercase text-gray-500">Firma</p><p className="mt-1 text-2xl font-bold text-navy">{summary.data?.totalCompanies ?? 0}</p></div><div className="rounded border border-gray-200 bg-gray-50 p-3"><p className="text-xs font-semibold uppercase text-gray-500">Tamamlanan</p><p className="mt-1 text-2xl font-bold text-navy">{summary.data?.byStatus?.COMPLETED ?? 0}</p></div></div><div className="mt-4 grid gap-4 md:grid-cols-2"><div><h3 className="text-sm font-semibold text-navy">Durum dağılımı</h3><div className="mt-2 flex flex-wrap gap-2">{Object.entries(summary.data?.byStatus ?? {}).map(([status, count]) => <span key={status} className="rounded border border-gray-200 px-2 py-1 text-xs text-gray-700">{status}: {count}</span>)}</div></div><div><h3 className="text-sm font-semibold text-navy">Bölüm dağılımı</h3><div className="mt-2 space-y-1">{summary.data?.byDepartment?.map((item) => <div key={item.departmentId} className="flex justify-between border-b border-gray-100 py-1 text-sm"><span>{item.departmentName}</span><strong>{item.total}</strong></div>)}</div></div></div></>}</Panel>
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <Panel title="Kullanıcı ve yetkiler" description="Kullanıcı hesaplarını ve bölüm atamalarını yönetin."><NavLink className="mt-3 inline-flex text-sm font-semibold text-navy underline" to="/users">Kullanıcı yönetimine git</NavLink></Panel>
+      <Panel title="Kurum tanımları" description="Firma, belge türü, takvim ve tatil kayıtlarını yönetin."><div className="mt-3 flex flex-wrap gap-3 text-sm font-semibold text-navy underline"><NavLink to="/companies">Firmalar</NavLink><NavLink to="/document-types">Belge türleri</NavLink><NavLink to="/calendars">Takvimler</NavLink><NavLink to="/holidays">Tatiller</NavLink></div></Panel>
+      <Panel title="Raporlama ve ayarlar" description="Kurum genelindeki dışa aktarımlara ve yapılandırmalara erişin."><div className="mt-3 flex gap-3 text-sm font-semibold text-navy underline"><NavLink to="/reports">Raporlar</NavLink><NavLink to="/system-configs">Sistem ayarları</NavLink></div></Panel>
+    </div>
+  </>
+}

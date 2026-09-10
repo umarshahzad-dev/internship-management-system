@@ -12,5 +12,5 @@ export function DepartmentSelector() {
     const firstDepartment = departments.data?.[0]
     if (!departmentId && firstDepartment) setDepartmentId(firstDepartment.id)
   }, [departmentId, departments.data, setDepartmentId])
-  return <div className="min-w-48"><Select label="Bölüm kapsamı" value={departmentId ?? ''} onChange={(event) => setDepartmentId(event.target.value || null)} options={(departments.data ?? []).map((department) => ({ value: department.id, label: department.name }))} placeholder="Tüm bölümler" /></div>
+  return <div className="w-full min-w-0 sm:w-48"><Select label="Bölüm kapsamı" value={departmentId ?? ''} onChange={(event) => setDepartmentId(event.target.value || null)} options={(departments.data ?? []).map((department) => ({ value: department.id, label: department.name }))} placeholder="Tüm bölümler" /></div>
 }

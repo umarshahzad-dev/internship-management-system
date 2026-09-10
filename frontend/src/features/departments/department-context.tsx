@@ -1,3 +1,4 @@
+/* oxlint-disable react(only-export-components) */
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import type { QueryClient } from '@tanstack/react-query'
 import { queryClient as defaultQueryClient } from '../../lib/query-client'

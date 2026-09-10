@@ -11,6 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { documentUploadOptions } from '../../common/files/upload-options';
 import { AuthGuard, AuthenticatedRequest } from '../auth/guards/auth.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { RolesGuard } from '../user/guards/roles.guard';
@@ -36,7 +37,7 @@ export class ApplicationDocumentController {
   @Post('internships/:id/documents')
   @Roles(UserRole.STUDENT)
   @UseGuards(RolesGuard, CsrfGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', documentUploadOptions))
   async upload(
     @Param('id', new ParseUUIDPipe()) internshipId: string,
     @Body('documentTypeId', new ParseUUIDPipe()) documentTypeId: string,
@@ -63,6 +64,8 @@ export class ApplicationDocumentController {
   }
 
   @Get('internships/:id/documents')
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC)
+  @UseGuards(RolesGuard)
   async list(
     @Param('id', new ParseUUIDPipe()) internshipId: string,
     @Req() req: AuthenticatedRequest,

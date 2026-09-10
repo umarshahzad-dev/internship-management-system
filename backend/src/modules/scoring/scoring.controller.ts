@@ -52,6 +52,8 @@ export class ScoringController {
   }
 
   @Get('internships/:id/grade')
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC)
+  @UseGuards(RolesGuard)
   async getGrade(
     @Param('id', new ParseUUIDPipe()) internshipId: string,
     @Req() req: AuthenticatedRequest,

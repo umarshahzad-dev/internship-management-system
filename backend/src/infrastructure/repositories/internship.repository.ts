@@ -46,6 +46,23 @@ export class InternshipRepository extends IInternshipRepository {
     return entities.map(InternshipMapper.toDomain);
   }
 
+  async findAllWithProjection(filter: { studentId?: string; departmentId?: string }) {
+    const query = this.internshipRepository
+      .createQueryBuilder('internship')
+      .innerJoinAndSelect('internship.student', 'student')
+      .innerJoinAndSelect('internship.company', 'company')
+      .orderBy('internship.created_at', 'DESC');
+    if (filter.studentId) query.andWhere('internship.student_id = :studentId', { studentId: filter.studentId });
+    if (filter.departmentId) query.andWhere('internship.department_id = :departmentId', { departmentId: filter.departmentId });
+    const entities = await query.getMany();
+    return entities.map((entity) => ({
+      internship: InternshipMapper.toDomain(entity),
+      studentName: `${entity.student.firstName} ${entity.student.lastName}`.trim(),
+      studentNumber: entity.student.studentNumber,
+      companyName: entity.company.name,
+    }));
+  }
+
   async findActiveByStudent(studentId: string): Promise<Internship[]> {
     const entities = await this.internshipRepository.find({
       where: {

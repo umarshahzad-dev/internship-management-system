@@ -6,12 +6,16 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { InternshipEntity } from './internship.entity';
 import { DocumentTypeEntity } from './document-type.entity';
 import { ApplicationDocumentStatus } from '../../../domain/enums/application-document-status.enum';
 
 @Entity('application_documents')
+@Index('idx_application_documents_internship_id', ['internshipId'])
+@Index('idx_application_documents_document_type_id', ['documentTypeId'])
+@Index('idx_application_documents_status', ['status'])
 export class ApplicationDocumentEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

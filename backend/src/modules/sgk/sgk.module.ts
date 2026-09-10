@@ -19,6 +19,7 @@ import { UploadSgkDocumentUseCase } from '../../application/use-cases/sgk/upload
 import { UpdateSgkStatusUseCase } from '../../application/use-cases/sgk/update-sgk-status.use-case';
 import { GetSgkHistoryUseCase } from '../../application/use-cases/sgk/get-sgk-history.use-case';
 import { TransitionToOngoingUseCase } from '../../application/use-cases/sgk/transition-to-ongoing.use-case';
+import { DownloadSgkDocumentUseCase } from '../../application/use-cases/sgk/download-sgk-document.use-case';
 import { RolesGuard } from '../user/guards/roles.guard';
 
 @Module({
@@ -42,6 +43,7 @@ import { RolesGuard } from '../user/guards/roles.guard';
     UpdateSgkStatusUseCase,
     GetSgkHistoryUseCase,
     TransitionToOngoingUseCase,
+    DownloadSgkDocumentUseCase,
     RolesGuard,
   ],
   exports: [ISgkTrackingRepository, ISgkStatusHistoryRepository],

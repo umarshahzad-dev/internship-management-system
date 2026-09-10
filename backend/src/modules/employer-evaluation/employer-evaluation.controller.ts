@@ -11,6 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { pdfUploadOptions } from '../../common/files/upload-options';
 import { AuthGuard, AuthenticatedRequest } from '../auth/guards/auth.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { RolesGuard } from '../user/guards/roles.guard';
@@ -55,7 +56,7 @@ export class EmployerEvaluationController {
   @Post('internships/:id/employer-evaluation/manual')
   @Roles(UserRole.ACADEMIC)
   @UseGuards(RolesGuard, CsrfGuard)
-  @UseInterceptors(FileInterceptor('scannedSicilFisi'))
+  @UseInterceptors(FileInterceptor('scannedSicilFisi', pdfUploadOptions))
   async createManual(
     @Param('id', new ParseUUIDPipe()) internshipId: string,
     @Body('employerName') employerName: string,
@@ -96,6 +97,8 @@ export class EmployerEvaluationController {
   }
 
   @Get('internships/:id/employer-evaluation')
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC)
+  @UseGuards(RolesGuard)
   async getEvaluation(
     @Param('id', new ParseUUIDPipe()) internshipId: string,
     @Req() req: AuthenticatedRequest,

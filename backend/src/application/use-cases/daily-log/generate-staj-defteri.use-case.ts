@@ -27,6 +27,7 @@ export class GenerateStajDefteriUseCase {
     private readonly config: IConfigProvider,
   ) {}
 
+  // PDF compilation is synchronous for now; move heavy generation to a background job under load.
   async execute(
     internshipId: string,
     currentUserId: string,
@@ -37,6 +38,12 @@ export class GenerateStajDefteriUseCase {
       throw new DomainException('NOT_FOUND', 'Internship not found', 404);
     if (role === 'STUDENT' && internship.studentId !== currentUserId) {
       throw new DomainException('FORBIDDEN', 'Access denied', 403);
+    }
+    if (role === 'ACADEMIC') {
+      const academic = await this.userRepository.findById(currentUserId);
+      if (!academic || academic.departmentId !== internship.departmentId) {
+        throw new DomainException('FORBIDDEN', 'Department access denied', 403);
+      }
     }
     if (
       internship.status !== InternshipStatus.EVALUATION &&

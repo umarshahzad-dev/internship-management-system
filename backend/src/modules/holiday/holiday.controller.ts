@@ -9,6 +9,7 @@ import {
   Post,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard, AuthenticatedRequest } from '../auth/guards/auth.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
@@ -24,6 +25,7 @@ import { UpdateHolidayDto } from './dto/update-holiday.dto';
 import { CalculateWorkingDaysDto } from './dto/calculate-working-days.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
 import { DomainException } from '../../common/exceptions/domain.exception';
+import { paginate } from '../../common/pagination/paginate';
 
 @Controller('holidays')
 @UseGuards(AuthGuard)
@@ -52,12 +54,16 @@ export class HolidayController {
   }
 
   @Get()
-  async list(@Req() req: AuthenticatedRequest) {
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC, UserRole.ADMIN)
+  @UseGuards(RolesGuard)
+  async list(@Req() req: AuthenticatedRequest, @Query('page') page?: string, @Query('pageSize') pageSize?: string) {
     const departmentId = this.getDepartmentId(req);
-    return this.listHolidaysUseCase.execute(departmentId);
+    return paginate(await this.listHolidaysUseCase.execute(departmentId), page, pageSize);
   }
 
   @Get('merged')
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC, UserRole.ADMIN)
+  @UseGuards(RolesGuard)
   async merged(@Req() req: AuthenticatedRequest) {
     const departmentId = this.getDepartmentId(req);
     const holidays = await this.listHolidaysUseCase.execute(departmentId);

@@ -20,6 +20,7 @@ import { PdfDownloadPage } from '../features/domain/PdfDownloadPage'
 import { ScoringPage } from '../features/domain/ScoringPage'
 import { ProfilePage } from '../features/domain/ProfilePage'
 import { StudentDashboardPage } from '../features/student/pages/StudentDashboardPage'
+import { StudentOperationsPage } from '../features/student/pages/StudentOperationsPage'
 import { AcademicDashboardPage } from '../features/academic/pages/AcademicDashboardPage'
 import { AdministrativeDashboardPage } from '../features/administrative/pages/AdministrativeDashboardPage'
 import { AdminDashboardPage } from '../features/admin/pages/AdminDashboardPage'
@@ -29,6 +30,8 @@ import { EmployerApprovalPage } from '../features/public/pages/EmployerApprovalP
 import { EmployerEvaluationPage } from '../features/public/pages/EmployerEvaluationPage'
 import { PublicVerificationPage } from '../features/public/pages/PublicVerificationPage'
 import { SystemConfigsPage } from '../features/admin/pages/SystemConfigsPage'
+import { ReadOnlyCatalogPage } from '../features/domain/ReadOnlyCatalogPage'
+import { AdminAnnouncementsPage } from '../features/announcement/pages/AdminAnnouncementsPage'
 
 export interface AppRoutesProps { isAuthenticated?: boolean; role?: UserRole }
 function permitted(role: UserRole, permission: RoutePermissionKey, page: ReactNode) { return <RoleGuard role={role} allowedRoles={permissionRoles(permission)}>{page}</RoleGuard> }
@@ -58,15 +61,17 @@ export function AppRoutes({ isAuthenticated, role }: AppRoutesProps) {
     <Route element={<AuthGuard isAuthenticated={effectiveIsAuthenticated} isLoading={effectiveLoading} />}><Route element={<AuthenticatedLayout role={effectiveRole} />}>
       <Route path="/dashboard" element={permitted(effectiveRole, 'dashboard', dashboardForRole(effectiveRole))} />
       <Route path="/internships" element={permitted(effectiveRole, 'internships', <InternshipListPage role={effectiveRole} />)} />
-      <Route path="/internships/documents/zorunlu-staj-belgesi" element={permitted(effectiveRole, 'mandatoryLetter', <PdfDownloadPage title="Zorunlu staj belgesi" endpoint="/internships/documents/zorunlu-staj-belgesi" filename="zorunlu-staj-belgesi.pdf" />)} />
+      <Route path="/internships/documents/zorunlu-staj-belgesi" element={permitted(effectiveRole, 'mandatoryLetter', <PdfDownloadPage role={effectiveRole} title="Zorunlu staj belgesi" endpoint="/internships/documents/zorunlu-staj-belgesi" filename="zorunlu-staj-belgesi.pdf" />)} />
+      <Route path="/internships/:id/application-form" element={permitted(effectiveRole, 'applicationForm', <PdfDownloadPage title="Staj başvuru formu" endpoint="/internships/:id/application-form" filename="basvuru-formu.pdf" />)} />
       <Route path="/internships/:id" element={permitted(effectiveRole, 'internshipDetail', <InternshipDetailPage role={effectiveRole} />)} />
       <Route path="/internships/:id/documents" element={permitted(effectiveRole, 'internshipDocuments', <InternshipDocumentsPage role={effectiveRole} />)} />
       <Route path="/internships/:id/staj-defteri" element={permitted(effectiveRole, 'stajDefteri', <PdfDownloadPage title="Staj defteri" endpoint="/internships/:id/staj-defteri" filename="staj-defteri.pdf" />)} />
       <Route path="/profile" element={permitted(effectiveRole, 'profile', <ProfilePage />)} />
-      <Route path="/companies" element={permitted(effectiveRole, 'companies', <AdminCrudPage domain="companies" />)} />
-      <Route path="/document-types" element={permitted(effectiveRole, 'documentTypes', <AdminCrudPage domain="document-types" />)} />
-      <Route path="/calendars" element={permitted(effectiveRole, 'calendars', <AdminCrudPage domain="calendars" />)} />
-      <Route path="/holidays" element={permitted(effectiveRole, 'holidays', <AdminCrudPage domain="holidays" />)} />
+      <Route path="/staj-islemleri" element={permitted(effectiveRole, 'studentOperations', <StudentOperationsPage />)} />
+      <Route path="/companies" element={permitted(effectiveRole, 'companies', effectiveRole === 'ADMIN' ? <AdminCrudPage domain="companies" /> : <ReadOnlyCatalogPage domain="companies" />)} />
+      <Route path="/document-types" element={permitted(effectiveRole, 'documentTypes', effectiveRole === 'ADMIN' ? <AdminCrudPage domain="document-types" /> : <ReadOnlyCatalogPage domain="document-types" />)} />
+      <Route path="/calendars" element={permitted(effectiveRole, 'calendars', effectiveRole === 'ADMIN' ? <AdminCrudPage domain="calendars" /> : <ReadOnlyCatalogPage domain="calendars" />)} />
+      <Route path="/holidays" element={permitted(effectiveRole, 'holidays', effectiveRole === 'ADMIN' ? <AdminCrudPage domain="holidays" /> : <ReadOnlyCatalogPage domain="holidays" />)} />
       <Route path="/sgk" element={permitted(effectiveRole, 'sgk', <SgkPage />)} />
       <Route path="/internships/:id/sgk" element={permitted(effectiveRole, 'internshipSgk', <SgkPage />)} />
       <Route path="/sgk/:id/upload" element={permitted(effectiveRole, 'sgkUpload', <SgkPage />)} />
@@ -82,6 +87,7 @@ export function AppRoutes({ isAuthenticated, role }: AppRoutesProps) {
       <Route path="/departments" element={permitted(effectiveRole, 'departments', <AdminOperationsPage mode="departments" />)} />
       <Route path="/reports" element={permitted(effectiveRole, 'reports', <ReportsPage />)} />
       <Route path="/system-configs" element={permitted(effectiveRole, 'systemConfigs', <SystemConfigsPage role={effectiveRole} />)} />
+      <Route path="/announcements" element={permitted(effectiveRole, 'announcements', <AdminAnnouncementsPage />)} />
       <Route path="*" element={<NotFoundPage />} />
     </Route></Route>
     <Route path="*" element={<NotFoundPage />} />

@@ -7,6 +7,7 @@ import { DomainException } from '../../../common/exceptions/domain.exception';
 
 @Injectable()
 export class ManageSystemConfigUseCase {
+  // This cache is process-local; replace with Redis or another shared cache when scaling horizontally.
   private cache: { data: SystemConfigData[]; expiresAt: number } | null = null;
   private readonly TTL_MS = 5 * 60 * 1000; // 5 minutes
 

@@ -8,4 +8,10 @@ export abstract class IInternshipRepository {
   abstract findActiveByStudent(studentId: string): Promise<Internship[]>;
   abstract create(internship: Internship): Promise<Internship>;
   abstract update(internship: Internship): Promise<Internship>;
+  abstract findAllWithProjection(filter: { studentId?: string; departmentId?: string }): Promise<Array<{
+    internship: Internship;
+    studentName: string;
+    studentNumber: string | null;
+    companyName: string;
+  }>>;
 }

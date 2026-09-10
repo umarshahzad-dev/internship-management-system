@@ -4,6 +4,7 @@ import * as path from 'path';
 import { IUserRepository } from '../../ports/user.repository.port';
 import { IFileStorage } from '../../ports/file-storage.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
+import { assertMimeType } from '../../../common/files/validate-upload';
 
 @Injectable()
 export class UploadProfilePhotoUseCase {
@@ -22,6 +23,7 @@ export class UploadProfilePhotoUseCase {
     }
 
     const ext = path.extname(file.originalname).slice(1).toLowerCase();
+    assertMimeType(file, ['image/jpeg', 'image/png']);
     if (!['jpg', 'jpeg', 'png'].includes(ext)) {
       throw new DomainException(
         'FILE_TYPE_NOT_ALLOWED',

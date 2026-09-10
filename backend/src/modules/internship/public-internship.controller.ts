@@ -7,6 +7,7 @@ import {
   Post,
   Req,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 import { EmployerApproveApplicationUseCase } from '../../application/use-cases/internship/employer-approve-application.use-case';
 import { VerifyInternshipSignatureUseCase } from '../../application/use-cases/internship/verify-internship-signature.use-case';
@@ -22,6 +23,7 @@ export class PublicInternshipController {
   ) {}
 
   @Post('employer-approve')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   async approve(
     @Body() body: EmployerApproveApplicationDto,
     @Req() req: Request,
@@ -37,6 +39,7 @@ export class PublicInternshipController {
   }
 
   @Get(':id/verify')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   async verifySignature(@Param('id', ParseUUIDPipe) id: string) {
     return this.verifyInternshipSignatureUseCase.execute(id);
   }

@@ -9,6 +9,7 @@ import {
   Post,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard, AuthenticatedRequest } from '../auth/guards/auth.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
@@ -23,6 +24,7 @@ import { CreateCalendarDto } from './dto/create-calendar.dto';
 import { UpdateCalendarDto } from './dto/update-calendar.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
 import { DomainException } from '../../common/exceptions/domain.exception';
+import { paginate } from '../../common/pagination/paginate';
 
 @Controller('calendars')
 @UseGuards(AuthGuard)
@@ -54,12 +56,16 @@ export class AcademicCalendarController {
   }
 
   @Get()
-  async list(@Req() req: AuthenticatedRequest) {
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC, UserRole.ADMIN)
+  @UseGuards(RolesGuard)
+  async list(@Req() req: AuthenticatedRequest, @Query('page') page?: string, @Query('pageSize') pageSize?: string) {
     const departmentId = this.getDepartmentId(req);
-    return this.listCalendarsUseCase.execute(departmentId);
+    return paginate(await this.listCalendarsUseCase.execute(departmentId), page, pageSize);
   }
 
   @Get('next-term')
+  @Roles(UserRole.STUDENT, UserRole.ACADEMIC, UserRole.ADMIN)
+  @UseGuards(RolesGuard)
   async nextTerm(@Req() req: AuthenticatedRequest) {
     const departmentId = this.getDepartmentId(req);
     return this.getNextTermUseCase.execute(departmentId);

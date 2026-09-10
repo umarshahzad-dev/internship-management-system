@@ -10,8 +10,10 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { documentUploadOptions, imageUploadOptions } from '../../common/files/upload-options';
 import { AuthGuard, AuthenticatedRequest } from '../auth/guards/auth.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { RolesGuard } from './guards/roles.guard';
@@ -27,6 +29,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateOwnProfileDto } from './dto/update-own-profile.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
 import { DomainException } from '../../common/exceptions/domain.exception';
+import { paginate } from '../../common/pagination/paginate';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -43,8 +46,8 @@ export class UserController {
   @Get()
   @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard)
-  async list() {
-    return this.listUsersUseCase.execute();
+  async list(@Query('page') page?: string, @Query('pageSize') pageSize?: string) {
+    return paginate(await this.listUsersUseCase.execute(), page, pageSize);
   }
 
   @Post()
@@ -65,7 +68,7 @@ export class UserController {
   @Post('import')
   @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard, CsrfGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', documentUploadOptions))
   async importUsers(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new DomainException('VALIDATION_ERROR', 'File is required', 400);
@@ -101,7 +104,7 @@ export class UserController {
   @Post('me/photo')
   @Roles(UserRole.STUDENT)
   @UseGuards(RolesGuard, CsrfGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', imageUploadOptions))
   async uploadPhoto(
     @UploadedFile() file: Express.Multer.File,
     @Req() req: AuthenticatedRequest,
@@ -138,6 +141,7 @@ export class UserController {
       role: dto.role,
       isActive: dto.isActive,
       studentNumber: dto.studentNumber,
+      departmentId: dto.departmentId,
     });
   }
 }

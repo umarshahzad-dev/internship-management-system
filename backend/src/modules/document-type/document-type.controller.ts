@@ -12,8 +12,10 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { documentUploadOptions } from '../../common/files/upload-options';
 import { Response } from 'express';
 import { AuthGuard, AuthenticatedRequest } from '../auth/guards/auth.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
@@ -29,6 +31,7 @@ import { CreateDocumentTypeDto } from './dto/create-document-type.dto';
 import { UpdateDocumentTypeDto } from './dto/update-document-type.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
 import { DomainException } from '../../common/exceptions/domain.exception';
+import { paginate } from '../../common/pagination/paginate';
 
 @Controller('document-types')
 @UseGuards(AuthGuard)
@@ -63,13 +66,13 @@ export class DocumentTypeController {
   @Get()
   @Roles(UserRole.ADMIN, UserRole.ACADEMIC, UserRole.STUDENT)
   @UseGuards(RolesGuard)
-  async list(@Req() req: AuthenticatedRequest) {
+  async list(@Req() req: AuthenticatedRequest, @Query('page') page?: string, @Query('pageSize') pageSize?: string) {
     const departmentId = this.getDepartmentId(req);
-    return this.listDocumentTypesUseCase.execute(departmentId);
+    return paginate(await this.listDocumentTypesUseCase.execute(departmentId), page, pageSize);
   }
 
   @Post()
-  @Roles(UserRole.ADMIN, UserRole.ACADEMIC)
+  @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard, CsrfGuard)
   async create(
     @Body() dto: CreateDocumentTypeDto,
@@ -88,7 +91,7 @@ export class DocumentTypeController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN, UserRole.ACADEMIC)
+  @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard, CsrfGuard)
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -117,9 +120,9 @@ export class DocumentTypeController {
   }
 
   @Post(':id/template')
-  @Roles(UserRole.ADMIN, UserRole.ACADEMIC)
+  @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard, CsrfGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', documentUploadOptions))
   async uploadTemplate(
     @Param('id', new ParseUUIDPipe()) id: string,
     @UploadedFile() file: Express.Multer.File,
@@ -131,6 +134,8 @@ export class DocumentTypeController {
   }
 
   @Get(':id/template')
+  @Roles(UserRole.ADMIN, UserRole.ACADEMIC, UserRole.STUDENT)
+  @UseGuards(RolesGuard)
   async downloadTemplate(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Res() res: Response,

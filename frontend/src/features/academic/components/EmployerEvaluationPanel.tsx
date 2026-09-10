@@ -1,3 +1,4 @@
+/* oxlint-disable react(only-export-components) */
 import { useState } from 'react'
 import { Button, FileUpload, Input, Panel, Select, Textarea } from '../../../components/ui'
 import { api } from '../../../lib/api'

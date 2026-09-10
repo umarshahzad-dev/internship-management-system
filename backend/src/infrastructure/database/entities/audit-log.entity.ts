@@ -3,9 +3,12 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 
 @Entity('audit_logs')
+@Index('idx_audit_logs_created_at', ['createdAt'])
+@Index('idx_audit_logs_user_id', ['userId'])
 export class AuditLogEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

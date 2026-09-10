@@ -25,6 +25,8 @@ import { SystemConfigModule } from './modules/system-config/system-config.module
 import { AuditInterceptor } from './infrastructure/interceptors/audit.interceptor';
 import { ReportModule } from './modules/report/report.module';
 import { SeedModule } from './seed/seed.module';
+import { AnnouncementModule } from './modules/announcement/announcement.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -66,6 +68,8 @@ import { SeedModule } from './seed/seed.module';
     SystemConfigModule,
     ReportModule,
     SeedModule,
+    AnnouncementModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

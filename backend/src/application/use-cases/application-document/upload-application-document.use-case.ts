@@ -10,6 +10,7 @@ import { DomainException } from '../../../common/exceptions/domain.exception';
 import { ApplicationDocument } from '../../../domain/entities/application-document.entity';
 import { ApplicationDocumentStatus } from '../../../domain/enums/application-document-status.enum';
 import { DocumentSource } from '../../../domain/enums/document-source.enum';
+import { assertMimeType } from '../../../common/files/validate-upload';
 
 export interface UploadApplicationDocumentInput {
   userId: string;
@@ -67,6 +68,7 @@ export class UploadApplicationDocumentUseCase {
     }
 
     const ext = path.extname(input.file.originalname).slice(1).toLowerCase();
+    assertMimeType(input.file, ['application/pdf', 'image/jpeg', 'image/png']);
     if (!['pdf', 'jpg', 'jpeg', 'png'].includes(ext)) {
       throw new DomainException(
         'FILE_TYPE_NOT_ALLOWED',

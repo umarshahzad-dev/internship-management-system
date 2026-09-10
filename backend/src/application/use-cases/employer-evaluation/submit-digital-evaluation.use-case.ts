@@ -25,6 +25,7 @@ export interface SubmitDigitalEvaluationResult {
   internshipId: string;
   method: EvaluationMethod;
   submittedAt: string;
+  employerLogsApprovedAt: string;
 }
 
 @Injectable()
@@ -117,6 +118,7 @@ export class SubmitDigitalEvaluationUseCase {
       internshipId: saved.internshipId,
       method: saved.method,
       submittedAt: saved.submittedAt.toISOString(),
+      employerLogsApprovedAt: now.toISOString(),
     };
   }
 

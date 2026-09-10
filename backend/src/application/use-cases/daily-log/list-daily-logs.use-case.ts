@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IDailyLogRepository } from '../../ports/daily-log.repository.port';
 import { IInternshipRepository } from '../../ports/internship.repository.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
+import { InternshipStatus } from '../../../domain/enums/internship-status.enum';
 
 export interface ListDailyLogsInput {
   internshipId: string;
@@ -44,6 +45,19 @@ export class ListDailyLogsUseCase {
         throw new DomainException(
           'FORBIDDEN',
           'Academic cannot view logs of other departments',
+          403,
+        );
+      }
+      if (
+        ![
+          InternshipStatus.EVALUATION,
+          InternshipStatus.GRADED,
+          InternshipStatus.COMPLETED,
+        ].includes(internship.status)
+      ) {
+        throw new DomainException(
+          'FORBIDDEN',
+          'Daily logs are available to academic staff after evaluation begins',
           403,
         );
       }

@@ -51,4 +51,24 @@ export class SgkTrackingRepository extends ISgkTrackingRepository {
       .getMany();
     return entities.map(SgkTrackingMapper.toDomain);
   }
+
+  async findAllByDepartmentWithProjection(departmentId: string) {
+    const entities = await this.sgkTrackingRepository
+      .createQueryBuilder('sgk')
+      .innerJoinAndSelect('sgk.internship', 'internship')
+      .innerJoinAndSelect('internship.student', 'student')
+      .innerJoinAndSelect('internship.company', 'company')
+      .where('internship.department_id = :departmentId', { departmentId })
+      .orderBy('sgk.created_at', 'DESC')
+      .getMany();
+    return entities.map((entity) => ({
+      record: SgkTrackingMapper.toDomain(entity),
+      studentName: `${entity.internship.student.firstName} ${entity.internship.student.lastName}`.trim(),
+      studentNumber: entity.internship.student.studentNumber,
+      companyName: entity.internship.company.name,
+      startDate: entity.internship.startDate.toISOString().slice(0, 10),
+      endDate: entity.internship.endDate.toISOString().slice(0, 10),
+      internshipStatus: entity.internship.status,
+    }));
+  }
 }

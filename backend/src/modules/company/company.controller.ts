@@ -7,12 +7,14 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { AuthGuard } from '../auth/guards/auth.guard';
+import { documentUploadOptions } from '../../common/files/upload-options';
+import { AuthGuard, AuthenticatedRequest } from '../auth/guards/auth.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { RolesGuard } from '../user/guards/roles.guard';
 import { Roles } from '../user/decorators/roles.decorator';
@@ -25,6 +27,7 @@ import { ImportCompaniesUseCase } from '../../application/use-cases/company/impo
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
+import { paginate } from '../../common/pagination/paginate';
 
 @Controller('companies')
 @UseGuards(AuthGuard)
@@ -42,23 +45,27 @@ export class CompanyController {
   @Roles(UserRole.ADMIN, UserRole.ACADEMIC, UserRole.STUDENT)
   @UseGuards(RolesGuard)
   async list(
+    @Req() req: AuthenticatedRequest,
     @Query('search') search?: string,
     @Query('city') city?: string,
     @Query('industry') industry?: string,
     @Query('isActive') isActive?: string,
     @Query('isVerified') isVerified?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
   ) {
-    return this.listCompaniesUseCase.execute({
+    return paginate(await this.listCompaniesUseCase.execute({
+      currentUserRole: req.user!.role,
       search,
       city,
       industry,
       isActive: isActive !== undefined ? isActive === 'true' : undefined,
       isVerified: isVerified !== undefined ? isVerified === 'true' : undefined,
-    });
+    }), page, pageSize);
   }
 
   @Post()
-  @Roles(UserRole.ADMIN, UserRole.ACADEMIC)
+  @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard, CsrfGuard)
   async create(@Body() dto: CreateCompanyDto) {
     return this.createCompanyUseCase.execute({
@@ -77,7 +84,7 @@ export class CompanyController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN, UserRole.ACADEMIC)
+  @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard, CsrfGuard)
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -100,7 +107,7 @@ export class CompanyController {
   }
 
   @Post(':id/deactivate')
-  @Roles(UserRole.ADMIN, UserRole.ACADEMIC)
+  @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard, CsrfGuard)
   async deactivate(@Param('id', new ParseUUIDPipe()) id: string) {
     await this.deactivateCompanyUseCase.execute(id);
@@ -116,9 +123,9 @@ export class CompanyController {
   }
 
   @Post('import')
-  @Roles(UserRole.ADMIN, UserRole.ACADEMIC)
+  @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard, CsrfGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', documentUploadOptions))
   async importCompanies(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new Error('File is required');

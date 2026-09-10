@@ -2,6 +2,7 @@ import {
   IsBoolean,
   IsEnum,
   IsOptional,
+  IsUUID,
   IsString,
   MinLength,
 } from 'class-validator';
@@ -29,4 +30,8 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   studentNumber?: string | null;
+
+  @IsOptional()
+  @IsUUID()
+  departmentId?: string | null;
 }

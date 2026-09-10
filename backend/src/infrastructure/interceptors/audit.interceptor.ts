@@ -39,6 +39,11 @@ export class AuditInterceptor implements NestInterceptor {
     const payload = request.body
       ? this.redactSensitiveData(JSON.parse(JSON.stringify(request.body)))
       : {};
+    payload.query = this.redactSensitiveData({ ...(request.query ?? {}) });
+    payload.headers = this.redactSensitiveData({
+      'content-type': request.headers['content-type'],
+      'user-agent': request.headers['user-agent'],
+    });
 
     return next.handle().pipe(
       tap({
@@ -82,7 +87,7 @@ export class AuditInterceptor implements NestInterceptor {
         userId,
         userRole,
         method: req.method,
-        path: req.url,
+        path: this.sanitizeUrl(req.url),
         payload,
         ipAddress,
         statusCode,
@@ -101,6 +106,8 @@ export class AuditInterceptor implements NestInterceptor {
       'secret',
       'authorization',
       'csrf',
+      'cookie',
+      'x-csrf-token',
     ];
 
     for (const key of Object.keys(data)) {
@@ -111,5 +118,17 @@ export class AuditInterceptor implements NestInterceptor {
       }
     }
     return data;
+  }
+
+  private sanitizeUrl(value: string): string {
+    try {
+      const parsed = new URL(value, 'http://audit.local');
+      for (const key of ['token', 'authorization', 'cookie', 'x-csrf-token']) {
+        if (parsed.searchParams.has(key)) parsed.searchParams.set(key, '[REDACTED]');
+      }
+      return `${parsed.pathname}${parsed.search}`;
+    } catch {
+      return value;
+    }
   }
 }

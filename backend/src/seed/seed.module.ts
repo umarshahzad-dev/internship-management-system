@@ -18,6 +18,7 @@ import { FinalGradeEntity } from '../infrastructure/database/entities/final-grad
 import { EmployerTokenEntity } from '../infrastructure/database/entities/employer-token.entity';
 import { AuditLogEntity } from '../infrastructure/database/entities/audit-log.entity';
 import { NotificationOutboxEntity } from '../infrastructure/database/entities/notification-outbox.entity';
+import { AnnouncementEntity } from '../infrastructure/database/entities/announcement.entity';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { NotificationOutboxEntity } from '../infrastructure/database/entities/no
       EmployerTokenEntity,
       AuditLogEntity,
       NotificationOutboxEntity,
+      AnnouncementEntity,
     ]),
   ],
   providers: [SeedService],

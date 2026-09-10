@@ -1,3 +1,4 @@
+/* oxlint-disable react(only-export-components) */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { api } from '../../../lib/api'

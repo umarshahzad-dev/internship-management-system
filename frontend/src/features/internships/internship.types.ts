@@ -21,6 +21,8 @@ export interface InternshipListItem {
   studentId?: string
   companyId?: string
   companyName?: string
+  studentName?: string
+  studentNumber?: string | null
   status: InternshipStatus
   startDate: string
   endDate: string

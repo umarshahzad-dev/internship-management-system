@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  Index,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -11,6 +12,7 @@ import {
 import { InternshipEntity } from './internship.entity';
 
 @Entity('daily_logs')
+@Index('idx_daily_logs_internship_id', ['internshipId'])
 @Unique('uq_daily_log_internship_date', ['internshipId', 'logDate'])
 export class DailyLogEntity {
   @PrimaryGeneratedColumn('uuid')

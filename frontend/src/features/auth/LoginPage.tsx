@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { login } from './auth.service'
 import type { UserProfile, LoginRequest } from './auth.types'
 import { loginSchema } from './login.schema'
+import ktunLogo from '../../assets/ktun-logo.png'
 
 interface LoginPageProps { onAuthenticated?: (user: UserProfile) => void }
 
@@ -38,18 +39,13 @@ export function LoginPage({ onAuthenticated }: LoginPageProps) {
             <div className="absolute bottom-0 left-0 h-2 w-2/3 bg-red" />
           </div>
           <div className="relative flex items-start justify-between gap-8">
-            <img className="h-12 w-auto object-contain object-left" src="https://www.ktun.edu.tr/Content/images/logo/footer.png" alt="Konya Teknik Üniversitesi" />
+            <img className="h-16 w-16 object-contain" src={ktunLogo} alt="Konya Teknik Üniversitesi" />
             <span className="border-b-2 border-gold pb-1 text-xs font-semibold uppercase tracking-[0.18em] text-gold">IMAS</span>
           </div>
-          <div className="relative my-auto max-w-2xl border border-white/30 bg-slate-950/50 p-8 shadow-2xl">
+          <div className="relative my-auto max-w-2xl border-l-4 border-gold bg-slate-950/30 p-6 shadow-lg backdrop-blur-sm">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold">Sistem duyurusu</p>
-            <h1 className="mt-4 text-2xl font-bold leading-snug">Staj başvuru ve değerlendirme işlemleri bu çalışma alanından yürütülür.</h1>
-            <p className="mt-4 max-w-lg text-sm leading-6 text-slate-200">Başvuru belgelerinizi yükleyin, günlük kayıtlarınızı tamamlayın ve süreç durumunuzu bölüm komisyonunuzla eş zamanlı takip edin.</p>
-            <dl className="mt-6 grid grid-cols-3 border-t border-white/20 pt-5 text-xs">
-              <div><dt className="text-white/50">ERİŞİM</dt><dd className="mt-1 font-semibold text-gold">KURUMSAL</dd></div>
-              <div className="border-x border-white/20 px-4"><dt className="text-white/50">OTURUM</dt><dd className="mt-1 font-semibold">GÜVENLİ</dd></div>
-              <div className="pl-4"><dt className="text-white/50">DESTEK</dt><dd className="mt-1 font-semibold">BÖLÜMÜNÜZ</dd></div>
-            </dl>
+            <h1 className="mt-3 text-xl font-bold leading-snug">Staj başvuru ve değerlendirme işlemleri bu çalışma alanından yürütülür.</h1>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-slate-200">Başvuru belgelerinizi yükleyin, günlük kayıtlarınızı tamamlayın ve süreç durumunuzu bölüm komisyonunuzla eş zamanlı takip edin.</p>
           </div>
           <div className="relative flex items-center justify-between border-t border-white/20 pt-5 text-xs text-slate-300">
             <span>Konya Teknik Üniversitesi</span><span>Internship Management System</span>
@@ -59,13 +55,13 @@ export function LoginPage({ onAuthenticated }: LoginPageProps) {
         <section className="flex min-h-screen items-center justify-center bg-white px-6 py-10 sm:px-10 lg:px-12">
           <div className="w-full max-w-md">
             <div className="mb-7 flex items-center gap-3 lg:hidden">
-              <span className="grid h-11 w-9 place-items-center bg-red text-[10px] font-bold tracking-tight text-white">KTÜN</span>
+              <img className="h-11 w-11 object-contain" src={ktunLogo} alt="Konya Teknik Üniversitesi" />
               <div className="text-xs leading-tight text-navy"><p className="font-bold uppercase">Konya Teknik Üniversitesi</p><p className="mt-1 text-gray-500">Staj Yönetim Sistemi</p></div>
             </div>
             <div className="mb-6 border-b-2 border-navy pb-4">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-red">IMAS</p>
               <h2 className="mt-2 text-3xl font-bold tracking-tight text-navy">Oturum aç</h2>
-              <p className="mt-2 text-sm leading-6 text-gray-500">Kurumsal hesabınızla staj yönetim alanına giriş yapın.</p>
+              <p className="mt-2 text-sm leading-6 text-gray-500">Email adresiniz ve erişim şifreniz ile giriş yapabilirsiniz.</p>
             </div>
             <form className="space-y-5" noValidate onSubmit={handleSubmit(submit)}>
               <div>
