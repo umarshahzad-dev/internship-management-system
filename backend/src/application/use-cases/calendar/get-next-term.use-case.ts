@@ -10,17 +10,13 @@ export class GetNextTermUseCase {
     private readonly dateProvider: IDateProvider,
   ) {}
 
-  async execute(departmentId: string) {
-    const nextTerm = await this.calendarRepository.findNextTerm(
-      departmentId,
-      this.dateProvider.now(),
-    );
+  async execute() {
+    const nextTerm = await this.calendarRepository.findNextTerm(this.dateProvider.now());
     if (!nextTerm) {
       throw new DomainException('NOT_FOUND', 'No future term found', 404);
     }
     return {
       id: nextTerm.id,
-      departmentId: nextTerm.departmentId,
       termName: nextTerm.termName,
       applicationStart: nextTerm.applicationStart.toISOString().slice(0, 10),
       applicationEnd: nextTerm.applicationEnd.toISOString().slice(0, 10),

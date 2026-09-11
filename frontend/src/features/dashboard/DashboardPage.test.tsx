@@ -15,7 +15,6 @@ describe('role dashboards', () => {
     rerender(<MemoryRouter><QueryClientProvider client={queryClient}><AdminDepartmentProvider><AdminDashboardPage /></AdminDepartmentProvider></QueryClientProvider></MemoryRouter>)
     expect(screen.getByRole('heading', { name: 'Yönetim çalışma alanı' })).toBeVisible()
     expect(screen.queryByRole('link', { name: 'Stajlara git' })).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Tatiller' })).toHaveAttribute('href', '/holidays')
   })
 
   it('does not expose the SGK shortcut to Academic users', () => {

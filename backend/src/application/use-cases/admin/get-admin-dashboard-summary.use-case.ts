@@ -4,5 +4,5 @@ import { AdminDashboardSummary, IReportRepository } from '../../ports/report.rep
 @Injectable()
 export class GetAdminDashboardSummaryUseCase {
   constructor(private readonly reports: IReportRepository) {}
-  execute(role: string): Promise<AdminDashboardSummary> { if (role !== 'ADMIN') throw new DomainException('FORBIDDEN', 'Only administrators can view global statistics', 403); return this.reports.getAdminDashboardSummary(); }
+  execute(role: string, departmentId?: string): Promise<AdminDashboardSummary> { if (role !== 'ADMIN') throw new DomainException('FORBIDDEN', 'Only administrators can view global statistics', 403); return this.reports.getAdminDashboardSummary(departmentId); }
 }

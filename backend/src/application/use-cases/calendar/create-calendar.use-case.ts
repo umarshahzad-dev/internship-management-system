@@ -5,7 +5,6 @@ import { IAcademicCalendarRepository } from '../../ports/academic-calendar.repos
 import { IDateProvider } from '../../ports/date-provider.port';
 
 export interface CreateCalendarInput {
-  departmentId: string;
   termName: string;
   applicationStart: Date;
   applicationEnd: Date;
@@ -15,7 +14,6 @@ export interface CreateCalendarInput {
 
 export interface CreateCalendarResult {
   id: string;
-  departmentId: string;
   termName: string;
   applicationStart: string;
   applicationEnd: string;
@@ -34,7 +32,6 @@ export class CreateCalendarUseCase {
     const now = this.dateProvider.now();
     const calendar = new AcademicCalendar(
       randomUUID(),
-      input.departmentId,
       input.termName,
       input.applicationStart,
       input.applicationEnd,
@@ -51,7 +48,6 @@ export class CreateCalendarUseCase {
   private toResult(calendar: AcademicCalendar): CreateCalendarResult {
     return {
       id: calendar.id,
-      departmentId: calendar.departmentId,
       termName: calendar.termName,
       applicationStart: calendar.applicationStart.toISOString().slice(0, 10),
       applicationEnd: calendar.applicationEnd.toISOString().slice(0, 10),

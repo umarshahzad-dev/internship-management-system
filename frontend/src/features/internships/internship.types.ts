@@ -44,21 +44,22 @@ export interface DailyLog {
 }
 
 export const internshipStatusLabels: Record<string, string> = {
-  DRAFT: 'Taslak',
+  DRAFT: 'Öğrenci Başvuru Taslağı',
   APPLIED: 'Başvuruldu',
-  REVISION: 'Revizyon gerekli',
-  REVISION_REQUESTED: 'Revizyon istendi',
-  PENDING_EMPLOYER: 'İşveren onayı bekleniyor',
-  PENDING_COMMISSION: 'Komisyon onayı bekleniyor',
+  REVISION: 'Revizyon Bekleyen',
+  REVISION_REQUESTED: 'Revizyon Bekleyen',
+  PENDING_EMPLOYER: 'Firma Kabul Belgesi İncelemesi',
+  PENDING_COMMISSION: 'Bölüm Ön Kontrol / Komisyon Onayı Bekleyen',
   APPROVED: 'Onaylandı',
-  APPROVED_PENDING_SGK: 'SGK işlemi bekleniyor',
+  APPROVED_PENDING_SGK: 'SGK Giriş Onayı Bekleyen',
   REJECTED: 'Reddedildi',
-  WITHDRAWN: 'Geri çekildi',
+  WITHDRAWN: 'İptal / İade Edilen',
   // Kept for compatibility with older API payloads.
   SUBMITTED: 'Gönderildi',
   REVISION_REQUIRED: 'Revizyon gerekli',
-  ONGOING: 'Devam ediyor',
-  EVALUATION: 'Değerlendirmede',
+  ONGOING: 'Aktif Devam Eden Staj',
+  ACTIVE: 'Aktif Devam Eden Staj',
+  EVALUATION: 'Staj Defteri Değerlendirme',
   GRADED: 'Notlandırıldı',
-  COMPLETED: 'Tamamlandı',
+  COMPLETED: 'Arşivlendi / Tamamlandı',
 }

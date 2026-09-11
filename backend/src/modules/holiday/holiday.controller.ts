@@ -41,14 +41,7 @@ export class HolidayController {
   private getDepartmentId(req: AuthenticatedRequest): string | undefined {
     if (req.user?.role === UserRole.ADMIN) {
       const dept = req.headers['x-department-id'];
-      if (!dept) {
-        throw new DomainException(
-          'VALIDATION_ERROR',
-          'X-Department-Id header is required for admin',
-          400,
-        );
-      }
-      return dept as string;
+      return dept ? (dept as string) : undefined;
     }
     return req.user?.departmentId ?? undefined;
   }
@@ -56,9 +49,16 @@ export class HolidayController {
   @Get()
   @Roles(UserRole.STUDENT, UserRole.ACADEMIC, UserRole.ADMIN)
   @UseGuards(RolesGuard)
-  async list(@Req() req: AuthenticatedRequest, @Query('page') page?: string, @Query('pageSize') pageSize?: string) {
+  async list(
+    @Req() req: AuthenticatedRequest,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Query('search') search?: string,
+    @Query('year') year?: string,
+    @Query('sortDir') sortDir?: string,
+  ) {
     const departmentId = this.getDepartmentId(req);
-    return paginate(await this.listHolidaysUseCase.execute(departmentId), page, pageSize);
+    return paginate(await this.listHolidaysUseCase.execute(departmentId, { search, year, sortDir }), page, pageSize);
   }
 
   @Get('merged')

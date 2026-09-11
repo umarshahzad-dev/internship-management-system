@@ -28,6 +28,11 @@ export class DocumentTypeRepository extends IDocumentTypeRepository {
     return entities.map(DocumentTypeMapper.toDomain);
   }
 
+  async findAll(): Promise<DocumentType[]> {
+    const entities = await this.documentTypeRepository.find({ order: { name: 'ASC' } });
+    return entities.map(DocumentTypeMapper.toDomain);
+  }
+
   async create(documentType: DocumentType): Promise<DocumentType> {
     const entity = DocumentTypeMapper.toPersistence(documentType);
     const saved = await this.documentTypeRepository.save(entity);

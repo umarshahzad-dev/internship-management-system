@@ -12,7 +12,6 @@ const departmentScopedDomains = new Set([
   'companies',
   'users',
   'sgk',
-  'reports',
 ])
 
 export function isDepartmentScopedQueryKey(queryKey: readonly unknown[]) {

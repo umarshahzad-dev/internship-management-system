@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import App from '../App'
 import { api } from '../lib/api'
+import { canAccessRoute } from './route-permissions'
 
 describe('Phase 3 routing and permissions', () => {
   beforeEach(() => {
@@ -27,6 +28,17 @@ describe('Phase 3 routing and permissions', () => {
     expect(window.location.pathname).toBe('/login')
   })
 
+  it('redirects legacy calendar and holidays routes to the unified calendar page', () => {
+    window.history.pushState({}, '', '/calendars')
+    const { unmount } = render(<App isAuthenticated role="ADMIN" />)
+    expect(window.location.pathname).toBe('/calendar')
+    unmount()
+
+    window.history.pushState({}, '', '/holidays')
+    render(<App isAuthenticated role="ADMIN" />)
+    expect(window.location.pathname).toBe('/calendar')
+  })
+
   it('renders the institutional shell and student navigation for an authenticated user', () => {
     window.history.pushState({}, '', '/dashboard')
     render(<App isAuthenticated role="STUDENT" />)
@@ -45,6 +57,12 @@ describe('Phase 3 routing and permissions', () => {
     window.history.pushState({}, '', '/users')
     render(<App isAuthenticated role="ADMIN" />)
     expect(screen.getByRole('heading', { name: 'Kullanıcı yönetimi' })).toBeVisible()
+  })
+
+  it('allows every authenticated role to open its own profile', () => {
+    expect(canAccessRoute('profile', 'ADMIN')).toBe(true)
+    expect(canAccessRoute('profile', 'ACADEMIC')).toBe(true)
+    expect(canAccessRoute('profile', 'ADMINISTRATIVE')).toBe(true)
   })
 
   it('supports logout navigation from the authenticated shell', async () => {

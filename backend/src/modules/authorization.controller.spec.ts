@@ -62,7 +62,7 @@ describe('Priority 0/1 authorization contract', () => {
       expect(rolesFor(CompanyController.prototype, method)).toEqual([UserRole.ADMIN]);
     }
     for (const method of ['create', 'update', 'delete', 'uploadTemplate']) {
-      expect(rolesFor(DocumentTypeController.prototype, method)).toEqual([UserRole.ADMIN]);
+      expect(rolesFor(DocumentTypeController.prototype, method)).toEqual([UserRole.ACADEMIC]);
     }
     expect(rolesFor(AcademicCalendarController.prototype, 'list')).toEqual([
       UserRole.STUDENT,

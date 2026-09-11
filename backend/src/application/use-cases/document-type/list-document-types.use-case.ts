@@ -20,9 +20,10 @@ export class ListDocumentTypesUseCase {
     private readonly documentTypeRepository: IDocumentTypeRepository,
   ) {}
 
-  async execute(departmentId: string): Promise<DocumentTypeListItem[]> {
-    const documentTypes =
-      await this.documentTypeRepository.findByDepartment(departmentId);
+  async execute(departmentId?: string): Promise<DocumentTypeListItem[]> {
+    const documentTypes = departmentId
+      ? await this.documentTypeRepository.findByDepartment(departmentId)
+      : await this.documentTypeRepository.findAll();
     return documentTypes.map((dt) => ({
       id: dt.id,
       departmentId: dt.departmentId,

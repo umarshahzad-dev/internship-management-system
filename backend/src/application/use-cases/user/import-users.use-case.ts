@@ -12,6 +12,9 @@ import { IDepartmentRepository } from '../../ports/department.repository.port';
 import { IPasswordHasher } from '../../ports/password-hasher.port';
 import { IDateProvider } from '../../ports/date-provider.port';
 import { isUUID } from 'class-validator';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { NotificationOutboxEntity, OutboxStatus } from '../../../infrastructure/database/entities/notification-outbox.entity';
 
 export interface ImportResult {
   imported: number;
@@ -25,7 +28,7 @@ interface CsvRow {
   firstName: string;
   lastName: string;
   studentNumber: string | null;
-  departmentId: string;
+  departmentId: string | null;
 }
 
 @Injectable()
@@ -38,6 +41,7 @@ export class ImportUsersUseCase {
     private readonly departmentRepository: IDepartmentRepository,
     private readonly passwordHasher: IPasswordHasher,
     private readonly dateProvider: IDateProvider,
+    @InjectRepository(NotificationOutboxEntity) private readonly outboxRepository: Repository<NotificationOutboxEntity>,
   ) {}
 
   async execute(fileBuffer: Buffer): Promise<ImportResult> {
@@ -63,11 +67,9 @@ export class ImportUsersUseCase {
         }
 
         const csvRow = await this.validateAndMapRow(row);
-        const existingUser =
-          await this.userRepository.findByDepartmentAndStudentNumber(
-            csvRow.departmentId,
-            csvRow.studentNumber,
-          );
+        const existingUser = csvRow.departmentId
+          ? await this.userRepository.findByDepartmentAndStudentNumber(csvRow.departmentId, csvRow.studentNumber)
+          : null;
 
         if (existingUser) {
           // Update existing user (ignore password)
@@ -122,6 +124,7 @@ export class ImportUsersUseCase {
           this.logger.warn(
             `Imported new user ${csvRow.email} with temporary password: ${generatedPassword}`,
           );
+          await this.outboxRepository.save({ recipientEmail: csvRow.email, subject: 'KTÜN IMAS - Hesabınız Oluşturuldu', body: `<p>Sayın ${csvRow.firstName} ${csvRow.lastName},</p><p>KTÜN IMAS sistemine kaydınız oluşturulmuştur.</p><p><strong>E-posta:</strong> ${csvRow.email}<br/><strong>Geçici Şifre:</strong> ${generatedPassword}</p><p>İlk girişten sonra şifrenizi değiştirmeniz istenecektir.</p>`, status: OutboxStatus.PENDING });
         }
 
         imported++;
@@ -138,28 +141,30 @@ export class ImportUsersUseCase {
   private async validateAndMapRow(
     row: Record<string, string>,
   ): Promise<CsvRow> {
-    const email = row['email'];
+    const email = row['email'] || row['e-posta'];
     const password = row['password'] || null;
     const role = row['role'] as UserRole;
-    const firstName = row['firstname'] || row['first_name'];
-    const lastName = row['lastname'] || row['last_name'];
-    const studentNumber = row['studentnumber'] || row['student_number'] || null;
+    const firstName = row['firstname'] || row['first_name'] || row['ad'];
+    const lastName = row['lastname'] || row['last_name'] || row['soyad'];
+    const studentNumber = row['studentnumber'] || row['student_number'] || row['öğrenci numarası'] || null;
     const departmentValue =
-      row['department'] || row['departmentid'] || row['department_id'];
+      row['department'] || row['departmentid'] || row['department_id'] || row['bölüm'];
 
     if (!email) throw new Error('Missing email');
     if (!role) throw new Error('Missing role');
     if (!firstName) throw new Error('Missing first name');
     if (!lastName) throw new Error('Missing last name');
-    if (!departmentValue) throw new Error('Missing department');
-
     if (!Object.values(UserRole).includes(role)) {
       throw new Error(`Invalid role: ${role}`);
     }
+    if (role !== UserRole.ADMIN && !departmentValue) throw new Error('Department is required for this role');
+    if (role === UserRole.STUDENT && !studentNumber) throw new Error('Student number is required for students');
 
     // Resolve department
-    let departmentId: string;
-    if (isUUID(departmentValue)) {
+    let departmentId: string | null = null;
+    if (role === UserRole.ADMIN || !departmentValue) {
+      departmentId = null;
+    } else if (isUUID(departmentValue)) {
       departmentId = departmentValue;
     } else {
       let department =

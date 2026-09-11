@@ -11,6 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
   Query,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { documentUploadOptions, imageUploadOptions } from '../../common/files/upload-options';
@@ -29,7 +30,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateOwnProfileDto } from './dto/update-own-profile.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
 import { DomainException } from '../../common/exceptions/domain.exception';
-import { paginate } from '../../common/pagination/paginate';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -46,8 +46,17 @@ export class UserController {
   @Get()
   @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard)
-  async list(@Query('page') page?: string, @Query('pageSize') pageSize?: string) {
-    return paginate(await this.listUsersUseCase.execute(), page, pageSize);
+  async list(@Query('search') search?: string, @Query('role') role?: string, @Query('departmentId') departmentId?: string, @Query('sortBy') sortBy?: string, @Query('sortDir') sortDir?: string, @Query('page') page?: string, @Query('pageSize') pageSize?: string) {
+    return this.listUsersUseCase.execute({ search, role, departmentId, sortBy, sortDir, page: Number(page) || 1, pageSize: Number(pageSize) || 20 });
+  }
+
+  @Get('template-csv')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(RolesGuard)
+  templateCsv(@Res() res: import('express').Response) {
+    const csv = '\uFEFFAd,Soyad,E-posta,Rol,Bölüm,Öğrenci Numarası\nÖrnek,Öğrenci,ogrenci@example.com,STUDENT,Bilgisayar Mühendisliği,20260001\n';
+    res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="kullanici_sablonu.csv"' });
+    res.send(csv);
   }
 
   @Post()
@@ -133,7 +142,9 @@ export class UserController {
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateUserDto,
+    @Req() req: AuthenticatedRequest,
   ) {
+    if (id === req.user!.id && dto.isActive === false) throw new DomainException('FORBIDDEN', 'You cannot deactivate your own account', 403);
     return this.updateUserUseCase.execute({
       userId: id,
       firstName: dto.firstName,

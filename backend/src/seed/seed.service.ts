@@ -154,11 +154,12 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   private async seedCalendars(departments: Record<string, DepartmentEntity>): Promise<void> {
+    await this.calendarRepository.query('DELETE FROM academic_calendars a USING academic_calendars b WHERE a.term_name = b.term_name AND a.id > b.id');
     for (const department of Object.values(departments)) {
       const definitions = [['2024-2025 Güz', '2024-06-01', '2024-07-15', '2024-07-20', '2024-09-01'], ['2026-2027 Güz Stajı', '2026-09-01', '2026-10-15', '2026-10-20', '2026-12-15']] as const;
       for (const [termName, applicationStart, applicationEnd, internshipStart, internshipEnd] of definitions) {
-        let calendar = await this.calendarRepository.findOne({ where: { departmentId: department.id, termName } });
-        if (!calendar) calendar = this.calendarRepository.create({ departmentId: department.id, termName });
+        let calendar = await this.calendarRepository.findOne({ where: { termName } });
+        if (!calendar) calendar = this.calendarRepository.create({ termName });
         Object.assign(calendar, { applicationStart: this.date(applicationStart), applicationEnd: this.date(applicationEnd), internshipStart: this.date(internshipStart), internshipEnd: this.date(internshipEnd) });
         await this.calendarRepository.save(calendar);
       }
@@ -185,7 +186,11 @@ export class SeedService implements OnApplicationBootstrap {
       let internship = await this.internshipRepository.findOne({ where: { studentId: student.id, companyId: company.id, status, startDate: this.date(start) } });
       if (!internship) internship = this.internshipRepository.create({ studentId: student.id, companyId: company.id });
       Object.assign(internship, { departmentId, status, startDate: this.date(start), endDate: this.date(end), gradingData: { seedKey, academicScore: [InternshipStatus.GRADED, InternshipStatus.COMPLETED].includes(status) ? 88 : null }, locked: [InternshipStatus.EVALUATION, InternshipStatus.GRADED, InternshipStatus.COMPLETED].includes(status), approvedAt: [InternshipStatus.APPROVED_PENDING_SGK, InternshipStatus.ONGOING, InternshipStatus.EVALUATION, InternshipStatus.GRADED, InternshipStatus.COMPLETED].includes(status) ? this.date('2026-04-01') : null, employerLogsApprovedAt: [InternshipStatus.EVALUATION, InternshipStatus.GRADED, InternshipStatus.COMPLETED].includes(status) ? this.date('2026-06-01') : null });
-      result.push(await this.internshipRepository.save(internship));
+      const saved = await this.internshipRepository.save(internship);
+      result.push(saved);
+      // Keep deterministic stale records for dashboard warning demonstrations.
+      if (seedKey === 'sgk') await this.internshipRepository.query('UPDATE internships SET updated_at = $1 WHERE id = $2', [this.date('2026-08-01'), saved.id]);
+      if (seedKey === 'commission') await this.internshipRepository.query('UPDATE internships SET updated_at = $1 WHERE id = $2', [this.date('2026-07-01'), saved.id]);
     }
     return result;
   }
@@ -263,7 +268,7 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   private async seedSystemConfigs(): Promise<void> {
-    const defaults = [['ACADEMIC_YEAR', '2026-2027', 'Aktif akademik öğretim yılı', true], ['ACTIVE_SEMESTER', 'YAZ', 'Aktif staj dönemi', true], ['MIN_INTERNSHIP_DAYS', '20', 'Minimum zorunlu staj iş günü sayısı', false], ['MAX_INTERNSHIP_DAYS', '40', 'Maksimum zorunlu staj iş günü sayısı', false], ['APP_SUBMISSION_DEADLINE', '2026-06-30', 'Staj başvuru evrakları son teslim tarihi', true]] as const;
+    const defaults = [['ACADEMIC_YEAR', '2026-2027', 'Aktif akademik öğretim yılı', true], ['ACTIVE_SEMESTER', 'YAZ', 'Aktif staj dönemi', true], ['MIN_INTERNSHIP_DAYS', '20', 'Minimum zorunlu staj iş günü sayısı', false], ['MAX_INTERNSHIP_DAYS', '40', 'Maksimum zorunlu staj iş günü sayısı', false], ['APP_SUBMISSION_DEADLINE', '2026-06-30', 'Staj başvuru evrakları son teslim tarihi', true], ['MAINTENANCE_MODE', 'false', 'Sistem bakım modu (true/false)', false]] as const;
     for (const [key, value, description, isPublic] of defaults) {
       let config = await this.systemConfigRepository.findOne({ where: { key } });
       if (!config) config = this.systemConfigRepository.create({ key });

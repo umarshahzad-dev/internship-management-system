@@ -13,13 +13,14 @@ export class CreateUserDto {
   @IsEmail({}, { message: 'Invalid email format' })
   email: string;
 
+  @IsOptional()
   @IsString()
   @MinLength(8)
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, {
     message:
       'Password must contain at least one uppercase, one lowercase, and one digit',
   })
-  password: string;
+  password?: string;
 
   @IsEnum(UserRole)
   role: UserRole;

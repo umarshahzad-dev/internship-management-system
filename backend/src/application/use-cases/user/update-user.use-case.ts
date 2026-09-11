@@ -47,12 +47,24 @@ export class UpdateUserUseCase {
     const firstName = input.firstName ?? existing.firstName;
     const lastName = input.lastName ?? existing.lastName;
     const isActive = input.isActive ?? existing.isActive;
-    const studentNumber =
+    let studentNumber =
       input.studentNumber !== undefined
         ? input.studentNumber
         : existing.studentNumber;
-    const departmentId =
+    let departmentId =
       input.departmentId !== undefined ? input.departmentId : existing.departmentId;
+    if (role.getValue() === UserRole.ADMIN) {
+      if (input.role && input.role !== existing.role.getValue()) {
+        // Admin accounts never retain student or department scope.
+        studentNumber = null;
+        departmentId = null;
+      }
+    } else if (!departmentId) {
+      throw new DomainException('VALIDATION_ERROR', 'Department is required for this role', 400);
+    }
+    if (role.getValue() === UserRole.STUDENT && !studentNumber) {
+      throw new DomainException('VALIDATION_ERROR', 'Student number is required for students', 400);
+    }
     if (departmentId) {
       const department = await this.departmentRepository?.findById(departmentId);
       if (!department) {

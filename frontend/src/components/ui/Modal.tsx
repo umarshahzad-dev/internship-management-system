@@ -13,14 +13,17 @@ export interface ModalProps {
 export function Modal({ open, title, onClose, children, description }: ModalProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const previousActiveElement = useRef<HTMLElement | null>(null)
+  const onCloseRef = useRef(onClose)
   const titleId = useId()
+
+  useEffect(() => { onCloseRef.current = onClose }, [onClose])
 
   useEffect(() => {
     if (!open) return undefined
 
     previousActiveElement.current = document.activeElement as HTMLElement | null
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') onCloseRef.current()
     }
     document.addEventListener('keydown', handleKeyDown)
     const previousOverflow = document.body.style.overflow
@@ -32,7 +35,7 @@ export function Modal({ open, title, onClose, children, description }: ModalProp
       document.body.style.overflow = previousOverflow
       previousActiveElement.current?.focus()
     }
-  }, [onClose, open])
+  }, [open])
 
   if (!open) return null
 

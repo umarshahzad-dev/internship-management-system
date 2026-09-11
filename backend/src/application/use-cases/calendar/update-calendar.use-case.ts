@@ -15,7 +15,6 @@ export interface UpdateCalendarInput {
 
 export interface UpdateCalendarResult {
   id: string;
-  departmentId: string;
   termName: string;
   applicationStart: string;
   applicationEnd: string;
@@ -39,7 +38,6 @@ export class UpdateCalendarUseCase {
     const now = this.dateProvider.now();
     const updated = new AcademicCalendar(
       existing.id,
-      existing.departmentId,
       input.termName ?? existing.termName,
       input.applicationStart ?? existing.applicationStart,
       input.applicationEnd ?? existing.applicationEnd,
@@ -52,7 +50,6 @@ export class UpdateCalendarUseCase {
     const saved = await this.calendarRepository.update(updated);
     return {
       id: saved.id,
-      departmentId: saved.departmentId,
       termName: saved.termName,
       applicationStart: saved.applicationStart.toISOString().slice(0, 10),
       applicationEnd: saved.applicationEnd.toISOString().slice(0, 10),

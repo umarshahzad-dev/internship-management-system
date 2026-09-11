@@ -5,7 +5,7 @@ import { PublicLayout } from '../layout/PublicLayout'
 export interface RoutePageProps { title: string; description?: string }
 
 export function DocumentTitle({ title }: { title: string }) {
-  useEffect(() => { document.title = `${title} | IMAS` }, [title])
+  useEffect(() => { document.title = `${title} | KTÜN IMAS` }, [title])
   return null
 }
 
@@ -27,4 +27,8 @@ export function NotFoundPage() {
 
 export function RouteErrorPage() {
   return <PublicLayout><main className="flex min-h-screen items-center justify-center p-6"><div className="w-full max-w-xl"><DocumentTitle title="Bir hata oluştu" /><Panel><PageHeader title="Bir hata oluştu" description="İşlem beklenmedik bir nedenle tamamlanamadı." /></Panel></div></main></PublicLayout>
+}
+
+export function MaintenancePage() {
+  return <PublicLayout><main className="flex min-h-screen items-center justify-center p-6"><div className="w-full max-w-xl"><DocumentTitle title="Sistem bakımı" /><Panel><PageHeader title="Sistem şu anda bakımda" description="Lütfen daha sonra tekrar deneyin." /></Panel></div></main></PublicLayout>
 }

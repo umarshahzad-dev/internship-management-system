@@ -23,7 +23,6 @@ import { GetNextTermUseCase } from '../../application/use-cases/calendar/get-nex
 import { CreateCalendarDto } from './dto/create-calendar.dto';
 import { UpdateCalendarDto } from './dto/update-calendar.dto';
 import { UserRole } from '../../domain/value-objects/role.vo';
-import { DomainException } from '../../common/exceptions/domain.exception';
 import { paginate } from '../../common/pagination/paginate';
 
 @Controller('calendars')
@@ -37,38 +36,18 @@ export class AcademicCalendarController {
     private readonly getNextTermUseCase: GetNextTermUseCase,
   ) {}
 
-  private getDepartmentId(req: AuthenticatedRequest): string {
-    if (req.user?.role === UserRole.ADMIN) {
-      const dept = req.headers['x-department-id'];
-      if (!dept) {
-        throw new DomainException(
-          'VALIDATION_ERROR',
-          'X-Department-Id header is required for admin',
-          400,
-        );
-      }
-      return dept as string;
-    }
-    if (!req.user?.departmentId) {
-      throw new DomainException('FORBIDDEN', 'User has no department', 403);
-    }
-    return req.user.departmentId;
-  }
-
   @Get()
   @Roles(UserRole.STUDENT, UserRole.ACADEMIC, UserRole.ADMIN)
   @UseGuards(RolesGuard)
-  async list(@Req() req: AuthenticatedRequest, @Query('page') page?: string, @Query('pageSize') pageSize?: string) {
-    const departmentId = this.getDepartmentId(req);
-    return paginate(await this.listCalendarsUseCase.execute(departmentId), page, pageSize);
+  async list(@Req() req: AuthenticatedRequest, @Query('page') page?: string, @Query('pageSize') pageSize?: string, @Query('search') search?: string, @Query('year') year?: string, @Query('sortDir') sortDir?: string) {
+    return paginate(await this.listCalendarsUseCase.execute({ search, year, sortDir }), page, pageSize);
   }
 
   @Get('next-term')
   @Roles(UserRole.STUDENT, UserRole.ACADEMIC, UserRole.ADMIN)
   @UseGuards(RolesGuard)
   async nextTerm(@Req() req: AuthenticatedRequest) {
-    const departmentId = this.getDepartmentId(req);
-    return this.getNextTermUseCase.execute(departmentId);
+    return this.getNextTermUseCase.execute();
   }
 
   @Post()
@@ -76,7 +55,6 @@ export class AcademicCalendarController {
   @UseGuards(RolesGuard, CsrfGuard)
   async create(@Body() dto: CreateCalendarDto) {
     return this.createCalendarUseCase.execute({
-      departmentId: dto.departmentId,
       termName: dto.termName,
       applicationStart: new Date(dto.applicationStart),
       applicationEnd: new Date(dto.applicationEnd),

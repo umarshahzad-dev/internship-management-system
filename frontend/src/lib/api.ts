@@ -15,8 +15,20 @@ export interface NormalizedApiError {
   status?: number
 }
 
+export interface PaginatedPayload<T> {
+  items: T[]
+  total: number
+  page: number
+  pageSize: number
+}
+
 export function unwrapPaginated<T>(payload: T[] | { items?: T[] }): T[] {
   return Array.isArray(payload) ? payload : payload.items ?? []
+}
+
+export function unwrapPaginatedResult<T>(payload: T[] | Partial<PaginatedPayload<T>>): PaginatedPayload<T> {
+  if (Array.isArray(payload)) return { items: payload, total: payload.length, page: 1, pageSize: payload.length || 20 }
+  return { items: payload.items ?? [], total: payload.total ?? payload.items?.length ?? 0, page: payload.page ?? 1, pageSize: payload.pageSize ?? 20 }
 }
 
 export function normalizeApiError(error: unknown): NormalizedApiError {
@@ -62,6 +74,9 @@ api.interceptors.response.use(
   (error) => {
     const isLoginRequest = error.config?.url === '/auth/login'
     const isSessionProbe = error.config?.url === '/auth/me'
+    if (error.response?.status === 503 && error.response?.data?.error?.code === 'MAINTENANCE_MODE' && window.location.pathname !== '/maintenance') {
+      window.location.assign('/maintenance')
+    }
     if (error.response?.status === 401 && !isLoginRequest && !isSessionProbe && window.location.pathname !== '/login') {
       csrfStore.clear()
       window.location.assign('/login')

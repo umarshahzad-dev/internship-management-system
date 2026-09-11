@@ -4,6 +4,15 @@ import {
   SystemConfigData,
 } from '../../ports/system-config.repository.port';
 import { DomainException } from '../../../common/exceptions/domain.exception';
+import { MaintenanceModeMiddleware } from '../../../common/middleware/maintenance-mode.middleware';
+
+export function validateSystemConfigValue(key: string, value: string, configs: SystemConfigData[] = []): string | null {
+  const valid = key === 'ACADEMIC_YEAR' ? /^\d{4}-\d{4}$/.test(value) : key === 'ACTIVE_SEMESTER' ? ['GÜZ', 'BAHAR', 'YAZ'].includes(value) : ['MIN_INTERNSHIP_DAYS', 'MAX_INTERNSHIP_DAYS'].includes(key) ? /^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= 365 : key === 'APP_SUBMISSION_DEADLINE' ? /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value)) : true;
+  if (!valid) return `${key} değeri geçersiz`;
+  if (key === 'MAX_INTERNSHIP_DAYS') { const minimum = configs.find((config) => config.key === 'MIN_INTERNSHIP_DAYS'); if (minimum && Number(value) < Number(minimum.value)) return 'MAX_INTERNSHIP_DAYS, MIN_INTERNSHIP_DAYS değerinden küçük olamaz'; }
+  if (key === 'MIN_INTERNSHIP_DAYS') { const maximum = configs.find((config) => config.key === 'MAX_INTERNSHIP_DAYS'); if (maximum && Number(value) > Number(maximum.value)) return 'MIN_INTERNSHIP_DAYS, MAX_INTERNSHIP_DAYS değerini aşamaz'; }
+  return null;
+}
 
 @Injectable()
 export class ManageSystemConfigUseCase {
@@ -48,6 +57,9 @@ export class ManageSystemConfigUseCase {
       );
     }
 
+    const validationError = validateSystemConfigValue(key, value, configs);
+    if (validationError) throw new DomainException('VALIDATION_ERROR', validationError, 400);
+
     await this.configRepo.upsert(
       key,
       value,
@@ -57,5 +69,8 @@ export class ManageSystemConfigUseCase {
 
     // Invalidate cache immediately on mutation
     this.cache = null;
+    if (key === 'MAINTENANCE_MODE') MaintenanceModeMiddleware.invalidateAll();
   }
+
+  invalidateMaintenanceCache() { MaintenanceModeMiddleware.invalidateAll(); }
 }

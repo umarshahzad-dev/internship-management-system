@@ -20,21 +20,15 @@ export class AcademicCalendarRepository extends IAcademicCalendarRepository {
     return entity ? AcademicCalendarMapper.toDomain(entity) : null;
   }
 
-  async findByDepartment(departmentId: string): Promise<AcademicCalendar[]> {
-    const entities = await this.calendarRepository.find({
-      where: { departmentId },
-      order: { internshipStart: 'ASC' },
-    });
+  async findByDepartment(): Promise<AcademicCalendar[]> {
+    const entities = await this.calendarRepository.find({ order: { internshipStart: 'ASC' } });
     return entities.map(AcademicCalendarMapper.toDomain);
   }
 
-  async findNextTerm(
-    departmentId: string,
-    now: Date,
-  ): Promise<AcademicCalendar | null> {
+  async findNextTerm(now: Date): Promise<AcademicCalendar | null> {
     const entity = await this.calendarRepository
       .createQueryBuilder('calendar')
-      .where('calendar.department_id = :departmentId', { departmentId })
+      .where('1=1')
       .andWhere('calendar.internship_start > :now', { now })
       .orderBy('calendar.internship_start', 'ASC')
       .getOne();

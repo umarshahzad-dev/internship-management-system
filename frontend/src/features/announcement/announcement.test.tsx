@@ -5,7 +5,7 @@ import { canReviewDocuments, canViewDailyLogs } from '../../routes/capabilities'
 describe('audit permission boundaries', () => {
   it('exposes announcements only to administrators', () => {
     expect(canAccessRoute('announcements', 'ADMIN')).toBe(true)
-    expect(canAccessRoute('announcements', 'ACADEMIC')).toBe(false)
+    expect(canAccessRoute('announcements', 'ACADEMIC')).toBe(true)
   })
 
   it('keeps document review and log visibility scoped by role and lifecycle', () => {

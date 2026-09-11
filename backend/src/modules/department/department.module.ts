@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DepartmentController } from './department.controller';
 import { ListDepartmentsUseCase } from '../../application/use-cases/department/list-departments.use-case';
 import { CreateDepartmentUseCase } from '../../application/use-cases/department/create-department.use-case';
+import { UpdateDepartmentUseCase } from '../../application/use-cases/department/update-department.use-case';
 import { DepartmentRepository } from '../../infrastructure/repositories/department.repository';
 import { DepartmentEntity } from '../../infrastructure/database/entities/department.entity';
 import { IDepartmentRepository } from '../../application/ports/department.repository.port';
@@ -19,6 +20,7 @@ import { RolesGuard } from '../user/guards/roles.guard';
     { provide: IDateProvider, useClass: SystemDateProvider },
     ListDepartmentsUseCase,
     CreateDepartmentUseCase,
+    UpdateDepartmentUseCase,
     RolesGuard,
   ],
   exports: [IDepartmentRepository],

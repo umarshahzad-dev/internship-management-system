@@ -67,12 +67,14 @@ export class DocumentTypeController {
   @Roles(UserRole.ADMIN, UserRole.ACADEMIC, UserRole.STUDENT)
   @UseGuards(RolesGuard)
   async list(@Req() req: AuthenticatedRequest, @Query('page') page?: string, @Query('pageSize') pageSize?: string) {
-    const departmentId = this.getDepartmentId(req);
-    return paginate(await this.listDocumentTypesUseCase.execute(departmentId), page, pageSize);
+    const data = req.user!.role === UserRole.ADMIN
+      ? await this.listDocumentTypesUseCase.execute()
+      : await this.listDocumentTypesUseCase.execute(this.getDepartmentId(req));
+    return paginate(data, page, pageSize);
   }
 
   @Post()
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ACADEMIC)
   @UseGuards(RolesGuard, CsrfGuard)
   async create(
     @Body() dto: CreateDocumentTypeDto,
@@ -91,7 +93,7 @@ export class DocumentTypeController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ACADEMIC)
   @UseGuards(RolesGuard, CsrfGuard)
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -112,7 +114,7 @@ export class DocumentTypeController {
   }
 
   @Delete(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ACADEMIC)
   @UseGuards(RolesGuard, CsrfGuard)
   async delete(@Param('id', new ParseUUIDPipe()) id: string) {
     await this.deleteDocumentTypeUseCase.execute(id);
@@ -120,7 +122,7 @@ export class DocumentTypeController {
   }
 
   @Post(':id/template')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ACADEMIC)
   @UseGuards(RolesGuard, CsrfGuard)
   @UseInterceptors(FileInterceptor('file', documentUploadOptions))
   async uploadTemplate(
@@ -134,7 +136,7 @@ export class DocumentTypeController {
   }
 
   @Get(':id/template')
-  @Roles(UserRole.ADMIN, UserRole.ACADEMIC, UserRole.STUDENT)
+  @Roles(UserRole.ACADEMIC, UserRole.STUDENT)
   @UseGuards(RolesGuard)
   async downloadTemplate(
     @Param('id', new ParseUUIDPipe()) id: string,

@@ -54,7 +54,7 @@ export function InternshipListPage({ role }: { role: UserRole }) {
     ...(role === 'ACADEMIC' ? [{ key: 'student', header: 'Öğrenci', render: (row: InternshipListItem) => row.studentName ? `${row.studentName}${row.studentNumber ? ` · ${row.studentNumber}` : ''}` : row.studentId ?? '—' }] : []),
     { key: 'company', header: 'Kurum', render: (row: InternshipListItem) => row.companyName ?? 'Kurum bilgisi bekleniyor' },
     { key: 'period', header: 'Tarih aralığı', render: (row: InternshipListItem) => `${row.startDate} — ${row.endDate}` },
-    { key: 'status', header: 'Durum', render: (row: InternshipListItem) => <Badge variant={statusVariant(row.status)}>{internshipStatusLabels[row.status] ?? row.status}</Badge> },
+    { key: 'status', header: 'Durum', render: (row: InternshipListItem) => <Badge variant={statusVariant(row.status)}>{internshipStatusLabels[row.status] ?? row.status}{row.status === 'ONGOING' ? <span className="sr-only">Devam ediyor</span> : null}</Badge> },
     { key: 'actions', header: 'İşlem', render: (row: InternshipListItem) => <InternshipRowActions row={row} role={role} /> },
   ]
   return <>

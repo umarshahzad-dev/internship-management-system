@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
@@ -27,6 +27,10 @@ import { ReportModule } from './modules/report/report.module';
 import { SeedModule } from './seed/seed.module';
 import { AnnouncementModule } from './modules/announcement/announcement.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { MaintenanceModeMiddleware } from './common/middleware/maintenance-mode.middleware';
+import { SessionEntity } from './infrastructure/database/entities/session.entity';
+import { UserEntity } from './infrastructure/database/entities/user.entity';
+import { SystemConfigEntity } from './infrastructure/database/entities/system-config.entity';
 
 @Module({
   imports: [
@@ -70,12 +74,16 @@ import { AdminModule } from './modules/admin/admin.module';
     SeedModule,
     AnnouncementModule,
     AdminModule,
+    TypeOrmModule.forFeature([SessionEntity, UserEntity, SystemConfigEntity]),
   ],
   controllers: [AppController],
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+    MaintenanceModeMiddleware,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) { consumer.apply(MaintenanceModeMiddleware).forRoutes('*') }
+}

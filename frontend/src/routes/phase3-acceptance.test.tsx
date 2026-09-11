@@ -16,7 +16,7 @@ describe('Phase 3 routing acceptance criteria', () => {
     render(<App />)
 
     expect(screen.getByTestId('public-layout')).toBeVisible()
-    expect(document.title).toBe('Şifre yenileme | IMAS')
+    expect(document.title).toBe('Şifre yenileme | KTÜN IMAS')
   })
 
   it('opens and closes a keyboard-accessible mobile navigation drawer', async () => {
@@ -56,7 +56,7 @@ describe('Phase 3 routing acceptance criteria', () => {
     expect(canAccessRoute('systemConfigs', 'ACADEMIC')).toBe(false)
     expect(canAccessRoute('calendars', 'ADMINISTRATIVE')).toBe(false)
     expect(canAccessRoute('stajDefteri', 'STUDENT')).toBe(true)
-    expect(canAccessRoute('stajDefteri', 'ACADEMIC')).toBe(true)
+    expect(canAccessRoute('stajDefteri', 'ACADEMIC')).toBe(false)
   })
 
   it('denies direct URLs that are outside the active role capability set', () => {
@@ -87,6 +87,6 @@ describe('Phase 3 routing acceptance criteria', () => {
   it('updates document titles for authenticated route changes', () => {
     window.history.pushState({}, '', '/dashboard')
     render(<App isAuthenticated role="ACADEMIC" />)
-    expect(document.title).toBe('Akademik çalışma alanı | IMAS')
+    expect(document.title).toBe('Akademik çalışma alanı | KTÜN IMAS')
   })
 })

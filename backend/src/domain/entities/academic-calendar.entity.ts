@@ -1,6 +1,5 @@
 export class AcademicCalendar {
   private readonly _id: string;
-  private readonly _departmentId: string;
   private readonly _termName: string;
   private readonly _applicationStart: Date;
   private readonly _applicationEnd: Date;
@@ -11,7 +10,6 @@ export class AcademicCalendar {
 
   constructor(
     id: string,
-    departmentId: string,
     termName: string,
     applicationStart: Date,
     applicationEnd: Date,
@@ -21,7 +19,6 @@ export class AcademicCalendar {
     updatedAt: Date,
   ) {
     if (!id) throw new Error('Calendar id is required');
-    if (!departmentId) throw new Error('Department id is required');
     if (!termName || termName.trim().length === 0)
       throw new Error('Term name is required');
     if (
@@ -40,7 +37,6 @@ export class AcademicCalendar {
       throw new Error('Application must end before internship starts');
 
     this._id = id;
-    this._departmentId = departmentId;
     this._termName = termName.trim();
     this._applicationStart = applicationStart;
     this._applicationEnd = applicationEnd;
@@ -52,9 +48,6 @@ export class AcademicCalendar {
 
   get id(): string {
     return this._id;
-  }
-  get departmentId(): string {
-    return this._departmentId;
   }
   get termName(): string {
     return this._termName;

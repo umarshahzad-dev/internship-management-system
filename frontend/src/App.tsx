@@ -6,6 +6,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/query-client'
 import { AppRoutes } from './routes/AppRoutes'
 import { AdminDepartmentProvider } from './features/departments/department-context'
+import { ToastProvider } from './components/ui'
 
 export interface AppProps {
   isAuthenticated?: boolean
@@ -17,10 +18,10 @@ function App({ isAuthenticated, role }: AppProps) {
   return (
     <AuthProvider restoreSession={!hasOverride}>
       <QueryClientProvider client={queryClient}>
-        <AdminDepartmentProvider>
+        <ToastProvider><AdminDepartmentProvider>
           <BrowserRouter><AppRoutes isAuthenticated={isAuthenticated} role={role} /></BrowserRouter>
           {import.meta.env.DEV ? <ReactQueryDevtools initialIsOpen={false} /> : null}
-        </AdminDepartmentProvider>
+        </AdminDepartmentProvider></ToastProvider>
       </QueryClientProvider>
     </AuthProvider>
   )

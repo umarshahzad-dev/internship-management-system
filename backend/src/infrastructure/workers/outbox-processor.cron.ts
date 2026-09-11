@@ -49,15 +49,39 @@ export class OutboxProcessorCron {
   }
 
   private async claimPending(limit: number): Promise<NotificationOutboxEntity[]> {
-    const rows = await this.dataSource.query(
+    const rawResult = await this.dataSource.query(
       `WITH claimed AS (SELECT id FROM notification_outbox WHERE status = $1 AND retry_count < 3 ORDER BY created_at ASC FOR UPDATE SKIP LOCKED LIMIT $2)
        UPDATE notification_outbox n SET status = $3, updated_at = NOW() FROM claimed WHERE n.id = claimed.id RETURNING n.*`,
       [OutboxStatus.PENDING, limit, OutboxStatus.PROCESSING],
     );
-    return rows.map((row: Record<string, unknown>) => this.outboxRepository.create(row as unknown as NotificationOutboxEntity));
+    // TypeORM drivers normally return rows directly; tolerate tuple/driver wrappers too.
+    const rows: Record<string, unknown>[] = Array.isArray(rawResult) && Array.isArray(rawResult[0])
+      ? rawResult[0] as Record<string, unknown>[]
+      : (rawResult?.rows ?? rawResult) as Record<string, unknown>[];
+    // Raw SQL returns snake_case columns; normalize them before handing rows to the entity
+    // so retry accounting and SMTP recipient fields are never undefined/NaN.
+    return rows.map((row: Record<string, unknown>) => {
+      const entity = new NotificationOutboxEntity();
+      Object.assign(entity, {
+        id: String(row.id ?? row.ID ?? ''),
+        recipientEmail: String(row.recipient_email ?? row.recipientEmail ?? ''),
+        subject: String(row.subject ?? ''),
+        body: String(row.body ?? ''),
+        status: row.status as OutboxStatus,
+        retryCount: Number(row.retry_count ?? row.retryCount ?? 0),
+        lastError: row.last_error == null && row.lastError == null ? null : String(row.last_error ?? row.lastError),
+        createdAt: row.created_at instanceof Date ? row.created_at : new Date(String(row.created_at)),
+        updatedAt: row.updated_at instanceof Date ? row.updated_at : new Date(String(row.updated_at)),
+      });
+      return entity;
+    });
   }
 
   private async processEmail(email: NotificationOutboxEntity): Promise<void> {
+    if (!email.id || !email.recipientEmail) {
+      this.logger.warn(`Skipping malformed outbox record ${email.id || '<unknown>'}`);
+      return;
+    }
     try {
       await this.smtpMailer.sendRaw(email.recipientEmail, email.subject, email.body);
       email.status = OutboxStatus.SENT;
@@ -67,6 +91,6 @@ export class OutboxProcessorCron {
       email.lastError = error.message;
       email.status = email.retryCount >= 3 ? OutboxStatus.FAILED : OutboxStatus.PENDING;
     }
-    await this.outboxRepository.save(email);
+    await this.outboxRepository.update(email.id, { status: email.status, retryCount: email.retryCount, lastError: email.lastError });
   }
 }

@@ -16,9 +16,10 @@ import { IDateProvider } from '../../application/ports/date-provider.port';
 import { SystemDateProvider } from '../../infrastructure/services/system-date-provider.service';
 import { IFileStorage } from '../../application/ports/file-storage.port';
 import { LocalFileStorageService } from '../../infrastructure/services/local-file-storage.service';
+import { NotificationOutboxEntity } from '../../infrastructure/database/entities/notification-outbox.entity';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([DepartmentEntity])],
+  imports: [AuthModule, TypeOrmModule.forFeature([DepartmentEntity, NotificationOutboxEntity])],
   controllers: [UserController],
   providers: [
     RolesGuard,

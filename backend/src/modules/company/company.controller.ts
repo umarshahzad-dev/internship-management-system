@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -11,6 +13,7 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { documentUploadOptions } from '../../common/files/upload-options';
@@ -40,6 +43,15 @@ export class CompanyController {
     private readonly verifyCompanyUseCase: VerifyCompanyUseCase,
     private readonly importCompaniesUseCase: ImportCompaniesUseCase,
   ) {}
+
+  /** Downloads the UTF-8 BOM CSV template used by the Admin import dialog. */
+  @Get('template-csv')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(RolesGuard)
+  templateCsv(@Res() res: import('express').Response) {
+    const csv = '\uFEFFFirma Adı,Vergi Numarası,SGK Numarası,IBAN,Şehir,Sektör,Adres,Web Sitesi,İrtibat Kişisi,İrtibat E-postası,İrtibat Telefonu\nÖrnek Teknoloji A.Ş.,1234567890,SGK123,TR000000000000000000000000,Konya,Yazılım,Selçuklu,https://example.com,Ayşe Yılmaz,ayse@example.com,+903222222222\n';
+    res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="firma_sablonu.csv"' }); res.send(csv);
+  }
 
   @Get()
   @Roles(UserRole.ADMIN, UserRole.ACADEMIC, UserRole.STUDENT)
@@ -107,6 +119,7 @@ export class CompanyController {
   }
 
   @Post(':id/deactivate')
+  @HttpCode(HttpStatus.OK)
   @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard, CsrfGuard)
   async deactivate(@Param('id', new ParseUUIDPipe()) id: string) {
@@ -115,6 +128,7 @@ export class CompanyController {
   }
 
   @Post(':id/verify')
+  @HttpCode(HttpStatus.OK)
   @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard, CsrfGuard)
   async verify(@Param('id', new ParseUUIDPipe()) id: string) {
